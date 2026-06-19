@@ -1,10 +1,10 @@
 // auth.js
 // Verificacao de sessao no frontend (apenas experiencia; a permissao real e no backend).
-// O endpoint api/auth/sessao.php sera criado na fase de autenticacao.
+// Usa o endpoint api/auth/me.php (usuario da sessao atual).
 
 async function verificarSessao() {
   try {
-    const resposta = await getApi("/api/auth/sessao.php");
+    const resposta = await getApi("/api/auth/me.php");
     return resposta.ok ? resposta.data : null;
   } catch (erro) {
     return null;
