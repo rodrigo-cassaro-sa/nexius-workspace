@@ -50,3 +50,25 @@ function exigir_login()
         ], 401);
     }
 }
+
+// Registra o usuario na sessao apos validar a senha (chamado pelo login).
+// Recebe o array do usuario (precisa de id e perfil).
+function fazer_login($usuario)
+{
+    session_regenerate_id(true);
+    $_SESSION["usuario_id"] = (int) $usuario["id"];
+    $_SESSION["usuario_perfil"] = $usuario["perfil"];
+}
+
+// Encerra a sessao do usuario (logout).
+function fazer_logout()
+{
+    $_SESSION = [];
+
+    if (ini_get("session.use_cookies")) {
+        $p = session_get_cookie_params();
+        setcookie(session_name(), "", time() - 42000, $p["path"], $p["domain"], $p["secure"], $p["httponly"]);
+    }
+
+    session_destroy();
+}
