@@ -11,10 +11,21 @@ function iniciar_sessao_segura()
         return;
     }
 
+    // Atras do proxy do EasyPanel, o PHP recebe a requisicao em HTTP mesmo quando o
+    // navegador esta em HTTPS. Para o cookie nao ser descartado, decidimos o "secure"
+    // pelo esquema real informado pelo proxy. Sem proxy, cai no valor de COOKIE_SECURE.
+    $secure = COOKIE_SECURE;
+
+    if (isset($_SERVER["HTTP_X_FORWARDED_PROTO"])) {
+        $secure = strtolower($_SERVER["HTTP_X_FORWARDED_PROTO"]) === "https";
+    } elseif (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off") {
+        $secure = true;
+    }
+
     session_set_cookie_params([
         "lifetime" => 0,
         "path" => "/",
-        "secure" => COOKIE_SECURE,
+        "secure" => $secure,
         "httponly" => true,
         "samesite" => COOKIE_SAMESITE
     ]);
