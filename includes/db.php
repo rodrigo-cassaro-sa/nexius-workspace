@@ -13,14 +13,31 @@ function conectar_banco()
         return $conexao;
     }
 
-    $conexao = mysqli_connect(DB_HOST, DB_USUARIO, DB_SENHA, DB_NOME);
+    // No PHP 8+ o mysqli lanca excecao por padrao. Desligamos para tratar o erro
+    // de forma controlada (retornar JSON limpo em vez de um 500 sem corpo).
+    mysqli_report(MYSQLI_REPORT_OFF);
+
+    $conexao = @mysqli_connect(DB_HOST, DB_USUARIO, DB_SENHA, DB_NOME);
 
     if (!$conexao) {
-        // Nao expor detalhe tecnico ao usuario final.
-        json_response([
+        $detalhe = mysqli_connect_error();
+
+        if (function_exists("registrar_log")) {
+            registrar_log("db_falha_conexao", $detalhe);
+        }
+
+        // Resposta generica ao usuario. So mostra o detalhe se HEALTH_DEBUG estiver ligado
+        // (use temporariamente para diagnostico e desligue em seguida).
+        $resposta = [
             "ok" => false,
             "error" => "Nao foi possivel processar a solicitacao."
-        ], 500);
+        ];
+
+        if (defined("HEALTH_DEBUG") && HEALTH_DEBUG) {
+            $resposta["debug"] = $detalhe;
+        }
+
+        json_response($resposta, 500);
     }
 
     mysqli_set_charset($conexao, DB_CHARSET);

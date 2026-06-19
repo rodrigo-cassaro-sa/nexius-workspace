@@ -46,3 +46,7 @@ define("SMTP_REMETENTE_NOME", env_str("SMTP_REMETENTE_NOME", "Workspace S&A"));
 
 // Suporte (exibido na tela de Ajuda) - definir endereco oficial depois
 define("EMAIL_SUPORTE", env_str("EMAIL_SUPORTE", "suporte@exemplo.com"));
+
+// Diagnostico temporario: quando HEALTH_DEBUG=1, o erro real de conexao com o banco
+// aparece na resposta (campo "debug"). Use so para diagnosticar e DESLIGUE depois.
+define("HEALTH_DEBUG", env_bool("HEALTH_DEBUG", false));
