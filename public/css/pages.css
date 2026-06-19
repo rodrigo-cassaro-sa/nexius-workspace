@@ -1,3 +1,45 @@
 /* pages.css */
 /* Estilos especificos de paginas (login, dashboard, demanda, perfil...). */
-/* Preenchido conforme cada tela for implementada. Sem conteudo agora. */
+
+/* Login */
+.pagina-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espaco-4);
+}
+
+.card-login {
+  width: 100%;
+  max-width: 380px;
+}
+
+.login-marca {
+  text-align: center;
+  margin-bottom: var(--espaco-5);
+}
+
+.marca-logo {
+  margin: 0;
+  letter-spacing: 2px;
+  font-weight: 700;
+  color: var(--cor-secundaria);
+}
+
+.login-titulo {
+  margin: var(--espaco-3) 0 0;
+  font-size: 22px;
+}
+
+.login-subtitulo {
+  margin: var(--espaco-1) 0 0;
+  color: var(--cor-texto-secundario);
+  font-size: 14px;
+}
+
+.login-rodape {
+  margin-top: var(--espaco-4);
+  text-align: center;
+  font-size: 14px;
+}

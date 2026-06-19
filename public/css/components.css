@@ -26,11 +26,74 @@
   color: var(--cor-texto);
 }
 
+.botao:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.botao-bloco {
+  width: 100%;
+}
+
 .card {
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
   border-radius: var(--raio-medio);
-  padding: var(--espaco-4);
+  padding: var(--espaco-5);
 }
 
-/* TODO: campo, badge de status, alerta, modal, skeleton (nas fases de tela). */
+/* Formulario */
+.campo {
+  margin-bottom: var(--espaco-4);
+}
+
+.campo-label {
+  display: block;
+  margin-bottom: var(--espaco-2);
+  font-size: 14px;
+  color: var(--cor-texto-secundario);
+}
+
+.campo-input {
+  width: 100%;
+  padding: var(--espaco-3);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  transition: border-color var(--transicao-padrao);
+}
+
+.campo-input:focus {
+  outline: none;
+  border-color: var(--cor-primaria);
+}
+
+/* Alertas / feedback (nao dependem so de cor: tem texto) */
+.alerta {
+  padding: var(--espaco-3);
+  border-radius: var(--raio-pequeno);
+  margin-bottom: var(--espaco-4);
+  font-size: 14px;
+  border: 1px solid transparent;
+}
+
+.alerta-erro {
+  color: var(--cor-erro);
+  border-color: var(--cor-erro);
+  background: rgba(178, 59, 59, 0.08);
+}
+
+.alerta-sucesso {
+  color: var(--cor-sucesso);
+  border-color: var(--cor-sucesso);
+  background: rgba(46, 125, 82, 0.08);
+}
+
+.alerta-info {
+  color: var(--cor-info);
+  border-color: var(--cor-info);
+  background: rgba(43, 92, 138, 0.08);
+}
+
+/* TODO: badge de status, modal, skeleton (nas fases de tela). */
