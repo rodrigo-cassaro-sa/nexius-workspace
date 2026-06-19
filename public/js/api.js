@@ -6,7 +6,8 @@ async function getApi(url) {
   const resposta = await fetch(url, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
-    credentials: "include"
+    credentials: "include",
+    cache: "no-store"
   });
 
   return await resposta.json();
@@ -17,6 +18,7 @@ async function postApi(url, body) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
+    cache: "no-store",
     body: JSON.stringify(body || {})
   });
 
