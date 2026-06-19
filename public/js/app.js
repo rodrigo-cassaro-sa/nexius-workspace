@@ -1,6 +1,6 @@
 // app.js
 // Utilidades gerais da aplicacao. No MVP cuida do tema claro/escuro.
-// A preferencia de tema e visual (nao sensivel), entao pode ficar em localStorage.
+// A preferencia de tema e visual (nao sensivel) e fica no localStorage via storage.js.
 
 const CHAVE_TEMA = "tema";
 
@@ -9,15 +9,14 @@ function aplicarTema(tema) {
 }
 
 function alternarTema() {
-  const atual = localStorage.getItem(CHAVE_TEMA) === "escuro" ? "escuro" : "claro";
+  const atual = lerLocal(CHAVE_TEMA, "claro") === "escuro" ? "escuro" : "claro";
   const novo = atual === "escuro" ? "claro" : "escuro";
-  localStorage.setItem(CHAVE_TEMA, novo);
+  gravarLocal(CHAVE_TEMA, novo);
   aplicarTema(novo);
 }
 
 function iniciarTema() {
-  const salvo = localStorage.getItem(CHAVE_TEMA) || "claro";
-  aplicarTema(salvo);
+  aplicarTema(lerLocal(CHAVE_TEMA, "claro"));
 }
 
 // Aplica o tema assim que o script carrega, evitando "piscar".

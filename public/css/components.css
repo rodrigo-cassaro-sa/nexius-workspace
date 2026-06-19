@@ -154,4 +154,126 @@
   margin-top: var(--espaco-4);
 }
 
-/* TODO: badge de status, modal, skeleton (nas fases de tela). */
+/* Badge de status (texto + cor; nunca so cor) */
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  padding: 2px var(--espaco-2);
+  border-radius: var(--raio-pequeno);
+  border: 1px solid var(--cor-borda);
+  background: var(--cor-fundo);
+  color: var(--cor-texto-secundario);
+}
+
+.badge-sucesso {
+  color: var(--cor-sucesso);
+  border-color: var(--cor-sucesso);
+  background: rgba(46, 125, 82, 0.08);
+}
+
+.badge-erro {
+  color: var(--cor-erro);
+  border-color: var(--cor-erro);
+  background: rgba(178, 59, 59, 0.08);
+}
+
+.badge-aviso {
+  color: var(--cor-aviso);
+  border-color: var(--cor-aviso);
+  background: rgba(181, 133, 42, 0.08);
+}
+
+.badge-info {
+  color: var(--cor-info);
+  border-color: var(--cor-info);
+  background: rgba(43, 92, 138, 0.08);
+}
+
+/* Loading: spinner */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--cor-borda);
+  border-top-color: var(--cor-primaria);
+  border-radius: 50%;
+  animation: girar 0.7s linear infinite;
+}
+
+@keyframes girar {
+  to { transform: rotate(360deg); }
+}
+
+/* Loading: skeleton */
+.skeleton {
+  background: linear-gradient(90deg, var(--cor-borda) 25%, var(--cor-fundo) 37%, var(--cor-borda) 63%);
+  background-size: 400% 100%;
+  border-radius: var(--raio-pequeno);
+  animation: brilho 1.2s ease infinite;
+}
+
+.skeleton-linha {
+  height: 14px;
+  margin-bottom: var(--espaco-2);
+}
+
+@keyframes brilho {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* Estado vazio */
+.estado-vazio {
+  text-align: center;
+  color: var(--cor-texto-secundario);
+  padding: var(--espaco-6) var(--espaco-4);
+}
+
+.estado-vazio p {
+  margin: 0 0 var(--espaco-3);
+}
+
+/* Modal base (entrada/saida com opacity e transform) */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espaco-4);
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transicao-padrao);
+  z-index: 50;
+}
+
+.modal.modal-ativo {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-conteudo {
+  background: var(--cor-superficie);
+  border-radius: var(--raio-medio);
+  padding: var(--espaco-5);
+  width: 100%;
+  max-width: 420px;
+  transform: translateY(16px);
+  transition: transform var(--transicao-padrao);
+}
+
+.modal.modal-ativo .modal-conteudo {
+  transform: translateY(0);
+}
+
+.modal-titulo {
+  margin: 0 0 var(--espaco-3);
+  font-size: 18px;
+}
+
+.modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--espaco-2);
+  margin-top: var(--espaco-4);
+}

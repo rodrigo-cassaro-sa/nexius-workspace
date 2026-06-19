@@ -1,12 +1,62 @@
 /* responsive.css */
 /* Ajustes responsivos. Breakpoints (ver 02-guia-visual.md secao 9): */
 /* mobile <= 640px, tablet 641-1024px, desktop > 1024px. */
-/* Regra geral: no mobile, tabelas viram cartoes e a sidebar abre como painel deslizante. */
 
 @media (max-width: 640px) {
-  /* TODO: ajustes de mobile conforme as telas forem implementadas. */
+  /* Topbar quebra em coluna no mobile para nao espremer os itens. */
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--espaco-2);
+  }
+
+  .topbar-usuario {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  /* Conteudo com menos respiro lateral no mobile. */
+  .pagina-dashboard {
+    padding: var(--espaco-4) var(--espaco-3);
+  }
+
+  /* Padrao do mapa de telas: tabelas viram cartoes empilhados no mobile.
+     Aplicar a classe "tabela-cards" na tabela para ativar este comportamento. */
+  .tabela-cards thead {
+    display: none;
+  }
+
+  .tabela-cards,
+  .tabela-cards tbody,
+  .tabela-cards tr,
+  .tabela-cards td {
+    display: block;
+    width: 100%;
+  }
+
+  .tabela-cards tr {
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-medio);
+    padding: var(--espaco-2);
+    margin-bottom: var(--espaco-3);
+  }
+
+  .tabela-cards td {
+    border: none;
+    padding: var(--espaco-1) var(--espaco-2);
+  }
+
+  /* Mostra o rotulo da coluna antes do valor (via data-rotulo no td). */
+  .tabela-cards td::before {
+    content: attr(data-rotulo);
+    display: block;
+    font-size: 12px;
+    color: var(--cor-texto-secundario);
+  }
 }
 
 @media (min-width: 641px) and (max-width: 1024px) {
-  /* TODO: ajustes de tablet. */
+  .pagina-dashboard {
+    padding: var(--espaco-5) var(--espaco-4);
+  }
 }

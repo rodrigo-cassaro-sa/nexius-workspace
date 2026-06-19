@@ -29,8 +29,8 @@ async function gerarConvite(evento) {
   const email = document.getElementById("email").value.trim();
   const perfil = document.getElementById("perfil").value;
 
-  if (email === "") {
-    mostrarErro("mensagem", "Informe o e-mail.");
+  if (!validarEmailFront(email)) {
+    mostrarErro("mensagem", "Informe um e-mail valido.");
     return;
   }
 

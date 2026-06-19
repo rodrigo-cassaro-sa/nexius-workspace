@@ -16,8 +16,8 @@ async function enviarSetup(evento) {
   const senha = document.getElementById("senha").value;
 
   // Validacao basica de experiencia (o backend valida de novo).
-  if (nome === "" || email === "" || senha.length < 8) {
-    mostrarErro("mensagem", "Preencha nome, e-mail e uma senha de pelo menos 8 caracteres.");
+  if (!naoVazio(nome) || !validarEmailFront(email) || !tamanhoMinimo(senha, 8)) {
+    mostrarErro("mensagem", "Preencha nome, e-mail valido e uma senha de pelo menos 8 caracteres.");
     return;
   }
 

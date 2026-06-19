@@ -15,8 +15,8 @@ async function enviarLogin(evento) {
   const senha = document.getElementById("senha").value;
 
   // Validacao basica de experiencia (o backend valida de novo).
-  if (email === "" || senha === "") {
-    mostrarErro("mensagem", "Preencha e-mail e senha.");
+  if (!validarEmailFront(email) || !naoVazio(senha)) {
+    mostrarErro("mensagem", "Informe um e-mail valido e a senha.");
     return;
   }
 

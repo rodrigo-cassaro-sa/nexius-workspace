@@ -23,7 +23,7 @@ async function enviarCadastro(evento) {
   const nome = document.getElementById("nome").value.trim();
   const senha = document.getElementById("senha").value;
 
-  if (nome === "" || senha.length < 8) {
+  if (!naoVazio(nome) || !tamanhoMinimo(senha, 8)) {
     mostrarErro("mensagem", "Preencha o nome e uma senha de pelo menos 8 caracteres.");
     return;
   }
