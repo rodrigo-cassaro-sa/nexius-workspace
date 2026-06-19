@@ -3,23 +3,9 @@
 // A validacao real (credenciais) e a regra de permissao ficam no backend.
 
 document.addEventListener("DOMContentLoaded", function () {
-  // Se ja houver sessao valida, vai direto para o painel.
-  verificarSessaoExistente();
-
   const form = document.getElementById("form-login");
   form.addEventListener("submit", enviarLogin);
 });
-
-async function verificarSessaoExistente() {
-  try {
-    const resposta = await getApi("/api/auth/me.php");
-    if (resposta.ok) {
-      window.location.href = "dashboard.html";
-    }
-  } catch (erro) {
-    // Sem sessao: permanece na tela de login.
-  }
-}
 
 async function enviarLogin(evento) {
   evento.preventDefault();

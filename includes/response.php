@@ -9,6 +9,8 @@ function json_response($payload, $status = 200)
 {
     http_response_code($status);
     header("Content-Type: application/json; charset=utf-8");
+    // Respostas de API nunca devem ser cacheadas (evita estado de sessao/erro preso no navegador).
+    header("Cache-Control: no-store");
     echo json_encode($payload, JSON_UNESCAPED_UNICODE);
     exit;
 }
