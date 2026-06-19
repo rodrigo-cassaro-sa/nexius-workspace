@@ -13,5 +13,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("usuario-nome").textContent = usuario.nome;
   document.getElementById("usuario-perfil").textContent = usuario.perfil;
 
+  // Mostra o acesso a administracao apenas para admin (apenas experiencia; o backend valida).
+  if (usuario.perfil === "administrador") {
+    document.getElementById("link-admin").hidden = false;
+  }
+
   document.getElementById("botao-sair").addEventListener("click", sairDoSistema);
 });

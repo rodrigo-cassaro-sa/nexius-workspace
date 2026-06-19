@@ -44,9 +44,13 @@
   font-size: 14px;
 }
 
-/* Dashboard */
+/* Dashboard e telas internas com cards empilhados */
 .pagina-dashboard {
   max-width: var(--largura-conteudo);
   margin: 0 auto;
   padding: var(--espaco-5) var(--espaco-4);
+}
+
+.pagina-dashboard .card {
+  margin-bottom: var(--espaco-4);
 }

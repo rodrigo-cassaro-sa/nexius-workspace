@@ -47,8 +47,14 @@ function buscar_usuario_por_id($id)
 // Retorna o id criado ou false em caso de falha.
 function criar_usuario_admin_inicial($nome, $email, $senha_hash)
 {
+    return criar_usuario($nome, $email, $senha_hash, "administrador");
+}
+
+// Cria um usuario com perfil informado (usado no aceite de convite). Senha ja em hash.
+// Retorna o id criado ou false em caso de falha.
+function criar_usuario($nome, $email, $senha_hash, $perfil)
+{
     $conn = conectar_banco();
-    $perfil = "administrador";
     $sql = "INSERT INTO usuarios (nome, email, senha_hash, perfil, ativo, onboarding_concluido)
             VALUES (?, ?, ?, ?, 1, 0)";
 

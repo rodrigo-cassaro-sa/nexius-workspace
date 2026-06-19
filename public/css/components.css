@@ -126,4 +126,32 @@
   color: var(--cor-texto-secundario);
 }
 
+/* Tabela */
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela th,
+.tabela td {
+  text-align: left;
+  padding: var(--espaco-2) var(--espaco-3);
+  border-bottom: 1px solid var(--cor-borda);
+  font-size: 14px;
+}
+
+.tabela th {
+  color: var(--cor-texto-secundario);
+  font-weight: 600;
+}
+
+.texto-secundario {
+  color: var(--cor-texto-secundario);
+  font-size: 14px;
+}
+
+.link-convite {
+  margin-top: var(--espaco-4);
+}
+
 /* TODO: badge de status, modal, skeleton (nas fases de tela). */
