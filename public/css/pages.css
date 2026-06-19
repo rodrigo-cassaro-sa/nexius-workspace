@@ -43,3 +43,10 @@
   text-align: center;
   font-size: 14px;
 }
+
+/* Dashboard */
+.pagina-dashboard {
+  max-width: var(--largura-conteudo);
+  margin: 0 auto;
+  padding: var(--espaco-5) var(--espaco-4);
+}

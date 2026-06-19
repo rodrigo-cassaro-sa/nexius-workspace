@@ -96,4 +96,34 @@
   background: rgba(43, 92, 138, 0.08);
 }
 
+/* Topbar (barra superior das telas internas) */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+  padding: var(--espaco-3) var(--espaco-4);
+  background: var(--cor-superficie);
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.topbar-marca {
+  color: var(--cor-primaria);
+}
+
+.topbar-usuario {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+}
+
+.badge-perfil {
+  font-size: 12px;
+  padding: 2px var(--espaco-2);
+  border-radius: var(--raio-pequeno);
+  background: var(--cor-fundo);
+  border: 1px solid var(--cor-borda);
+  color: var(--cor-texto-secundario);
+}
+
 /* TODO: badge de status, modal, skeleton (nas fases de tela). */

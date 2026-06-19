@@ -25,3 +25,13 @@ async function exigirSessaoNoFront() {
 
   return usuario;
 }
+
+// Encerra a sessao no backend e volta para o login. Reutilizavel em qualquer tela.
+async function sairDoSistema() {
+  try {
+    await postApi("/api/auth/logout.php", {});
+  } catch (erro) {
+    // Mesmo se falhar, leva o usuario de volta ao login.
+  }
+  redirecionarLogin();
+}
