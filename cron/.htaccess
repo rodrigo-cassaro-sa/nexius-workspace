@@ -1,0 +1,7 @@
+# Rotinas de cron nunca acessiveis pela web (executadas pelo servidor).
+Require all denied
+
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

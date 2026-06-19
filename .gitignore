@@ -1,0 +1,14 @@
+# Logs em runtime (nao versionar)
+logs/*.log
+
+# Config local opcional (segredos reais vao por variavel de ambiente, nunca no Git)
+includes/config.local.php
+
+# Config local da ferramenta (Claude Code)
+.claude/
+
+# Arquivos de SO / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,36 @@
+/* components.css */
+/* Componentes reutilizaveis (botao, card, campo, badge, alerta, modal...). */
+/* Estilos detalhados serao adicionados conforme as telas forem implementadas. */
+/* Base minima abaixo apenas para dar consistencia inicial. */
+
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco-2);
+  padding: var(--espaco-2) var(--espaco-4);
+  border: 1px solid transparent;
+  border-radius: var(--raio-pequeno);
+  cursor: pointer;
+  transition: background var(--transicao-padrao), transform var(--transicao-padrao);
+}
+
+.botao-primario {
+  background: var(--cor-primaria);
+  color: #ffffff;
+}
+
+.botao-secundario {
+  background: transparent;
+  border-color: var(--cor-borda);
+  color: var(--cor-texto);
+}
+
+.card {
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  padding: var(--espaco-4);
+}
+
+/* TODO: campo, badge de status, alerta, modal, skeleton (nas fases de tela). */

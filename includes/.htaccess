@@ -1,0 +1,9 @@
+# Bloqueia acesso direto pela web a esta pasta (apenas o PHP do servidor a inclui).
+# Apache 2.4
+Require all denied
+
+# Apache 2.2 (compatibilidade)
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

@@ -1,0 +1,56 @@
+/* theme.css */
+/* Tokens visuais do Workspace S&A (marca Grupo Nexius). Ver docs/design/02-guia-visual.md. */
+/* As telas usam estas variaveis; nao espalhar cores fixas pelo CSS. */
+
+:root {
+  /* Cores - modo claro */
+  --cor-primaria: #4E392F;        /* marrom institucional */
+  --cor-primaria-escura: #3A2A22; /* hover */
+  --cor-secundaria: #606062;      /* cinza da marca */
+  --cor-fundo: #F2F1EE;           /* cinza claro quente */
+  --cor-superficie: #FFFFFF;      /* card */
+  --cor-borda: #E2E0DB;
+  --cor-texto: #232830;
+  --cor-texto-secundario: #606062;
+
+  /* Cores funcionais */
+  --cor-sucesso: #2E7D52;
+  --cor-erro: #B23B3B;
+  --cor-aviso: #B5852A;
+  --cor-info: #2B5C8A;
+
+  /* Tipografia */
+  --fonte-base: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --texto-base: 16px;
+
+  /* Espacamentos */
+  --espaco-1: 4px;
+  --espaco-2: 8px;
+  --espaco-3: 12px;
+  --espaco-4: 16px;
+  --espaco-5: 24px;
+  --espaco-6: 32px;
+
+  /* Raios */
+  --raio-pequeno: 6px;
+  --raio-medio: 10px;
+  --raio-grande: 14px;
+
+  /* Transicoes */
+  --transicao-rapida: 0.15s ease;
+  --transicao-padrao: 0.2s ease;
+
+  /* Largura maxima do conteudo */
+  --largura-conteudo: 1200px;
+}
+
+/* Modo escuro: sobrescreve as variaveis de cor. Ativado via data-tema="escuro" na raiz. */
+[data-tema="escuro"] {
+  --cor-primaria: #A8836E;
+  --cor-primaria-escura: #8A6957;
+  --cor-fundo: #1C1A18;
+  --cor-superficie: #26231F;
+  --cor-borda: #3A352F;
+  --cor-texto: #ECEAE6;
+  --cor-texto-secundario: #A6A29B;
+}

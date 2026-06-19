@@ -1,0 +1,13 @@
+# Nao copiar para a imagem Docker
+.git
+.gitignore
+*.md
+docs/
+logs/*.log
+docker/*.md
+
+# Arquivos de SO / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

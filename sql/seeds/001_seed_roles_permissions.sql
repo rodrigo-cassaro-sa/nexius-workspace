@@ -1,0 +1,27 @@
+-- 001_seed_roles_permissions.sql
+-- Perfis (roles) e bootstrap inicial do MVP do Workspace S&A.
+--
+-- IMPORTANTE sobre "permissoes":
+-- O MVP NAO usa tabela de permissoes granular (RBAC com tabela permissions/role_permissions).
+-- Nao ha evidencia disso nos documentos do produto. O perfil e um CAMPO em usuarios e a
+-- permissao real e aplicada no backend (ver includes/permissions.php e docs/banco/03-modelagem-banco-dados.md).
+-- Por isso este seed nao insere em tabela de permissoes (ela nao existe).
+--
+-- Perfis canonicos (lista fechada, tambem garantida por CHECK em usuarios.perfil):
+--   administrador  -> tudo: usuarios, convites, perfis, todas as demandas/acoes
+--   gestor         -> cria/edita demandas e acoes, atribui responsaveis; ve todas as demandas
+--   colaborador    -> ve demandas em que esta envolvido; conclui acoes sob sua responsabilidade
+--
+-- Nao ha dados de referencia obrigatorios para inserir (status e perfil sao listas fechadas no schema/backend).
+
+-- ---------------------------------------------------------------------------
+-- Bootstrap do primeiro administrador (via primeiro cadastro - sem INSERT manual)
+-- ---------------------------------------------------------------------------
+-- Decisao tomada: o PRIMEIRO cadastro vira administrador, de forma controlada.
+-- Enquanto a tabela "usuarios" estiver vazia, uma tela/endpoint de setup permite criar a
+-- primeira conta com perfil 'administrador' (senha gravada com password_hash no backend).
+-- Assim que existir ao menos um usuario, esse caminho e DESATIVADO e o acesso volta a ser
+-- exclusivamente por convite.
+--
+-- Por isso nao ha INSERT de admin neste seed (a criacao acontece pelo backend, com hash seguro).
+-- A logica do bootstrap sera implementada na fase de autenticacao (verificar COUNT(*) em usuarios).
