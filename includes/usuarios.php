@@ -62,6 +62,29 @@ function atualizar_senha($id, $senha_hash)
     return mysqli_stmt_execute($stmt);
 }
 
+// Atualiza o nome do proprio usuario (tela de perfil). E-mail e perfil nao mudam aqui.
+function atualizar_nome($id, $nome)
+{
+    $conn = conectar_banco();
+    $sql = "UPDATE usuarios SET nome = ? WHERE id = ?";
+
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "si", $nome, $id);
+
+    return mysqli_stmt_execute($stmt);
+}
+
+// Retorna o hash de senha do usuario (para conferir a senha atual antes de trocar).
+function buscar_hash_senha($id)
+{
+    $linhas = executar_select(
+        "SELECT senha_hash FROM usuarios WHERE id = ? LIMIT 1",
+        "i",
+        [$id]
+    );
+    return empty($linhas) ? null : $linhas[0]["senha_hash"];
+}
+
 // Lista usuarios ativos (id, nome, perfil) para selects de responsavel e filtros.
 function listar_usuarios_ativos()
 {

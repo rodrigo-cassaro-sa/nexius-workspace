@@ -47,12 +47,50 @@
       <main class="app-main">
         <section class="card">
           <h1>Meu perfil</h1>
-          <p class="texto-secundario">Nome</p>
-          <p id="p-nome">—</p>
-          <p class="texto-secundario">E-mail</p>
-          <p id="p-email">—</p>
-          <p class="texto-secundario">Perfil</p>
-          <p><span class="badge" id="p-perfil">—</span></p>
+
+          <div id="mensagem-perfil" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+          <form id="form-perfil" novalidate>
+            <div class="campo">
+              <label class="campo-label" for="nome">Nome</label>
+              <input class="campo-input" id="nome" name="nome" type="text" maxlength="100" required>
+            </div>
+
+            <div class="campo">
+              <label class="campo-label" for="email">E-mail</label>
+              <input class="campo-input" id="email" type="email" disabled>
+              <p class="texto-secundario">O e-mail não pode ser alterado.</p>
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">Perfil</span>
+              <p><span class="badge" id="p-perfil">—</span></p>
+            </div>
+
+            <button id="botao-salvar" class="botao botao-primario" type="submit">Salvar</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2>Trocar senha</h2>
+
+          <div id="mensagem-senha" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+          <form id="form-senha" novalidate>
+            <div class="campo">
+              <label class="campo-label" for="senha-atual">Senha atual</label>
+              <input class="campo-input" id="senha-atual" type="password" autocomplete="current-password" required>
+            </div>
+            <div class="campo">
+              <label class="campo-label" for="senha-nova">Nova senha</label>
+              <input class="campo-input" id="senha-nova" type="password" autocomplete="new-password" minlength="8" required>
+            </div>
+            <div class="campo">
+              <label class="campo-label" for="senha-confirmar">Confirmar nova senha</label>
+              <input class="campo-input" id="senha-confirmar" type="password" autocomplete="new-password" minlength="8" required>
+            </div>
+            <button id="botao-senha" class="botao botao-primario" type="submit">Alterar senha</button>
+          </form>
         </section>
 
         <section class="card">
