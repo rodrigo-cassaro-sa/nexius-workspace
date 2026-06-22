@@ -6,6 +6,8 @@
 
 require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/acoes.php";
+require_once __DIR__ . "/../../includes/demandas.php";
+require_once __DIR__ . "/../../includes/notificacoes.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     json_response(["ok" => false, "error" => "Metodo nao permitido."], 405);
@@ -59,5 +61,17 @@ if (!$ok) {
 
 mysqli_commit($conn);
 registrar_log("acao_concluida", "acao_id=" . $id);
+
+// Notifica o criador da demanda sobre a conclusao (e, se foi a acao chave, a demanda concluida).
+$ator = obter_usuario_logado_id();
+$demanda = buscar_demanda($acao["demanda_id"]);
+if ($demanda) {
+    $alvos = [$demanda["criador_id"], $demanda["responsavel_id"]];
+    if ((int) $acao["chave"] === 1) {
+        notificar_varios($alvos, $ator, "conclusao", "Demanda concluída", $demanda["titulo"], "demanda.html?id=" . $acao["demanda_id"]);
+    } else {
+        notificar_varios($alvos, $ator, "conclusao", "Ação concluída", $demanda["titulo"], "demanda.html?id=" . $acao["demanda_id"]);
+    }
+}
 
 json_sucesso(null, (int) $acao["chave"] === 1 ? "Acao chave concluida. Demanda concluida." : "Acao concluida.");

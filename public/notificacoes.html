@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Perfil - Workspace S&amp;A</title>
+  <title>Notificações - Workspace S&amp;A</title>
 
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/theme.css">
@@ -12,23 +12,23 @@
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-  <!-- Tela: Perfil do usuario. Inclui dados basicos e preferencia de tema. -->
+  <!-- Tela: Notificações internas do usuario. -->
   <div class="app-shell">
     <aside class="sidebar">
       <div class="sidebar-marca">Workspace S&amp;A</div>
       <nav class="sidebar-nav">
         <a href="dashboard.html">Dashboard</a>
         <a href="demandas.html">Demandas</a>
-        <a href="notificacoes.html">Notificações <span id="notif-contador" class="badge badge-erro" hidden></span></a>
+        <a href="notificacoes.html" class="ativo">Notificações <span id="notif-contador" class="badge badge-erro" hidden></span></a>
         <a href="admin-usuarios.html" id="nav-usuarios" hidden>Usuários</a>
       </nav>
     </aside>
 
     <div class="app-conteudo">
       <header class="app-topbar">
-        <strong>Perfil</strong>
+        <strong>Notificações</strong>
         <div class="topbar-usuario">
-          <span id="usuario-nome"></span>
+          <a href="perfil.html" class="clicavel" id="usuario-nome"></a>
           <span class="badge-perfil" id="usuario-perfil"></span>
           <button id="botao-sair" class="botao botao-secundario" type="button">Sair</button>
         </div>
@@ -36,19 +36,16 @@
 
       <main class="app-main">
         <section class="card">
-          <h1>Meu perfil</h1>
-          <p class="texto-secundario">Nome</p>
-          <p id="p-nome">—</p>
-          <p class="texto-secundario">E-mail</p>
-          <p id="p-email">—</p>
-          <p class="texto-secundario">Perfil</p>
-          <p><span class="badge" id="p-perfil">—</span></p>
-        </section>
+          <div class="linha-titulo">
+            <h1>Notificações</h1>
+            <button id="botao-marcar-todas" class="botao botao-secundario" type="button">Marcar todas como lidas</button>
+          </div>
 
-        <section class="card">
-          <h2>Preferências</h2>
-          <p class="texto-secundario">Tema da interface (claro ou escuro).</p>
-          <button id="botao-tema" class="botao botao-secundario" type="button">Alternar tema</button>
+          <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+          <div id="lista-notificacoes">
+            <p class="texto-secundario">Carregando...</p>
+          </div>
         </section>
       </main>
     </div>
@@ -59,6 +56,6 @@
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/ui.js"></script>
-  <script src="js/perfil.js"></script>
+  <script src="js/notificacoes.js"></script>
 </body>
 </html>

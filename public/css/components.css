@@ -467,6 +467,33 @@
   margin-top: var(--espaco-2);
 }
 
+/* Notificacoes */
+.notificacao {
+  padding: var(--espaco-3);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  margin-bottom: var(--espaco-2);
+  cursor: pointer;
+}
+
+.notificacao:hover {
+  background: var(--cor-fundo);
+}
+
+.notificacao.nao-lida {
+  border-left: 3px solid var(--cor-primaria);
+}
+
+.notificacao-titulo {
+  margin: 0;
+  font-weight: 600;
+}
+
+.notificacao-mensagem {
+  margin: 2px 0;
+  color: var(--cor-texto-secundario);
+}
+
 /* Badge de status (texto + cor; nunca so cor) */
 .badge {
   display: inline-block;

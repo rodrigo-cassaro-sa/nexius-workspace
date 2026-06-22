@@ -92,6 +92,28 @@ function rotuloStatus(status) {
   return mapa[status] || status;
 }
 
+// Atualiza o contador de notificacoes nao lidas na sidebar (se o elemento existir).
+async function atualizarContadorNotificacoes() {
+  const el = document.getElementById("notif-contador");
+  if (!el) return;
+
+  try {
+    const resposta = await getApi("/api/notificacoes/contar.php");
+    if (resposta && resposta.ok && resposta.data.nao_lidas > 0) {
+      el.textContent = resposta.data.nao_lidas;
+      el.hidden = false;
+    } else {
+      el.hidden = true;
+    }
+  } catch (erro) {
+    // Ignora: sem contador.
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  atualizarContadorNotificacoes();
+});
+
 // Liga os botoes de mostrar/ocultar senha. Funciona em qualquer tela com
 // um botao ".botao-olho" e o atributo data-alvo apontando para o id do input.
 document.addEventListener("DOMContentLoaded", function () {

@@ -47,6 +47,7 @@ Todas refletidas em `01-descricao-produto.md` (§9, §16 e §19).
 - Endereço do **e-mail de suporte** exibido na tela de Ajuda — definir depois (placeholder em `config` até ter o oficial).
 - **Logo definitiva** do Grupo Nexius (hoje placeholder em texto) — depende de anexo.
 - **Envio real de e-mail (fase de e-mail):** a recuperação de senha já gera o token e **enfileira** o e-mail em `fila_email`, mas o **envio efetivo (SMTP + cron)** ainda não existe. Enquanto isso, para testar a redefinição, o token pode ser lido em `tokens_recuperacao` (ou na mensagem em `fila_email`) e usado em `redefinir-senha.html?token=...`. Também exige `APP_URL` setada para o link do e-mail ficar absoluto.
+- **E-mail das notificações de eventos:** as notificações **internas** (atribuição, comentário, status, conclusão) estão implementadas. O **e-mail** dos mesmos eventos é canal do MVP, mas só será enfileirado/enviado quando o SMTP estiver configurado (fase de e-mail). Contrato/template definido em `docs/notificacoes/09-plano-notificacoes.md`. Hoje os eventos geram apenas a notificação interna.
 
 ## Inconsistências de documentação — corrigidas
 

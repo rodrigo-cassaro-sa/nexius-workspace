@@ -7,6 +7,7 @@ require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/usuarios.php";
 require_once __DIR__ . "/../../includes/demandas.php";
 require_once __DIR__ . "/../../includes/acoes.php";
+require_once __DIR__ . "/../../includes/notificacoes.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     json_response(["ok" => false, "error" => "Metodo nao permitido."], 405);
@@ -65,5 +66,17 @@ if (!empty($prerequisitos)) {
 }
 
 registrar_log("acao_criada", "acao_id=" . $id . " demanda_id=" . $demanda_id);
+
+// Notifica o responsavel atribuido a acao (se nao for o proprio criador).
+if ($responsavel_id !== null) {
+    notificar_varios(
+        [$responsavel_id],
+        obter_usuario_logado_id(),
+        "atribuicao",
+        "Você foi atribuído a uma ação",
+        $titulo,
+        "demanda.html?id=" . $demanda_id
+    );
+}
 
 json_sucesso(["id" => $id], "Acao criada.");

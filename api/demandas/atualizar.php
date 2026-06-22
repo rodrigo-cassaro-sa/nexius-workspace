@@ -7,6 +7,7 @@
 require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/usuarios.php";
 require_once __DIR__ . "/../../includes/demandas.php";
+require_once __DIR__ . "/../../includes/notificacoes.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     json_response(["ok" => false, "error" => "Metodo nao permitido."], 405);
@@ -53,5 +54,17 @@ if (!atualizar_demanda($id, $titulo, $descricao !== "" ? $descricao : null, $res
 }
 
 registrar_log("demanda_atualizada", "demanda_id=" . $id);
+
+$ator = obter_usuario_logado_id();
+
+// Atribuicao: responsavel mudou.
+if ($responsavel_id !== null && (int) $demanda["responsavel_id"] !== $responsavel_id) {
+    notificar_varios([$responsavel_id], $ator, "atribuicao", "Você foi atribuído a uma demanda", $titulo, "demanda.html?id=" . $id);
+}
+
+// Mudanca de status: avisa o responsavel atual (se houver e nao for o ator).
+if ($demanda["status"] !== $status && $responsavel_id !== null) {
+    notificar_varios([$responsavel_id], $ator, "status", "Status da demanda alterado", $titulo, "demanda.html?id=" . $id);
+}
 
 json_sucesso(null, "Demanda salva.");

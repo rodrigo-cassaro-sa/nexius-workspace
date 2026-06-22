@@ -6,6 +6,7 @@
 require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/usuarios.php";
 require_once __DIR__ . "/../../includes/demandas.php";
+require_once __DIR__ . "/../../includes/notificacoes.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     json_response(["ok" => false, "error" => "Metodo nao permitido."], 405);
@@ -40,5 +41,17 @@ if (!$id) {
 }
 
 registrar_log("demanda_criada", "demanda_id=" . $id);
+
+// Notifica o responsavel atribuido (se nao for o proprio criador).
+if ($responsavel_id !== null) {
+    notificar_varios(
+        [$responsavel_id],
+        obter_usuario_logado_id(),
+        "atribuicao",
+        "Você foi atribuído a uma demanda",
+        $titulo,
+        "demanda.html?id=" . $id
+    );
+}
 
 json_sucesso(["id" => $id], "Demanda criada.");

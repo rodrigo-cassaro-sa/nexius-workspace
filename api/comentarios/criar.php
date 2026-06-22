@@ -7,6 +7,7 @@ require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/demandas.php";
 require_once __DIR__ . "/../../includes/acoes.php";
 require_once __DIR__ . "/../../includes/comentarios.php";
+require_once __DIR__ . "/../../includes/notificacoes.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     json_response(["ok" => false, "error" => "Metodo nao permitido."], 405);
@@ -46,5 +47,16 @@ if (!$id) {
 }
 
 registrar_log("comentario_criado", "comentario_id=" . $id . " acao_id=" . $acao_id);
+
+// Notifica os observadores da acao (responsavel da acao + criador da demanda + autores),
+// exceto o autor do comentario.
+notificar_varios(
+    observadores_da_acao($acao_id),
+    obter_usuario_logado_id(),
+    "comentario",
+    "Novo comentário em uma ação",
+    $acao["titulo"],
+    "demanda.html?id=" . $acao["demanda_id"]
+);
 
 json_sucesso(["id" => $id], "Comentario adicionado.");
