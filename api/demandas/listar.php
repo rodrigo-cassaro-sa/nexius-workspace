@@ -1,7 +1,7 @@
 <?php
 
 // api/demandas/listar.php
-// Lista demandas conforme o escopo do usuario e filtros (status, busca).
+// Lista demandas conforme o escopo do usuario e filtros (status, responsavel, busca) com paginacao.
 
 require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/demandas.php";
@@ -22,8 +22,23 @@ if ($filtro_status !== "" && !in_array($filtro_status, $status_validos, true)) {
     $filtro_status = "";
 }
 
-$busca = trim($_GET["busca"] ?? "");
+$filtros = [
+    "status" => $filtro_status,
+    "responsavel" => isset($_GET["responsavel"]) ? (int) $_GET["responsavel"] : 0,
+    "busca" => trim($_GET["busca"] ?? "")
+];
 
-$demandas = listar_demandas($usuario_id, $perfil, $filtro_status, $busca);
+$por_pagina = 10;
+$pagina = isset($_GET["pagina"]) ? (int) $_GET["pagina"] : 1;
+if ($pagina < 1) {
+    $pagina = 1;
+}
 
-json_sucesso(["demandas" => $demandas]);
+$resultado = listar_demandas($usuario_id, $perfil, $filtros, $pagina, $por_pagina);
+
+json_sucesso([
+    "demandas" => $resultado["demandas"],
+    "total" => $resultado["total"],
+    "pagina" => $pagina,
+    "por_pagina" => $por_pagina
+]);

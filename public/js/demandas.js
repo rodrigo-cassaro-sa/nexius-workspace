@@ -1,8 +1,9 @@
 // demandas.js
-// Lista de demandas: filtros, criar (modal) e abrir detalhe.
-// A permissao real e validada no backend; aqui so experiencia.
+// Lista de demandas: filtros (busca, status, responsavel), paginacao, criar (modal) e abrir detalhe.
 
 let perfilUsuario = "";
+let paginaAtual = 1;
+let totalPaginas = 1;
 
 document.addEventListener("DOMContentLoaded", async function () {
   const usuario = await exigirSessaoNoFront();
@@ -17,6 +18,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("usuario-perfil").textContent = usuario.perfil;
   document.getElementById("botao-sair").addEventListener("click", sairDoSistema);
 
+  if (usuario.perfil === "administrador") {
+    document.getElementById("nav-usuarios").hidden = false;
+  }
+
   // Apenas Gestor/Admin criam demandas.
   if (perfilUsuario === "administrador" || perfilUsuario === "gestor") {
     document.getElementById("botao-nova").hidden = false;
@@ -25,9 +30,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("form-nova").addEventListener("submit", salvarNova);
   }
 
-  document.getElementById("filtro-busca").addEventListener("input", debounce(carregarDemandas, 350));
-  document.getElementById("filtro-status").addEventListener("change", carregarDemandas);
+  document.getElementById("filtro-busca").addEventListener("input", debounce(recarregar, 350));
+  document.getElementById("filtro-status").addEventListener("change", recarregar);
+  document.getElementById("filtro-responsavel").addEventListener("change", recarregar);
+  document.getElementById("pag-anterior").addEventListener("click", function () { irPara(paginaAtual - 1); });
+  document.getElementById("pag-proxima").addEventListener("click", function () { irPara(paginaAtual + 1); });
 
+  carregarFiltroResponsaveis();
   carregarDemandas();
 });
 
@@ -39,14 +48,47 @@ function debounce(fn, espera) {
   };
 }
 
+function recarregar() {
+  paginaAtual = 1;
+  carregarDemandas();
+}
+
+function irPara(pagina) {
+  if (pagina < 1 || pagina > totalPaginas) return;
+  paginaAtual = pagina;
+  carregarDemandas();
+}
+
+async function carregarFiltroResponsaveis() {
+  const select = document.getElementById("filtro-responsavel");
+  try {
+    const resposta = await getApi("/api/usuarios/listar.php");
+    if (!resposta.ok) return;
+    resposta.data.usuarios.forEach(function (u) {
+      const opt = document.createElement("option");
+      opt.value = u.id;
+      opt.textContent = u.nome;
+      select.appendChild(opt);
+    });
+  } catch (erro) {
+    // Mantem "Responsável: todos".
+  }
+}
+
 async function carregarDemandas() {
   const alvo = document.getElementById("lista-demandas");
-  mostrarCarregando("lista-demandas", 3);
+  mostrarCarregando("lista-demandas", 4);
+  document.getElementById("paginacao").hidden = true;
 
   const busca = document.getElementById("filtro-busca").value.trim();
   const status = document.getElementById("filtro-status").value;
+  const responsavel = document.getElementById("filtro-responsavel").value;
 
-  const url = "/api/demandas/listar.php?busca=" + encodeURIComponent(busca) + "&status=" + encodeURIComponent(status);
+  const url = "/api/demandas/listar.php"
+    + "?busca=" + encodeURIComponent(busca)
+    + "&status=" + encodeURIComponent(status)
+    + "&responsavel=" + encodeURIComponent(responsavel)
+    + "&pagina=" + paginaAtual;
 
   try {
     const resposta = await getApi(url);
@@ -55,13 +97,14 @@ async function carregarDemandas() {
       return;
     }
 
-    const demandas = resposta.data.demandas;
-    if (demandas.length === 0) {
+    const dados = resposta.data;
+    if (dados.demandas.length === 0) {
       mostrarVazio("lista-demandas", "Nenhuma demanda encontrada.");
       return;
     }
 
-    renderizarLista(alvo, demandas);
+    renderizarLista(alvo, dados.demandas);
+    renderizarPaginacao(dados.total, dados.pagina, dados.por_pagina);
   } catch (erro) {
     alvo.textContent = "Nao foi possivel carregar as demandas.";
   }
@@ -75,7 +118,7 @@ function renderizarLista(alvo, demandas) {
 
   const thead = document.createElement("thead");
   const cab = document.createElement("tr");
-  ["Título", "Status", "Responsável", "Criada em", ""].forEach(function (texto) {
+  ["Título", "Status", "Responsável", "Progresso", "Prazo", ""].forEach(function (texto) {
     const th = document.createElement("th");
     th.textContent = texto;
     cab.appendChild(th);
@@ -87,7 +130,7 @@ function renderizarLista(alvo, demandas) {
   demandas.forEach(function (d) {
     const tr = document.createElement("tr");
 
-    const tdTitulo = celula("Título", d.titulo);
+    tr.appendChild(celula("Título", d.titulo));
 
     const tdStatus = document.createElement("td");
     tdStatus.setAttribute("data-rotulo", "Status");
@@ -95,9 +138,13 @@ function renderizarLista(alvo, demandas) {
     badge.className = classeBadgeStatus(d.status);
     badge.textContent = rotuloStatus(d.status);
     tdStatus.appendChild(badge);
+    tr.appendChild(tdStatus);
 
-    const tdResp = celula("Responsável", d.responsavel_nome || "—");
-    const tdData = celula("Criada em", (d.criado_em || "").substring(0, 10));
+    tr.appendChild(celula("Responsável", d.responsavel_nome || "—"));
+
+    tr.appendChild(celulaProgresso(d));
+
+    tr.appendChild(celulaPrazo(d.prazo_chave));
 
     const tdAcao = document.createElement("td");
     tdAcao.setAttribute("data-rotulo", "");
@@ -105,12 +152,8 @@ function renderizarLista(alvo, demandas) {
     link.href = "demanda.html?id=" + d.id;
     link.textContent = "Abrir";
     tdAcao.appendChild(link);
-
-    tr.appendChild(tdTitulo);
-    tr.appendChild(tdStatus);
-    tr.appendChild(tdResp);
-    tr.appendChild(tdData);
     tr.appendChild(tdAcao);
+
     tbody.appendChild(tr);
   });
   tabela.appendChild(tbody);
@@ -125,6 +168,61 @@ function celula(rotulo, texto) {
   return td;
 }
 
+function celulaProgresso(d) {
+  const td = document.createElement("td");
+  td.setAttribute("data-rotulo", "Progresso");
+
+  const total = parseInt(d.total_acoes, 10) || 0;
+  const feitas = parseInt(d.acoes_concluidas, 10) || 0;
+  const pct = total > 0 ? Math.round((feitas / total) * 100) : 0;
+
+  const barra = document.createElement("span");
+  barra.className = "progresso";
+  const preenchido = document.createElement("span");
+  preenchido.className = "progresso-preenchido";
+  preenchido.style.width = pct + "%";
+  preenchido.style.display = "block";
+  barra.appendChild(preenchido);
+
+  const texto = document.createElement("span");
+  texto.className = "progresso-texto";
+  texto.textContent = feitas + "/" + total;
+
+  td.appendChild(barra);
+  td.appendChild(texto);
+  return td;
+}
+
+function celulaPrazo(prazo) {
+  const td = document.createElement("td");
+  td.setAttribute("data-rotulo", "Prazo");
+
+  if (!prazo) {
+    td.textContent = "—";
+    return td;
+  }
+
+  const hoje = new Date().toISOString().substring(0, 10);
+  td.textContent = prazo.substring(0, 10);
+  if (prazo.substring(0, 10) < hoje) {
+    td.className = "prazo-atrasado";
+  }
+  return td;
+}
+
+function renderizarPaginacao(total, pagina, porPagina) {
+  totalPaginas = Math.max(1, Math.ceil(total / porPagina));
+  paginaAtual = pagina;
+
+  const inicio = total === 0 ? 0 : (pagina - 1) * porPagina + 1;
+  const fim = Math.min(pagina * porPagina, total);
+
+  document.getElementById("paginacao-info").textContent = inicio + "–" + fim + " de " + total;
+  document.getElementById("pag-anterior").disabled = pagina <= 1;
+  document.getElementById("pag-proxima").disabled = pagina >= totalPaginas;
+  document.getElementById("paginacao").hidden = false;
+}
+
 async function abrirNova() {
   document.getElementById("form-nova").reset();
   document.getElementById("modal-mensagem").hidden = true;
@@ -137,8 +235,6 @@ async function carregarResponsaveis() {
   try {
     const resposta = await getApi("/api/usuarios/listar.php");
     if (!resposta.ok) return;
-
-    // Mantem a primeira opcao ("Sem responsável") e adiciona os usuarios.
     select.length = 1;
     resposta.data.usuarios.forEach(function (u) {
       const opt = document.createElement("option");
@@ -181,7 +277,7 @@ async function salvarNova(evento) {
 
     fecharModal("modal-nova");
     definirCarregando(botao, false);
-    carregarDemandas();
+    recarregar();
   } catch (erro) {
     mostrarErro("modal-mensagem", "Nao foi possivel criar a demanda.");
     definirCarregando(botao, false);

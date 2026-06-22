@@ -283,6 +283,74 @@
   margin-top: var(--espaco-4);
 }
 
+/* Barra de ferramentas (busca + filtros + acao a direita) */
+.barra-ferramentas {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  flex-wrap: wrap;
+  margin: var(--espaco-3) 0 var(--espaco-4);
+}
+
+.barra-ferramentas .campo-busca {
+  flex: 1;
+  min-width: 180px;
+}
+
+.barra-ferramentas .campo-input {
+  max-width: 200px;
+}
+
+.barra-ferramentas .acao-direita {
+  margin-left: auto;
+}
+
+/* Barra de progresso (acoes concluidas / total) */
+.progresso {
+  display: inline-block;
+  width: 90px;
+  height: 6px;
+  background: var(--cor-borda);
+  border-radius: 999px;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.progresso-preenchido {
+  height: 100%;
+  background: var(--cor-primaria);
+}
+
+.progresso-texto {
+  margin-left: var(--espaco-2);
+  font-size: 12px;
+  color: var(--cor-texto-secundario);
+}
+
+.prazo-atrasado {
+  color: var(--cor-erro);
+}
+
+/* Paginacao */
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+  margin-top: var(--espaco-4);
+  flex-wrap: wrap;
+}
+
+.paginacao .info {
+  color: var(--cor-texto-secundario);
+  font-size: 14px;
+}
+
+.paginacao .controles {
+  display: flex;
+  gap: var(--espaco-2);
+}
+
 /* Badge de status (texto + cor; nunca so cor) */
 .badge {
   display: inline-block;

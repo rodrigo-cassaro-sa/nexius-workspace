@@ -13,42 +13,61 @@
 </head>
 <body>
   <!-- Tela: Lista de demandas. -->
-  <header class="topbar">
-    <strong class="topbar-marca">Workspace S&amp;A</strong>
-    <div class="topbar-usuario">
-      <a href="dashboard.html">Painel</a>
-      <span id="usuario-nome"></span>
-      <span class="badge-perfil" id="usuario-perfil"></span>
-      <button id="botao-sair" class="botao botao-secundario" type="button">Sair</button>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-marca">Workspace S&amp;A</div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="demandas.html" class="ativo">Demandas</a>
+        <a href="admin-usuarios.html" id="nav-usuarios" hidden>Usuários</a>
+      </nav>
+    </aside>
+
+    <div class="app-conteudo">
+      <header class="app-topbar">
+        <strong>Demandas</strong>
+        <div class="topbar-usuario">
+          <span id="usuario-nome"></span>
+          <span class="badge-perfil" id="usuario-perfil"></span>
+          <button id="botao-sair" class="botao botao-secundario" type="button">Sair</button>
+        </div>
+      </header>
+
+      <main class="app-main">
+        <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+        <section class="card">
+          <div class="barra-ferramentas">
+            <input class="campo-input campo-busca" id="filtro-busca" type="text" placeholder="Buscar demandas...">
+            <select class="campo-input" id="filtro-status" aria-label="Status">
+              <option value="">Status: todos</option>
+              <option value="aberta">Aberta</option>
+              <option value="em_andamento">Em andamento</option>
+              <option value="concluida">Concluída</option>
+              <option value="arquivada">Arquivada</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+            <select class="campo-input" id="filtro-responsavel" aria-label="Responsável">
+              <option value="">Responsável: todos</option>
+            </select>
+            <button id="botao-nova" class="botao botao-primario acao-direita" type="button" hidden>+ Criar demanda</button>
+          </div>
+
+          <div id="lista-demandas">
+            <p class="texto-secundario">Carregando...</p>
+          </div>
+
+          <div class="paginacao" id="paginacao" hidden>
+            <span class="info" id="paginacao-info"></span>
+            <div class="controles">
+              <button class="botao botao-secundario" id="pag-anterior" type="button">Anterior</button>
+              <button class="botao botao-secundario" id="pag-proxima" type="button">Próxima</button>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
-  </header>
-
-  <main class="pagina-dashboard">
-    <section class="card">
-      <div class="linha-titulo">
-        <h1>Demandas</h1>
-        <button id="botao-nova" class="botao botao-primario" type="button" hidden>Nova demanda</button>
-      </div>
-
-      <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
-
-      <div class="filtros">
-        <input class="campo-input" id="filtro-busca" type="text" placeholder="Buscar por título...">
-        <select class="campo-input" id="filtro-status">
-          <option value="">Ativas</option>
-          <option value="aberta">Aberta</option>
-          <option value="em_andamento">Em andamento</option>
-          <option value="concluida">Concluída</option>
-          <option value="arquivada">Arquivada</option>
-          <option value="cancelada">Cancelada</option>
-        </select>
-      </div>
-
-      <div id="lista-demandas">
-        <p class="texto-secundario">Carregando...</p>
-      </div>
-    </section>
-  </main>
+  </div>
 
   <!-- Modal: Nova demanda -->
   <div id="modal-nova" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-nova-titulo">

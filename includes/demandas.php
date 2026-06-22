@@ -29,22 +29,16 @@ function criar_demanda($titulo, $descricao, $responsavel_id, $criador_id)
     return $ok ? mysqli_insert_id($conn) : false;
 }
 
-// Lista demandas conforme escopo do usuario e filtros opcionais.
-// Admin e Gestor veem todas; Colaborador ve apenas as em que esta envolvido.
-function listar_demandas($usuario_id, $perfil, $filtro_status, $busca)
+// Monta a clausula WHERE (com escopo e filtros) reaproveitada na contagem e na listagem.
+function montar_where_demandas($usuario_id, $perfil, $filtros)
 {
-    $sql = "SELECT d.id, d.titulo, d.status, d.responsavel_id,
-                   u.nome AS responsavel_nome, d.criado_em
-            FROM demandas d
-            LEFT JOIN usuarios u ON u.id = d.responsavel_id
-            WHERE 1 = 1";
-
+    $where = " WHERE 1 = 1";
     $tipos = "";
     $params = [];
 
     // Escopo do colaborador: responsavel de alguma acao da demanda OU autor de comentario nela.
     if ($perfil === "colaborador") {
-        $sql .= " AND (
+        $where .= " AND (
             EXISTS (SELECT 1 FROM acoes a WHERE a.demanda_id = d.id AND a.responsavel_id = ?)
             OR EXISTS (SELECT 1 FROM comentarios c
                        JOIN acoes a2 ON a2.id = c.acao_id
@@ -55,25 +49,60 @@ function listar_demandas($usuario_id, $perfil, $filtro_status, $busca)
         $params[] = $usuario_id;
     }
 
-    // Filtro de status. Sem filtro, esconde arquivada/cancelada.
-    if ($filtro_status !== "") {
-        $sql .= " AND d.status = ?";
+    // Status. Sem filtro, esconde arquivada/cancelada.
+    if ($filtros["status"] !== "") {
+        $where .= " AND d.status = ?";
         $tipos .= "s";
-        $params[] = $filtro_status;
+        $params[] = $filtros["status"];
     } else {
-        $sql .= " AND d.status NOT IN ('arquivada', 'cancelada')";
+        $where .= " AND d.status NOT IN ('arquivada', 'cancelada')";
+    }
+
+    // Responsavel.
+    if ($filtros["responsavel"] > 0) {
+        $where .= " AND d.responsavel_id = ?";
+        $tipos .= "i";
+        $params[] = $filtros["responsavel"];
     }
 
     // Busca por titulo.
-    if ($busca !== "") {
-        $sql .= " AND d.titulo LIKE ?";
+    if ($filtros["busca"] !== "") {
+        $where .= " AND d.titulo LIKE ?";
         $tipos .= "s";
-        $params[] = "%" . $busca . "%";
+        $params[] = "%" . $filtros["busca"] . "%";
     }
 
-    $sql .= " ORDER BY d.criado_em DESC LIMIT 100";
+    return [$where, $tipos, $params];
+}
 
-    return executar_select($sql, $tipos, $params);
+// Lista demandas (com escopo, filtros, progresso, prazo da acao chave e paginacao).
+// Admin e Gestor veem todas; Colaborador ve apenas as em que esta envolvido.
+function listar_demandas($usuario_id, $perfil, $filtros, $pagina, $por_pagina)
+{
+    list($where, $tipos, $params) = montar_where_demandas($usuario_id, $perfil, $filtros);
+
+    // Total para paginacao.
+    $total = (int) executar_select("SELECT COUNT(*) AS total FROM demandas d" . $where, $tipos, $params)[0]["total"];
+
+    $offset = ($pagina - 1) * $por_pagina;
+
+    // Progresso = acoes concluidas / total de acoes (exceto canceladas).
+    // Prazo = prazo da acao chave. (Acoes ainda nao existem nesta fase: vem 0/0 e null.)
+    $sql = "SELECT d.id, d.titulo, d.status, d.responsavel_id,
+                   u.nome AS responsavel_nome, d.criado_em,
+                   (SELECT COUNT(*) FROM acoes a WHERE a.demanda_id = d.id AND a.status <> 'cancelada') AS total_acoes,
+                   (SELECT COUNT(*) FROM acoes a WHERE a.demanda_id = d.id AND a.status = 'concluida') AS acoes_concluidas,
+                   (SELECT a.prazo FROM acoes a WHERE a.demanda_id = d.id AND a.chave = 1 LIMIT 1) AS prazo_chave
+            FROM demandas d
+            LEFT JOIN usuarios u ON u.id = d.responsavel_id"
+            . $where . " ORDER BY d.criado_em DESC LIMIT ? OFFSET ?";
+
+    $tipos_lista = $tipos . "ii";
+    $params_lista = array_merge($params, [$por_pagina, $offset]);
+
+    $demandas = executar_select($sql, $tipos_lista, $params_lista);
+
+    return ["demandas" => $demandas, "total" => $total];
 }
 
 // Busca uma demanda pelo id (com nomes de responsavel e criador).
