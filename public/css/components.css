@@ -191,8 +191,49 @@
   justify-content: space-between;
   gap: var(--espaco-3);
   padding: var(--espaco-3) var(--espaco-4);
+  background: var(--cor-primaria);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Topbar marrom (igual ao mockup): elementos internos em tom claro para contraste. */
+.app-topbar .topbar-busca {
   background: var(--cor-superficie);
-  border-bottom: 1px solid var(--cor-borda);
+  border-color: transparent;
+}
+
+.app-topbar .sino-botao {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.app-topbar .sino-botao:hover {
+  color: #ffffff;
+}
+
+.app-topbar .usuario-chip {
+  color: #ffffff;
+}
+
+.app-topbar .usuario-cargo {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.app-topbar .avatar {
+  background: #ffffff;
+  color: var(--cor-primaria);
+}
+
+.app-topbar .link-voltar {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.app-topbar .botao-secundario {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+}
+
+.app-topbar .botao-secundario:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .app-main {
