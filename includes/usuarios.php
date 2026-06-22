@@ -50,6 +50,18 @@ function criar_usuario_admin_inicial($nome, $email, $senha_hash)
     return criar_usuario($nome, $email, $senha_hash, "administrador");
 }
 
+// Marca o onboarding do usuario como concluido.
+function marcar_onboarding_concluido($id)
+{
+    $conn = conectar_banco();
+    $sql = "UPDATE usuarios SET onboarding_concluido = 1 WHERE id = ?";
+
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $id);
+
+    return mysqli_stmt_execute($stmt);
+}
+
 // Cria um usuario com perfil informado (usado no aceite de convite). Senha ja em hash.
 // Retorna o id criado ou false em caso de falha.
 function criar_usuario($nome, $email, $senha_hash, $perfil)

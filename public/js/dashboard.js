@@ -10,6 +10,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     return;
   }
 
+  // Primeiro acesso: garante o onboarding antes do painel.
+  if (!usuario.onboarding_concluido) {
+    window.location.href = "onboarding.html";
+    return;
+  }
+
   document.getElementById("usuario-nome").textContent = usuario.nome;
   document.getElementById("usuario-perfil").textContent = usuario.perfil;
 

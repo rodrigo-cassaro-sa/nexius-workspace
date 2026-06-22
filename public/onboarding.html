@@ -12,11 +12,36 @@
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-  <!-- Tela: Onboarding (primeiro acesso). Esqueleto base. -->
-  <main class="pagina-onboarding">
-    <section class="card">
-      <h1>Bem-vindo</h1>
-      <!-- TODO (fase de onboarding): passos demanda -> acoes -> acao chave -> conclusao -->
+  <!-- Tela: Onboarding (primeiro acesso). Informativo: explica demanda -> acoes -> acao chave -> conclusao. -->
+  <main class="pagina-login">
+    <section class="card card-onboarding">
+      <header class="login-marca">
+        <p class="marca-logo">GRUPO NEXIUS</p>
+        <h1 class="login-titulo">Como funciona</h1>
+        <p class="login-subtitulo" id="etapa-indicador"></p>
+      </header>
+
+      <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+      <!-- Estado: carregando (enquanto checa a sessao) -->
+      <div id="carregando" class="estado-vazio">
+        <div class="spinner" style="margin: 0 auto;"></div>
+      </div>
+
+      <!-- Estado: etapa atual -->
+      <div id="etapa" hidden>
+        <h2 class="onboarding-titulo" id="etapa-titulo"></h2>
+        <p id="etapa-texto"></p>
+      </div>
+
+      <div class="onboarding-acoes" id="acoes" hidden>
+        <button id="botao-voltar" class="botao botao-secundario" type="button">Voltar</button>
+        <div class="onboarding-acoes-direita">
+          <button id="botao-pular" class="botao botao-secundario" type="button">Pular</button>
+          <button id="botao-avancar" class="botao botao-primario" type="button">Avançar</button>
+          <button id="botao-concluir" class="botao botao-primario" type="button" hidden>Começar a usar</button>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -25,5 +50,6 @@
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/onboarding.js"></script>
 </body>
 </html>

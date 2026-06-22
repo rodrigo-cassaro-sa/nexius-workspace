@@ -31,8 +31,12 @@ async function enviarLogin(evento) {
       return;
     }
 
-    // Sucesso: vai para o painel.
-    window.location.href = "dashboard.html";
+    // Primeiro acesso (onboarding pendente) vai para o onboarding; senao, para o painel.
+    if (resposta.data && resposta.data.onboarding_concluido === false) {
+      window.location.href = "onboarding.html";
+    } else {
+      window.location.href = "dashboard.html";
+    }
   } catch (erro) {
     mostrarErro("mensagem", "Nao foi possivel entrar. Tente novamente.");
     definirCarregando(botao, false);

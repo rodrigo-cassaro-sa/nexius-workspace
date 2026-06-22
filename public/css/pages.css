@@ -44,6 +44,30 @@
   font-size: 14px;
 }
 
+/* Onboarding */
+.card-onboarding {
+  width: 100%;
+  max-width: 480px;
+}
+
+.onboarding-titulo {
+  margin: 0 0 var(--espaco-2);
+  font-size: 18px;
+}
+
+.onboarding-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+  margin-top: var(--espaco-5);
+}
+
+.onboarding-acoes-direita {
+  display: flex;
+  gap: var(--espaco-2);
+}
+
 /* Dashboard e telas internas com cards empilhados */
 .pagina-dashboard {
   max-width: var(--largura-conteudo);
