@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Painel - Workspace S&amp;A</title>
+  <title>Dashboard - Workspace S&amp;A</title>
 
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/theme.css">
@@ -13,24 +13,67 @@
 </head>
 <body>
   <!-- Tela: Dashboard. Protegida: exige sessao valida (checada no JS via api/auth/me.php). -->
-  <header class="topbar">
-    <strong class="topbar-marca">Workspace S&amp;A</strong>
-    <div class="topbar-usuario">
-      <span id="usuario-nome"></span>
-      <span class="badge-perfil" id="usuario-perfil"></span>
-      <button id="botao-sair" class="botao botao-secundario" type="button">Sair</button>
-    </div>
-  </header>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-marca">Workspace S&amp;A</div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="ativo">Dashboard</a>
+        <a href="demandas.html">Demandas</a>
+        <a href="admin-usuarios.html" id="nav-usuarios" hidden>Usuários</a>
+      </nav>
+    </aside>
 
-  <main class="pagina-dashboard">
-    <section class="card">
-      <h1>Painel</h1>
-      <p>Bem-vindo ao Workspace S&amp;A.</p>
-      <p><a href="demandas.html">Ver demandas</a></p>
-      <p id="link-admin" hidden><a href="admin-usuarios.html">Administração de usuários</a></p>
-      <!-- TODO (fase do dashboard): resumo por status, minhas acoes, pendencias, % no prazo -->
-    </section>
-  </main>
+    <div class="app-conteudo">
+      <header class="app-topbar">
+        <strong>Dashboard</strong>
+        <div class="topbar-usuario">
+          <span id="usuario-nome"></span>
+          <span class="badge-perfil" id="usuario-perfil"></span>
+          <button id="botao-sair" class="botao botao-secundario" type="button">Sair</button>
+        </div>
+      </header>
+
+      <main class="app-main">
+        <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+        <div class="kpi-grid">
+          <section class="card">
+            <p class="kpi-rotulo">Demandas por status</p>
+            <div class="kpi-donut-area">
+              <p class="kpi-numero" id="kpi-total-demandas">—</p>
+              <div class="donut" id="donut-demandas"></div>
+            </div>
+            <ul class="donut-legenda" id="legenda-demandas"></ul>
+          </section>
+
+          <section class="card">
+            <p class="kpi-rotulo">Minhas ações</p>
+            <p class="kpi-numero" id="kpi-minhas-acoes">—</p>
+            <p class="texto-secundario">Pendentes</p>
+          </section>
+
+          <section class="card">
+            <p class="kpi-rotulo">Ações atrasadas</p>
+            <p class="kpi-numero" id="kpi-atrasadas">—</p>
+            <p class="texto-secundario">Ações</p>
+          </section>
+
+          <section class="card">
+            <p class="kpi-rotulo">% concluídas no prazo</p>
+            <p class="kpi-numero" id="kpi-no-prazo">—</p>
+            <p class="texto-secundario">Ações concluídas</p>
+          </section>
+        </div>
+
+        <section class="card" style="margin-top: var(--espaco-4);">
+          <h2>Atividades recentes</h2>
+          <div id="atividades">
+            <p class="texto-secundario">As atividades recentes aparecerão aqui conforme as ações e os comentários forem criados.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
 
   <script src="js/storage.js"></script>
   <script src="js/app.js"></script>

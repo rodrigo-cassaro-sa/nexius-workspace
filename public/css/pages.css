@@ -155,3 +155,76 @@
 .pagina-dashboard .card {
   margin-bottom: var(--espaco-4);
 }
+
+/* Painel: cards de indicadores (KPI) */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--espaco-4);
+}
+
+.kpi-rotulo {
+  margin: 0 0 var(--espaco-2);
+  color: var(--cor-texto-secundario);
+  font-size: 14px;
+}
+
+.kpi-numero {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.kpi-donut-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+}
+
+/* Donut em CSS puro (conic-gradient definido via JS) */
+.donut {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--cor-borda);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.donut::after {
+  content: "";
+  position: absolute;
+  inset: 20px;
+  border-radius: 50%;
+  background: var(--cor-superficie);
+}
+
+.donut-legenda {
+  list-style: none;
+  margin: var(--espaco-4) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-2);
+}
+
+.donut-legenda li {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  font-size: 14px;
+}
+
+.donut-cor {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.donut-legenda .conta {
+  margin-left: auto;
+  color: var(--cor-texto-secundario);
+}

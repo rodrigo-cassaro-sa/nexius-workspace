@@ -81,4 +81,42 @@
   .pagina-dashboard {
     padding: var(--espaco-5) var(--espaco-4);
   }
+
+  /* KPI: 2 colunas no tablet. */
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* App shell: sidebar vira faixa superior e KPI em 1 coluna no mobile. */
+@media (max-width: 1024px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    overflow-x: auto;
+  }
+
+  .sidebar-marca {
+    border-bottom: none;
+    white-space: nowrap;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 640px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-main {
+    padding: var(--espaco-4);
+  }
 }
