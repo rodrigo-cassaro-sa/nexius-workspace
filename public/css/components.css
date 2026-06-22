@@ -546,17 +546,20 @@
 }
 
 /* Modal base (entrada/saida com opacity e transform) */
+/* align-items flex-start + overflow-y auto + margin auto no conteudo:
+   centraliza quando cabe e rola quando o conteudo e alto (nao corta). */
 .modal {
   position: fixed;
   inset: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: var(--espaco-4);
+  padding: var(--espaco-5) var(--espaco-4);
   background: rgba(0, 0, 0, 0.4);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transicao-padrao);
+  overflow-y: auto;
   z-index: 50;
 }
 
@@ -571,8 +574,64 @@
   padding: var(--espaco-5);
   width: 100%;
   max-width: 420px;
+  margin: auto;
   transform: translateY(16px);
   transition: transform var(--transicao-padrao);
+}
+
+.modal-grande .modal-conteudo {
+  max-width: 560px;
+}
+
+/* Linha de campos lado a lado (Responsavel / Prazo / Acao chave) */
+.linha-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: var(--espaco-3);
+  align-items: start;
+}
+
+/* Toggle (interruptor) */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-trilho {
+  width: 42px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--cor-borda);
+  position: relative;
+  transition: background var(--transicao-padrao);
+}
+
+.toggle-trilho::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: left var(--transicao-padrao);
+}
+
+.toggle input:checked + .toggle-trilho {
+  background: var(--cor-primaria);
+}
+
+.toggle input:checked + .toggle-trilho::after {
+  left: 22px;
 }
 
 .modal.modal-ativo .modal-conteudo {

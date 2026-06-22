@@ -266,18 +266,19 @@ async function concluirAcao(id, botao) {
 async function abrirNovaAcao() {
   document.getElementById("form-acao").reset();
   document.getElementById("acao-mensagem").hidden = true;
+  document.getElementById("a-demanda").value = demandaAtual.titulo;
   await carregarResponsaveis("a-responsavel", null);
   preencherPrerequisitos();
   abrirModal("modal-acao");
 }
 
 function preencherPrerequisitos() {
-  const select = document.getElementById("a-prerequisitos");
-  select.innerHTML = "";
-  acoesAtuais.forEach(function (a) {
+  const select = document.getElementById("a-prerequisito");
+  select.length = 1; // mantem "Sem pré-requisito"
+  acoesAtuais.forEach(function (a, i) {
     const opt = document.createElement("option");
     opt.value = a.id;
-    opt.textContent = a.titulo;
+    opt.textContent = (i + 1) + ". " + a.titulo;
     select.appendChild(opt);
   });
 }
@@ -310,9 +311,8 @@ async function salvarAcao(evento) {
   const prazo = document.getElementById("a-prazo").value;
   const chave = document.getElementById("a-chave").checked;
 
-  const prerequisitos = Array.prototype.slice
-    .call(document.getElementById("a-prerequisitos").selectedOptions)
-    .map(function (o) { return parseInt(o.value, 10); });
+  const prereqValor = document.getElementById("a-prerequisito").value;
+  const prerequisitos = prereqValor ? [parseInt(prereqValor, 10)] : [];
 
   if (!tamanhoEntre(titulo, 2, 160)) {
     mostrarErro("acao-mensagem", "Informe um título (2 a 160 caracteres).");

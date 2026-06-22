@@ -138,40 +138,56 @@
   </div>
 
   <!-- Modal: Nova ação -->
-  <div id="modal-acao" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-acao-titulo">
+  <div id="modal-acao" class="modal modal-grande" role="dialog" aria-modal="true" aria-labelledby="modal-acao-titulo">
     <div class="modal-conteudo">
       <h2 class="modal-titulo" id="modal-acao-titulo">Nova ação</h2>
       <div id="acao-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
 
       <form id="form-acao" novalidate>
         <div class="campo">
-          <label class="campo-label" for="a-titulo">Título</label>
+          <label class="campo-label" for="a-demanda">Demanda</label>
+          <input class="campo-input" id="a-demanda" type="text" readonly>
+        </div>
+        <div class="campo">
+          <label class="campo-label" for="a-titulo">Título da ação *</label>
           <input class="campo-input" id="a-titulo" type="text" maxlength="160" required>
         </div>
         <div class="campo">
           <label class="campo-label" for="a-descricao">Descrição</label>
           <textarea class="campo-input" id="a-descricao" rows="2"></textarea>
         </div>
+
+        <div class="linha-campos">
+          <div class="campo">
+            <label class="campo-label" for="a-responsavel">Responsável</label>
+            <select class="campo-input" id="a-responsavel">
+              <option value="">Sem responsável</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="a-prazo">Prazo</label>
+            <input class="campo-input" id="a-prazo" type="date">
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="a-chave">Ação chave</label>
+            <label class="toggle">
+              <input type="checkbox" id="a-chave">
+              <span class="toggle-trilho"></span>
+            </label>
+          </div>
+        </div>
+
         <div class="campo">
-          <label class="campo-label" for="a-responsavel">Responsável</label>
-          <select class="campo-input" id="a-responsavel">
-            <option value="">Sem responsável</option>
+          <label class="campo-label" for="a-prerequisito">Pré-requisito</label>
+          <select class="campo-input" id="a-prerequisito">
+            <option value="">Sem pré-requisito</option>
           </select>
+          <p class="texto-secundario">Esta ação depende da conclusão da ação selecionada.</p>
         </div>
-        <div class="campo">
-          <label class="campo-label" for="a-prazo">Prazo</label>
-          <input class="campo-input" id="a-prazo" type="date">
-        </div>
-        <div class="campo">
-          <label class="campo-label" for="a-prerequisitos">Pré-requisitos (depende de)</label>
-          <select class="campo-input" id="a-prerequisitos" multiple size="3"></select>
-        </div>
-        <div class="campo">
-          <label><input type="checkbox" id="a-chave"> Marcar como ação chave (conclui a demanda)</label>
-        </div>
+
         <div class="modal-acoes">
           <button type="button" class="botao botao-secundario" id="botao-acao-cancelar">Cancelar</button>
-          <button type="submit" class="botao botao-primario" id="botao-acao-salvar">Criar</button>
+          <button type="submit" class="botao botao-primario" id="botao-acao-salvar">Salvar</button>
         </div>
       </form>
     </div>

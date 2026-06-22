@@ -126,4 +126,9 @@
   .app-main {
     padding: var(--espaco-4);
   }
+
+  /* No modal estreito, os campos lado a lado empilham. */
+  .linha-campos {
+    grid-template-columns: 1fr;
+  }
 }
