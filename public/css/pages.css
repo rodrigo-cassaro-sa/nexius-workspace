@@ -1,6 +1,83 @@
 /* pages.css */
 /* Estilos especificos de paginas (login, dashboard, demanda, perfil...). */
 
+/* Layout de autenticacao (marca marrom + card) - usado em login e onboarding */
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cor-primaria);
+}
+
+.auth-principal {
+  flex: 1;
+  display: flex;
+}
+
+.auth-marca {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espaco-6);
+  color: #ffffff;
+}
+
+.auth-marca-logo {
+  text-align: center;
+}
+
+.marca-grupo {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 6px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.marca-nexius {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: 8px;
+}
+
+.auth-conteudo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espaco-5);
+}
+
+.auth-card {
+  background: var(--cor-superficie);
+  border-radius: var(--raio-grande);
+  padding: var(--espaco-6);
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.auth-titulo {
+  margin: 0 0 4px;
+  font-size: 20px;
+  text-align: center;
+}
+
+.auth-subtitulo {
+  margin: 0 0 var(--espaco-5);
+  color: var(--cor-texto-secundario);
+  font-size: 14px;
+  text-align: center;
+}
+
+.auth-rodape {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  padding: var(--espaco-3);
+}
+
 /* Login */
 .pagina-login {
   min-height: 100vh;

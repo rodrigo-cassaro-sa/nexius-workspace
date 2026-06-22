@@ -3,6 +3,28 @@
 /* mobile <= 640px, tablet 641-1024px, desktop > 1024px. */
 
 @media (max-width: 640px) {
+  /* Autenticacao: marca vira faixa no topo e o card ocupa a largura. */
+  .auth-principal {
+    flex-direction: column;
+  }
+
+  .auth-marca {
+    flex: 0 0 auto;
+    padding: var(--espaco-5) var(--espaco-4);
+  }
+
+  .marca-nexius {
+    font-size: 28px;
+  }
+
+  .auth-conteudo {
+    padding: var(--espaco-4);
+  }
+
+  .auth-card {
+    max-width: 100%;
+  }
+
   /* Topbar quebra em coluna no mobile para nao espremer os itens. */
   .topbar {
     flex-direction: column;

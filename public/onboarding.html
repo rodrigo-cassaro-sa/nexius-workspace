@@ -12,38 +12,48 @@
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-  <!-- Tela: Onboarding (primeiro acesso). Informativo: explica demanda -> acoes -> acao chave -> conclusao. -->
-  <main class="pagina-login">
-    <section class="card card-onboarding">
-      <header class="login-marca">
-        <p class="marca-logo">GRUPO NEXIUS</p>
-        <h1 class="login-titulo">Como funciona</h1>
-        <p class="login-subtitulo" id="etapa-indicador"></p>
-      </header>
-
-      <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
-
-      <!-- Estado: carregando (enquanto checa a sessao) -->
-      <div id="carregando" class="estado-vazio">
-        <div class="spinner" style="margin: 0 auto;"></div>
-      </div>
-
-      <!-- Estado: etapa atual -->
-      <div id="etapa" hidden>
-        <h2 class="onboarding-titulo" id="etapa-titulo"></h2>
-        <p id="etapa-texto"></p>
-      </div>
-
-      <div class="onboarding-acoes" id="acoes" hidden>
-        <button id="botao-voltar" class="botao botao-secundario" type="button">Voltar</button>
-        <div class="onboarding-acoes-direita">
-          <button id="botao-pular" class="botao botao-secundario" type="button">Pular</button>
-          <button id="botao-avancar" class="botao botao-primario" type="button">Avançar</button>
-          <button id="botao-concluir" class="botao botao-primario" type="button" hidden>Começar a usar</button>
+  <!-- Tela: Onboarding (primeiro acesso). Informativo: demanda -> acoes -> acao chave -> conclusao. -->
+  <div class="auth-layout">
+    <div class="auth-principal">
+      <aside class="auth-marca">
+        <div class="auth-marca-logo">
+          <p class="marca-grupo">GRUPO</p>
+          <p class="marca-nexius">NEXIUS</p>
         </div>
-      </div>
-    </section>
-  </main>
+      </aside>
+
+      <main class="auth-conteudo">
+        <section class="auth-card card-onboarding">
+          <h1 class="auth-titulo">Como funciona</h1>
+          <p class="auth-subtitulo" id="etapa-indicador"></p>
+
+          <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+          <!-- Estado: carregando (enquanto checa a sessao) -->
+          <div id="carregando" class="estado-vazio">
+            <div class="spinner" style="margin: 0 auto;"></div>
+          </div>
+
+          <!-- Estado: etapa atual -->
+          <div id="etapa" hidden>
+            <h2 class="onboarding-titulo" id="etapa-titulo"></h2>
+            <p id="etapa-texto"></p>
+          </div>
+
+          <div class="onboarding-acoes" id="acoes" hidden>
+            <button id="botao-voltar" class="botao botao-secundario" type="button">Voltar</button>
+            <div class="onboarding-acoes-direita">
+              <button id="botao-pular" class="botao botao-secundario" type="button">Pular</button>
+              <button id="botao-avancar" class="botao botao-primario" type="button">Avançar</button>
+              <button id="botao-concluir" class="botao botao-primario" type="button" hidden>Começar a usar</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="auth-rodape">© Grupo Nexius. Todos os direitos reservados.</footer>
+  </div>
 
   <script src="js/storage.js"></script>
   <script src="js/app.js"></script>

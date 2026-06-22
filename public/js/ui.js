@@ -63,3 +63,18 @@ function mostrarVazio(elementoId, texto) {
   bloco.appendChild(p);
   alvo.appendChild(bloco);
 }
+
+// Liga os botoes de mostrar/ocultar senha. Funciona em qualquer tela com
+// um botao ".botao-olho" e o atributo data-alvo apontando para o id do input.
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".botao-olho").forEach(function (botao) {
+    botao.addEventListener("click", function () {
+      const input = document.getElementById(botao.getAttribute("data-alvo"));
+      if (!input) return;
+
+      const mostrar = input.type === "password";
+      input.type = mostrar ? "text" : "password";
+      botao.setAttribute("aria-label", mostrar ? "Ocultar senha" : "Mostrar senha");
+    });
+  });
+});

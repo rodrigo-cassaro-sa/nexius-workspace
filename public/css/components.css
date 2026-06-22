@@ -69,6 +69,33 @@
   border-color: var(--cor-primaria);
 }
 
+/* Campo de senha com botao mostrar/ocultar */
+.campo-senha {
+  position: relative;
+}
+
+.campo-senha .campo-input {
+  padding-right: 42px;
+}
+
+.botao-olho {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--cor-texto-secundario);
+}
+
+.botao-olho:hover {
+  color: var(--cor-texto);
+}
+
 /* Alertas / feedback (nao dependem so de cor: tem texto) */
 .alerta {
   padding: var(--espaco-3);
