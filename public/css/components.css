@@ -379,6 +379,63 @@
   color: var(--cor-texto-secundario);
 }
 
+.clicavel {
+  cursor: pointer;
+  color: var(--cor-primaria);
+}
+
+.clicavel:hover {
+  text-decoration: underline;
+}
+
+/* Comentarios */
+#coment-lista {
+  max-height: 360px;
+  overflow-y: auto;
+  margin-bottom: var(--espaco-3);
+}
+
+.comentario {
+  padding: var(--espaco-2) 0;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.comentario-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espaco-2);
+}
+
+.comentario-autor {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.comentario-data {
+  color: var(--cor-texto-secundario);
+  font-size: 12px;
+}
+
+.comentario-texto {
+  margin: 4px 0;
+}
+
+.botao-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--cor-primaria);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.coment-enviar {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--espaco-2);
+  margin-top: var(--espaco-2);
+}
+
 /* Badge de status (texto + cor; nunca so cor) */
 .badge {
   display: inline-block;

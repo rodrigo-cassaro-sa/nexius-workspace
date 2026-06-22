@@ -7,6 +7,7 @@ let perfilUsuario = "";
 let usuarioId = 0;
 let demandaAtual = null;
 let acoesAtuais = [];
+let acaoSelecionada = 0;
 
 document.addEventListener("DOMContentLoaded", async function () {
   const usuario = await exigirSessaoNoFront();
@@ -34,6 +35,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   configurarAbas();
+  document.getElementById("form-comentario").addEventListener("submit", enviarComentario);
   await carregarTudo();
 });
 
@@ -164,6 +166,9 @@ function renderizarAcoes(alvo, acoes) {
     linha.className = "acao-titulo-linha";
     const nome = document.createElement("span");
     nome.textContent = a.titulo;
+    nome.className = "clicavel";
+    nome.title = "Ver comentários";
+    nome.addEventListener("click", function () { selecionarAcao(a.id, a.titulo); });
     linha.appendChild(nome);
     if (parseInt(a.chave, 10) === 1) {
       const bc = document.createElement("span");
@@ -377,6 +382,154 @@ async function arquivar() {
   } catch (erro) {
     mostrarErro("mensagem", "Nao foi possivel arquivar.");
     fecharModal("modal-arquivar");
+    definirCarregando(botao, false);
+  }
+}
+
+// ---- Comentarios (por acao) ----
+
+function selecionarAcao(id, titulo) {
+  acaoSelecionada = id;
+  document.getElementById("coment-vazio").hidden = true;
+  document.getElementById("coment-conteudo").hidden = false;
+  document.getElementById("coment-acao-titulo").textContent = titulo;
+  document.getElementById("coment-mensagem").hidden = true;
+  carregarComentarios(id);
+}
+
+async function carregarComentarios(acaoId) {
+  const lista = document.getElementById("coment-lista");
+  lista.textContent = "Carregando...";
+
+  try {
+    const resposta = await getApi("/api/comentarios/listar.php?acao_id=" + acaoId);
+    if (!resposta.ok) {
+      lista.textContent = "Nao foi possivel carregar os comentarios.";
+      return;
+    }
+    renderizarComentarios(lista, resposta.data.comentarios);
+  } catch (erro) {
+    lista.textContent = "Nao foi possivel carregar os comentarios.";
+  }
+}
+
+function renderizarComentarios(lista, comentarios) {
+  lista.innerHTML = "";
+
+  if (comentarios.length === 0) {
+    const vazio = document.createElement("p");
+    vazio.className = "texto-secundario";
+    vazio.textContent = "Sem comentários nesta ação.";
+    lista.appendChild(vazio);
+    return;
+  }
+
+  comentarios.forEach(function (c) {
+    const item = document.createElement("div");
+    item.className = "comentario";
+
+    const cabecalho = document.createElement("div");
+    cabecalho.className = "comentario-cabecalho";
+
+    const autor = document.createElement("span");
+    autor.className = "comentario-autor";
+    autor.textContent = c.autor_nome;
+
+    const data = document.createElement("span");
+    data.className = "comentario-data";
+    data.textContent = (c.criado_em || "").substring(0, 16) + (c.editado_em ? " (editado)" : "");
+
+    cabecalho.appendChild(autor);
+    cabecalho.appendChild(data);
+    item.appendChild(cabecalho);
+
+    const texto = document.createElement("p");
+    texto.className = "comentario-texto";
+    texto.textContent = c.texto;
+    item.appendChild(texto);
+
+    // Autor pode editar o proprio comentario.
+    if (parseInt(c.autor_id, 10) === usuarioId) {
+      const editar = document.createElement("button");
+      editar.className = "botao-link";
+      editar.type = "button";
+      editar.textContent = "Editar";
+      editar.addEventListener("click", function () { iniciarEdicao(item, c); });
+      item.appendChild(editar);
+    }
+
+    lista.appendChild(item);
+  });
+}
+
+function iniciarEdicao(item, comentario) {
+  item.innerHTML = "";
+
+  const area = document.createElement("textarea");
+  area.className = "campo-input";
+  area.rows = 2;
+  area.value = comentario.texto;
+  item.appendChild(area);
+
+  const acoes = document.createElement("div");
+  acoes.className = "coment-enviar";
+
+  const salvar = document.createElement("button");
+  salvar.className = "botao botao-primario";
+  salvar.type = "button";
+  salvar.textContent = "Salvar";
+  salvar.addEventListener("click", async function () {
+    const novo = area.value.trim();
+    if (novo === "") return;
+    definirCarregando(salvar, true);
+    const resposta = await postApi("/api/comentarios/editar.php", { id: comentario.id, texto: novo });
+    if (!resposta.ok) {
+      mostrarErro("coment-mensagem", resposta.error);
+      definirCarregando(salvar, false);
+      return;
+    }
+    carregarComentarios(acaoSelecionada);
+  });
+
+  const cancelar = document.createElement("button");
+  cancelar.className = "botao botao-secundario";
+  cancelar.type = "button";
+  cancelar.textContent = "Cancelar";
+  cancelar.addEventListener("click", function () { carregarComentarios(acaoSelecionada); });
+
+  acoes.appendChild(cancelar);
+  acoes.appendChild(salvar);
+  item.appendChild(acoes);
+}
+
+async function enviarComentario(evento) {
+  evento.preventDefault();
+
+  if (acaoSelecionada <= 0) return;
+
+  const botao = document.getElementById("botao-comentar");
+  const texto = document.getElementById("coment-texto").value.trim();
+
+  if (!naoVazio(texto)) {
+    mostrarErro("coment-mensagem", "Escreva um comentário.");
+    return;
+  }
+
+  definirCarregando(botao, true);
+
+  try {
+    const resposta = await postApi("/api/comentarios/criar.php", { acao_id: acaoSelecionada, texto: texto });
+    if (!resposta.ok) {
+      mostrarErro("coment-mensagem", resposta.error);
+      definirCarregando(botao, false);
+      return;
+    }
+    document.getElementById("coment-texto").value = "";
+    document.getElementById("coment-mensagem").hidden = true;
+    definirCarregando(botao, false);
+    carregarComentarios(acaoSelecionada);
+  } catch (erro) {
+    mostrarErro("coment-mensagem", "Nao foi possivel enviar o comentário.");
     definirCarregando(botao, false);
   }
 }
