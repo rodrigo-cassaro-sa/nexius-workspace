@@ -38,3 +38,9 @@ textarea {
 a {
   color: inherit;
 }
+
+/* Garante que o atributo hidden esconda mesmo elementos com display proprio
+   (ex.: botoes .botao com display: inline-flex). */
+[hidden] {
+  display: none !important;
+}
