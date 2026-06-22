@@ -229,6 +229,77 @@
   color: var(--cor-texto-secundario);
 }
 
+/* Cabecalho de pagina (titulo + subtitulo) */
+.pagina-cabecalho {
+  margin-bottom: var(--espaco-4);
+}
+
+.pagina-titulo {
+  margin: 0;
+  font-size: 24px;
+}
+
+.pagina-subtitulo {
+  margin: 4px 0 0;
+  color: var(--cor-texto-secundario);
+}
+
+/* KPI cards com icone e link "ver mais" */
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+}
+
+.kpi-icone {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--raio-pequeno);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-icone svg {
+  width: 22px;
+  height: 22px;
+}
+
+.kpi-icone-neutro {
+  background: var(--cor-fundo);
+  color: var(--cor-texto-secundario);
+}
+
+.kpi-icone-erro {
+  background: rgba(193, 58, 58, 0.12);
+  color: #c13a3a;
+}
+
+.kpi-icone-sucesso {
+  background: rgba(46, 125, 82, 0.12);
+  color: #2e7d52;
+}
+
+.kpi-link {
+  margin-top: auto;
+  padding-top: var(--espaco-3);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cor-primaria);
+  text-decoration: none;
+}
+
+.kpi-link:hover {
+  text-decoration: underline;
+}
+
 /* Detalhe da demanda */
 .demanda-cabecalho {
   display: flex;

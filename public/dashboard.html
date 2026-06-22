@@ -55,6 +55,11 @@
       <main class="app-main">
         <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
 
+        <div class="pagina-cabecalho">
+          <h1 class="pagina-titulo">Dashboard</h1>
+          <p class="pagina-subtitulo">Visão geral das demandas e ações</p>
+        </div>
+
         <div class="kpi-grid">
           <section class="card">
             <p class="kpi-rotulo">Demandas por status</p>
@@ -65,22 +70,40 @@
             <ul class="donut-legenda" id="legenda-demandas"></ul>
           </section>
 
-          <section class="card">
-            <p class="kpi-rotulo">Minhas ações</p>
-            <p class="kpi-numero" id="kpi-minhas-acoes">—</p>
-            <p class="texto-secundario">Pendentes</p>
+          <section class="card kpi-card">
+            <div class="kpi-topo">
+              <div>
+                <p class="kpi-rotulo">Minhas ações</p>
+                <p class="kpi-numero" id="kpi-minhas-acoes">—</p>
+                <p class="texto-secundario">Pendentes</p>
+              </div>
+              <span class="kpi-icone kpi-icone-neutro" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M9 12h6"></path><path d="M9 16h6"></path></svg></span>
+            </div>
+            <a class="kpi-link" href="demandas.html">Ver minhas ações →</a>
           </section>
 
-          <section class="card">
-            <p class="kpi-rotulo">Ações atrasadas</p>
-            <p class="kpi-numero" id="kpi-atrasadas">—</p>
-            <p class="texto-secundario">Ações</p>
+          <section class="card kpi-card">
+            <div class="kpi-topo">
+              <div>
+                <p class="kpi-rotulo">Ações atrasadas</p>
+                <p class="kpi-numero" id="kpi-atrasadas">—</p>
+                <p class="texto-secundario">Ações</p>
+              </div>
+              <span class="kpi-icone kpi-icone-erro" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
+            </div>
+            <a class="kpi-link" href="demandas.html">Ver atrasadas →</a>
           </section>
 
-          <section class="card">
-            <p class="kpi-rotulo">% concluídas no prazo</p>
-            <p class="kpi-numero" id="kpi-no-prazo">—</p>
-            <p class="texto-secundario">Ações concluídas</p>
+          <section class="card kpi-card">
+            <div class="kpi-topo">
+              <div>
+                <p class="kpi-rotulo">% concluídas no prazo</p>
+                <p class="kpi-numero" id="kpi-no-prazo">—</p>
+                <p class="texto-secundario">Concluídas no prazo</p>
+              </div>
+              <span class="kpi-icone kpi-icone-sucesso" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></span>
+            </div>
+            <a class="kpi-link" href="demandas.html">Ver histórico →</a>
           </section>
         </div>
 

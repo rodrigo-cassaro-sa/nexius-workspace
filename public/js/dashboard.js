@@ -56,19 +56,29 @@ async function carregarAtividades() {
       linha.className = "atividade";
       linha.href = n.link || "notificacoes.html";
 
+      const info = iconeAtividade(n.tipo);
+      const icone = document.createElement("span");
+      icone.className = "atividade-icone " + info.classe;
+      icone.setAttribute("aria-hidden", "true");
+      // SVG e markup proprio (constante), nao dado do usuario.
+      icone.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + info.svg + "</svg>";
+
       const texto = document.createElement("div");
+      texto.className = "atividade-texto";
       const titulo = document.createElement("strong");
+      titulo.className = "atividade-titulo";
       titulo.textContent = n.titulo;
-      const msg = document.createElement("span");
-      msg.className = "texto-secundario";
-      msg.textContent = " — " + n.mensagem;
+      const desc = document.createElement("span");
+      desc.className = "atividade-desc";
+      desc.textContent = n.mensagem;
       texto.appendChild(titulo);
-      texto.appendChild(msg);
+      texto.appendChild(desc);
 
       const data = document.createElement("span");
-      data.className = "comentario-data";
-      data.textContent = (n.criado_em || "").substring(0, 16);
+      data.className = "atividade-data";
+      data.textContent = formatarDataRelativa(n.criado_em);
 
+      linha.appendChild(icone);
       linha.appendChild(texto);
       linha.appendChild(data);
       alvo.appendChild(linha);
@@ -76,6 +86,52 @@ async function carregarAtividades() {
   } catch (erro) {
     alvo.textContent = "Nao foi possivel carregar as atividades.";
   }
+}
+
+// Icone (e cor) da atividade conforme o tipo da notificacao de origem.
+function iconeAtividade(tipo) {
+  const mapa = {
+    conclusao: {
+      classe: "atividade-icone-conclusao",
+      svg: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>'
+    },
+    comentario: {
+      classe: "atividade-icone-comentario",
+      svg: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>'
+    },
+    atribuicao: {
+      classe: "atividade-icone-atribuicao",
+      svg: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line>'
+    },
+    status: {
+      classe: "atividade-icone-status",
+      svg: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>'
+    }
+  };
+  return mapa[tipo] || mapa.status;
+}
+
+// Formata a data/hora como "Hoje, 09:15" / "Ontem, 16:40" / "18/06, 11:22".
+function formatarDataRelativa(iso) {
+  if (!iso) return "";
+  const data = new Date(String(iso).replace(" ", "T"));
+  if (isNaN(data.getTime())) return String(iso).substring(0, 16);
+
+  const hora = ("0" + data.getHours()).slice(-2) + ":" + ("0" + data.getMinutes()).slice(-2);
+  const hoje = new Date();
+  const ontem = new Date();
+  ontem.setDate(hoje.getDate() - 1);
+
+  function mesmoDia(a, b) {
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  }
+
+  if (mesmoDia(data, hoje)) return "Hoje, " + hora;
+  if (mesmoDia(data, ontem)) return "Ontem, " + hora;
+
+  const dia = ("0" + data.getDate()).slice(-2);
+  const mes = ("0" + (data.getMonth() + 1)).slice(-2);
+  return dia + "/" + mes + ", " + hora;
 }
 
 async function carregarResumo() {
