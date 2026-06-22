@@ -494,6 +494,22 @@
   color: var(--cor-texto-secundario);
 }
 
+/* Atividades recentes (dashboard) */
+.atividade {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+  padding: var(--espaco-2) 0;
+  border-bottom: 1px solid var(--cor-borda);
+  text-decoration: none;
+  color: var(--cor-texto);
+}
+
+.atividade:hover {
+  color: var(--cor-primaria);
+}
+
 /* Badge de status (texto + cor; nunca so cor) */
 .badge {
   display: inline-block;

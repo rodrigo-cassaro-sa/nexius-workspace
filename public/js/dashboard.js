@@ -28,7 +28,55 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("botao-sair").addEventListener("click", sairDoSistema);
 
   carregarResumo();
+  carregarAtividades();
 });
+
+async function carregarAtividades() {
+  const alvo = document.getElementById("atividades");
+  try {
+    const resposta = await getApi("/api/notificacoes/listar.php");
+    if (!resposta.ok) {
+      alvo.textContent = "Nao foi possivel carregar as atividades.";
+      return;
+    }
+
+    const itens = resposta.data.notificacoes.slice(0, 6);
+    if (itens.length === 0) {
+      alvo.innerHTML = "";
+      const vazio = document.createElement("p");
+      vazio.className = "texto-secundario";
+      vazio.textContent = "Sem atividades recentes.";
+      alvo.appendChild(vazio);
+      return;
+    }
+
+    alvo.innerHTML = "";
+    itens.forEach(function (n) {
+      const linha = document.createElement("a");
+      linha.className = "atividade";
+      linha.href = n.link || "notificacoes.html";
+
+      const texto = document.createElement("div");
+      const titulo = document.createElement("strong");
+      titulo.textContent = n.titulo;
+      const msg = document.createElement("span");
+      msg.className = "texto-secundario";
+      msg.textContent = " — " + n.mensagem;
+      texto.appendChild(titulo);
+      texto.appendChild(msg);
+
+      const data = document.createElement("span");
+      data.className = "comentario-data";
+      data.textContent = (n.criado_em || "").substring(0, 16);
+
+      linha.appendChild(texto);
+      linha.appendChild(data);
+      alvo.appendChild(linha);
+    });
+  } catch (erro) {
+    alvo.textContent = "Nao foi possivel carregar as atividades.";
+  }
+}
 
 async function carregarResumo() {
   try {
