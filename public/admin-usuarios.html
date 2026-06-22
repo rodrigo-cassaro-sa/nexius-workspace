@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Administração de usuários - Workspace S&amp;A</title>
+  <title>Usuários - Workspace S&amp;A</title>
 
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/theme.css">
@@ -13,54 +13,65 @@
 </head>
 <body>
   <!-- Tela: Administracao de usuarios (apenas Admin; o backend valida o acesso real). -->
-  <header class="topbar">
-    <strong class="topbar-marca">Workspace S&amp;A</strong>
-    <div class="topbar-usuario">
-      <a href="dashboard.html">Painel</a>
-      <span id="usuario-nome"></span>
-      <span class="badge-perfil" id="usuario-perfil"></span>
-      <button id="botao-sair" class="botao botao-secundario" type="button">Sair</button>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-marca">Workspace S&amp;A</div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="demandas.html">Demandas</a>
+        <a href="admin-usuarios.html" id="nav-usuarios" class="ativo">Usuários</a>
+      </nav>
+    </aside>
+
+    <div class="app-conteudo">
+      <header class="app-topbar">
+        <strong>Usuários</strong>
+        <div class="topbar-usuario">
+          <a href="perfil.html" class="clicavel" id="usuario-nome"></a>
+          <span class="badge-perfil" id="usuario-perfil"></span>
+          <button id="botao-sair" class="botao botao-secundario" type="button">Sair</button>
+        </div>
+      </header>
+
+      <main class="app-main">
+        <section class="card">
+          <h1>Convidar usuário</h1>
+
+          <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+          <form id="form-convite" novalidate>
+            <div class="campo">
+              <label class="campo-label" for="email">E-mail</label>
+              <input class="campo-input" id="email" name="email" type="email" placeholder="pessoa@empresa.com" autocomplete="off" required>
+            </div>
+
+            <div class="campo">
+              <label class="campo-label" for="perfil">Perfil</label>
+              <select class="campo-input" id="perfil" name="perfil">
+                <option value="colaborador">Colaborador</option>
+                <option value="gestor">Gestor</option>
+                <option value="administrador">Administrador</option>
+              </select>
+            </div>
+
+            <button id="botao-convidar" class="botao botao-primario" type="submit">Gerar convite</button>
+          </form>
+
+          <div id="bloco-link" class="link-convite" hidden>
+            <p class="campo-label">Link do convite (envie para a pessoa):</p>
+            <input class="campo-input" id="link-convite" type="text" readonly>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Convites</h2>
+          <div id="lista-convites">
+            <p class="texto-secundario">Carregando...</p>
+          </div>
+        </section>
+      </main>
     </div>
-  </header>
-
-  <main class="pagina-dashboard">
-    <section class="card">
-      <h1>Convidar usuário</h1>
-
-      <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
-
-      <form id="form-convite" novalidate>
-        <div class="campo">
-          <label class="campo-label" for="email">E-mail</label>
-          <input class="campo-input" id="email" name="email" type="email" autocomplete="off" required>
-        </div>
-
-        <div class="campo">
-          <label class="campo-label" for="perfil">Perfil</label>
-          <select class="campo-input" id="perfil" name="perfil">
-            <option value="colaborador">Colaborador</option>
-            <option value="gestor">Gestor</option>
-            <option value="administrador">Administrador</option>
-          </select>
-        </div>
-
-        <button id="botao-convidar" class="botao botao-primario" type="submit">Gerar convite</button>
-      </form>
-
-      <!-- Link gerado para o admin copiar e enviar (envio por e-mail vira na fase de e-mail). -->
-      <div id="bloco-link" class="link-convite" hidden>
-        <p class="campo-label">Link do convite (envie para a pessoa):</p>
-        <input class="campo-input" id="link-convite" type="text" readonly>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2>Convites</h2>
-      <div id="lista-convites">
-        <p class="texto-secundario">Carregando...</p>
-      </div>
-    </section>
-  </main>
+  </div>
 
   <script src="js/storage.js"></script>
   <script src="js/app.js"></script>
