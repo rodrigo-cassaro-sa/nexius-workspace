@@ -228,3 +228,39 @@
   margin-left: auto;
   color: var(--cor-texto-secundario);
 }
+
+/* Detalhe da demanda */
+.demanda-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espaco-5);
+  flex-wrap: wrap;
+}
+
+.demanda-meta p {
+  margin: 0 0 var(--espaco-2);
+}
+
+.plano-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--espaco-4);
+  margin-top: var(--espaco-4);
+}
+
+.plano-grid .card {
+  margin-bottom: 0;
+}
+
+.acao-titulo-linha {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  flex-wrap: wrap;
+}
+
+.badge-chave {
+  background: rgba(78, 57, 47, 0.1);
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria);
+}

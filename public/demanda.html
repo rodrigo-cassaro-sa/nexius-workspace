@@ -12,79 +12,157 @@
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-  <!-- Tela: Detalhe da demanda (plano de acao e comentarios entram nas proximas fases). -->
-  <header class="topbar">
-    <strong class="topbar-marca">Workspace S&amp;A</strong>
-    <div class="topbar-usuario">
-      <a href="demandas.html">Demandas</a>
-      <span id="usuario-nome"></span>
-      <span class="badge-perfil" id="usuario-perfil"></span>
-      <button id="botao-sair" class="botao botao-secundario" type="button">Sair</button>
+  <!-- Tela: Detalhe da demanda / Plano de ação. -->
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-marca">Workspace S&amp;A</div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="demandas.html" class="ativo">Demandas</a>
+        <a href="admin-usuarios.html" id="nav-usuarios" hidden>Usuários</a>
+      </nav>
+    </aside>
+
+    <div class="app-conteudo">
+      <header class="app-topbar">
+        <a href="demandas.html" class="link-voltar">← Voltar</a>
+        <div class="topbar-usuario">
+          <span id="usuario-nome"></span>
+          <span class="badge-perfil" id="usuario-perfil"></span>
+          <button id="botao-sair" class="botao botao-secundario" type="button">Sair</button>
+        </div>
+      </header>
+
+      <main class="app-main">
+        <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+        <div id="carregando" class="card">
+          <p class="texto-secundario">Carregando...</p>
+        </div>
+
+        <div id="conteudo" hidden>
+          <section class="card">
+            <div class="demanda-cabecalho">
+              <div>
+                <div class="linha-titulo">
+                  <h1 id="d-titulo"></h1>
+                  <span class="badge" id="d-status"></span>
+                </div>
+                <p id="d-descricao" class="texto-secundario"></p>
+              </div>
+              <div class="demanda-meta">
+                <p class="kpi-rotulo">Responsável</p>
+                <p id="d-responsavel">—</p>
+                <p class="kpi-rotulo">Prazo</p>
+                <p id="d-prazo">—</p>
+              </div>
+            </div>
+
+            <div class="abas">
+              <button class="aba ativa" data-aba="plano" type="button">Plano de ação</button>
+              <button class="aba" data-aba="info" type="button">Informações</button>
+            </div>
+          </section>
+
+          <!-- Aba: Plano de ação -->
+          <div id="aba-plano">
+            <div class="plano-grid">
+              <section class="card">
+                <div class="linha-titulo">
+                  <h2>Ações</h2>
+                  <button class="botao botao-primario" id="botao-nova-acao" type="button" hidden>+ Nova ação</button>
+                </div>
+                <div id="lista-acoes">
+                  <p class="texto-secundario">Carregando...</p>
+                </div>
+              </section>
+
+              <section class="card">
+                <h2>Comentários</h2>
+                <p class="texto-secundario">Os comentários por ação entram na próxima etapa.</p>
+              </section>
+            </div>
+          </div>
+
+          <!-- Aba: Informações (edição da demanda) -->
+          <div id="aba-info" hidden>
+            <section class="card">
+              <h2>Informações</h2>
+              <div id="edicao-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+              <form id="form-editar" novalidate>
+                <div class="campo">
+                  <label class="campo-label" for="e-titulo">Título</label>
+                  <input class="campo-input" id="e-titulo" type="text" maxlength="160" required>
+                </div>
+                <div class="campo">
+                  <label class="campo-label" for="e-descricao">Descrição</label>
+                  <textarea class="campo-input" id="e-descricao" rows="3"></textarea>
+                </div>
+                <div class="campo">
+                  <label class="campo-label" for="e-responsavel">Responsável</label>
+                  <select class="campo-input" id="e-responsavel">
+                    <option value="">Sem responsável</option>
+                  </select>
+                </div>
+                <div class="campo">
+                  <label class="campo-label" for="e-status">Status</label>
+                  <select class="campo-input" id="e-status">
+                    <option value="aberta">Aberta</option>
+                    <option value="em_andamento">Em andamento</option>
+                  </select>
+                </div>
+                <div class="acoes-demanda">
+                  <button type="submit" class="botao botao-primario" id="botao-salvar-edicao">Salvar</button>
+                  <button type="button" class="botao botao-secundario" id="botao-arquivar">Arquivar</button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </div>
+      </main>
     </div>
-  </header>
+  </div>
 
-  <main class="pagina-dashboard">
-    <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+  <!-- Modal: Nova ação -->
+  <div id="modal-acao" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-acao-titulo">
+    <div class="modal-conteudo">
+      <h2 class="modal-titulo" id="modal-acao-titulo">Nova ação</h2>
+      <div id="acao-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
 
-    <div id="carregando" class="card">
-      <p class="texto-secundario">Carregando...</p>
-    </div>
-
-    <!-- Detalhe (somente leitura) -->
-    <section class="card" id="bloco-detalhe" hidden>
-      <div class="linha-titulo">
-        <h1 id="d-titulo"></h1>
-        <span class="badge" id="d-status"></span>
-      </div>
-      <p id="d-descricao"></p>
-      <p class="texto-secundario">Responsável: <span id="d-responsavel"></span></p>
-      <p class="texto-secundario">Criada por <span id="d-criador"></span> em <span id="d-data"></span></p>
-
-      <div class="acoes-demanda" id="acoes-gestor" hidden>
-        <button class="botao botao-secundario" id="botao-editar" type="button">Editar</button>
-        <button class="botao botao-secundario" id="botao-arquivar" type="button">Arquivar</button>
-      </div>
-    </section>
-
-    <!-- Edicao (Gestor/Admin) -->
-    <section class="card" id="bloco-edicao" hidden>
-      <h2>Editar demanda</h2>
-      <div id="edicao-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
-
-      <form id="form-editar" novalidate>
+      <form id="form-acao" novalidate>
         <div class="campo">
-          <label class="campo-label" for="e-titulo">Título</label>
-          <input class="campo-input" id="e-titulo" type="text" maxlength="160" required>
+          <label class="campo-label" for="a-titulo">Título</label>
+          <input class="campo-input" id="a-titulo" type="text" maxlength="160" required>
         </div>
         <div class="campo">
-          <label class="campo-label" for="e-descricao">Descrição</label>
-          <textarea class="campo-input" id="e-descricao" rows="3"></textarea>
+          <label class="campo-label" for="a-descricao">Descrição</label>
+          <textarea class="campo-input" id="a-descricao" rows="2"></textarea>
         </div>
         <div class="campo">
-          <label class="campo-label" for="e-responsavel">Responsável</label>
-          <select class="campo-input" id="e-responsavel">
+          <label class="campo-label" for="a-responsavel">Responsável</label>
+          <select class="campo-input" id="a-responsavel">
             <option value="">Sem responsável</option>
           </select>
         </div>
         <div class="campo">
-          <label class="campo-label" for="e-status">Status</label>
-          <select class="campo-input" id="e-status">
-            <option value="aberta">Aberta</option>
-            <option value="em_andamento">Em andamento</option>
-          </select>
+          <label class="campo-label" for="a-prazo">Prazo</label>
+          <input class="campo-input" id="a-prazo" type="date">
+        </div>
+        <div class="campo">
+          <label class="campo-label" for="a-prerequisitos">Pré-requisitos (depende de)</label>
+          <select class="campo-input" id="a-prerequisitos" multiple size="3"></select>
+        </div>
+        <div class="campo">
+          <label><input type="checkbox" id="a-chave"> Marcar como ação chave (conclui a demanda)</label>
         </div>
         <div class="modal-acoes">
-          <button type="button" class="botao botao-secundario" id="botao-cancelar-edicao">Cancelar</button>
-          <button type="submit" class="botao botao-primario" id="botao-salvar-edicao">Salvar</button>
+          <button type="button" class="botao botao-secundario" id="botao-acao-cancelar">Cancelar</button>
+          <button type="submit" class="botao botao-primario" id="botao-acao-salvar">Criar</button>
         </div>
       </form>
-    </section>
-
-    <section class="card" id="bloco-plano" hidden>
-      <h2>Plano de ação</h2>
-      <p class="texto-secundario">As ações desta demanda entram na próxima etapa.</p>
-    </section>
-  </main>
+    </div>
+  </div>
 
   <!-- Modal: confirmar arquivar -->
   <div id="modal-arquivar" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-arquivar-titulo">

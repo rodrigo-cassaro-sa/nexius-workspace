@@ -351,6 +351,34 @@
   gap: var(--espaco-2);
 }
 
+/* Abas */
+.abas {
+  display: flex;
+  gap: var(--espaco-4);
+  border-bottom: 1px solid var(--cor-borda);
+  margin-top: var(--espaco-4);
+}
+
+.aba {
+  padding: var(--espaco-2) 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+}
+
+.aba.ativa {
+  color: var(--cor-primaria);
+  border-bottom-color: var(--cor-primaria);
+  font-weight: 600;
+}
+
+.link-voltar {
+  text-decoration: none;
+  color: var(--cor-texto-secundario);
+}
+
 /* Badge de status (texto + cor; nunca so cor) */
 .badge {
   display: inline-block;

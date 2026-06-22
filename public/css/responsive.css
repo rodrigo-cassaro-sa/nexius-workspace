@@ -111,6 +111,13 @@
   }
 }
 
+@media (max-width: 1024px) {
+  /* Detalhe da demanda: ações e comentários empilham. */
+  .plano-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 640px) {
   .kpi-grid {
     grid-template-columns: 1fr;
