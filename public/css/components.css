@@ -494,6 +494,74 @@
   color: var(--cor-texto-secundario);
 }
 
+/* Sino de notificacoes (topbar) */
+.sino {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sino-botao {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--cor-texto-secundario);
+  padding: 6px;
+  display: flex;
+}
+
+.sino-botao:hover {
+  color: var(--cor-texto);
+}
+
+.sino-botao .badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  font-size: 10px;
+  padding: 0 4px;
+}
+
+.sino-painel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  width: 300px;
+  max-height: 380px;
+  overflow-y: auto;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  padding: var(--espaco-3);
+  z-index: 40;
+}
+
+.sino-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--espaco-2);
+}
+
+.sino-item {
+  display: block;
+  padding: var(--espaco-2) 0;
+  border-bottom: 1px solid var(--cor-borda);
+  text-decoration: none;
+  color: var(--cor-texto);
+}
+
+.sino-item:hover {
+  color: var(--cor-primaria);
+}
+
+.sino-item.nao-lida {
+  border-left: 3px solid var(--cor-primaria);
+  padding-left: 6px;
+}
+
 /* Atividades recentes (dashboard) */
 .atividade {
   display: flex;

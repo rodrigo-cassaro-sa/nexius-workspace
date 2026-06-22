@@ -92,26 +92,95 @@ function rotuloStatus(status) {
   return mapa[status] || status;
 }
 
-// Atualiza o contador de notificacoes nao lidas na sidebar (se o elemento existir).
+// Atualiza o contador de notificacoes nao lidas (em qualquer ".notif-contador" da pagina).
 async function atualizarContadorNotificacoes() {
-  const el = document.getElementById("notif-contador");
-  if (!el) return;
+  const elementos = document.querySelectorAll(".notif-contador");
+  if (elementos.length === 0) return;
 
   try {
     const resposta = await getApi("/api/notificacoes/contar.php");
-    if (resposta && resposta.ok && resposta.data.nao_lidas > 0) {
-      el.textContent = resposta.data.nao_lidas;
-      el.hidden = false;
-    } else {
-      el.hidden = true;
-    }
+    const n = (resposta && resposta.ok) ? resposta.data.nao_lidas : 0;
+    elementos.forEach(function (el) {
+      if (n > 0) {
+        el.textContent = n;
+        el.hidden = false;
+      } else {
+        el.hidden = true;
+      }
+    });
   } catch (erro) {
     // Ignora: sem contador.
   }
 }
 
+// Sino de notificacoes na topbar (se existir #sino-notificacoes na pagina).
+function configurarSino() {
+  const sino = document.getElementById("sino-notificacoes");
+  if (!sino) return;
+
+  const botao = document.getElementById("sino-botao");
+  const painel = document.getElementById("sino-painel");
+
+  botao.addEventListener("click", function (evento) {
+    evento.stopPropagation();
+    const abrir = painel.hidden;
+    painel.hidden = !abrir;
+    if (abrir) {
+      carregarSino();
+    }
+  });
+
+  // Fecha ao clicar fora.
+  document.addEventListener("click", function (evento) {
+    if (!sino.contains(evento.target)) {
+      painel.hidden = true;
+    }
+  });
+}
+
+async function carregarSino() {
+  const lista = document.getElementById("sino-lista");
+  lista.textContent = "Carregando...";
+
+  try {
+    const resposta = await getApi("/api/notificacoes/listar.php");
+    if (!resposta.ok) {
+      lista.textContent = "Nao foi possivel carregar.";
+      return;
+    }
+
+    const itens = resposta.data.notificacoes.slice(0, 8);
+    if (itens.length === 0) {
+      lista.innerHTML = "";
+      const vazio = document.createElement("p");
+      vazio.className = "texto-secundario";
+      vazio.textContent = "Você está em dia.";
+      lista.appendChild(vazio);
+      return;
+    }
+
+    lista.innerHTML = "";
+    itens.forEach(function (n) {
+      const item = document.createElement("a");
+      item.className = "sino-item" + (parseInt(n.lida, 10) === 0 ? " nao-lida" : "");
+      item.href = n.link || "notificacoes.html";
+      const titulo = document.createElement("strong");
+      titulo.textContent = n.titulo;
+      const msg = document.createElement("div");
+      msg.className = "texto-secundario";
+      msg.textContent = n.mensagem;
+      item.appendChild(titulo);
+      item.appendChild(msg);
+      lista.appendChild(item);
+    });
+  } catch (erro) {
+    lista.textContent = "Nao foi possivel carregar.";
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   atualizarContadorNotificacoes();
+  configurarSino();
 });
 
 // Liga os botoes de mostrar/ocultar senha. Funciona em qualquer tela com
