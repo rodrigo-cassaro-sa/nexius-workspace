@@ -50,6 +50,18 @@ function criar_usuario_admin_inicial($nome, $email, $senha_hash)
     return criar_usuario($nome, $email, $senha_hash, "administrador");
 }
 
+// Atualiza a senha (hash) do usuario. Usado na redefinicao de senha.
+function atualizar_senha($id, $senha_hash)
+{
+    $conn = conectar_banco();
+    $sql = "UPDATE usuarios SET senha_hash = ? WHERE id = ?";
+
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "si", $senha_hash, $id);
+
+    return mysqli_stmt_execute($stmt);
+}
+
 // Marca o onboarding do usuario como concluido.
 function marcar_onboarding_concluido($id)
 {
