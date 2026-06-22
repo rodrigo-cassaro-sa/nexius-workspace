@@ -79,20 +79,20 @@
 
               <section class="card">
                 <h2>Comentários</h2>
-                <p class="texto-secundario" id="coment-vazio">Selecione uma ação para ver os comentários.</p>
 
-                <div id="coment-conteudo" hidden>
-                  <p class="texto-secundario">Ação: <strong id="coment-acao-titulo"></strong></p>
-                  <div id="coment-lista"></div>
+                <form id="form-comentario" novalidate>
+                  <div id="coment-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+                  <div class="campo">
+                    <label class="campo-label" for="coment-acao">Comentar na ação</label>
+                    <select class="campo-input" id="coment-acao"></select>
+                  </div>
+                  <textarea class="campo-input" id="coment-texto" rows="2" placeholder="Escreva um comentário..."></textarea>
+                  <div class="coment-enviar">
+                    <button class="botao botao-primario" id="botao-comentar" type="submit">Enviar</button>
+                  </div>
+                </form>
 
-                  <form id="form-comentario" novalidate>
-                    <div id="coment-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
-                    <textarea class="campo-input" id="coment-texto" rows="2" placeholder="Escreva um comentário..."></textarea>
-                    <div class="coment-enviar">
-                      <button class="botao botao-primario" id="botao-comentar" type="submit">Enviar</button>
-                    </div>
-                  </form>
-                </div>
+                <div id="coment-lista"></div>
               </section>
             </div>
           </div>

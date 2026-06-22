@@ -396,8 +396,39 @@
 }
 
 .comentario {
-  padding: var(--espaco-2) 0;
+  display: flex;
+  gap: var(--espaco-2);
+  padding: var(--espaco-3) 0;
   border-bottom: 1px solid var(--cor-borda);
+}
+
+.comentario-corpo {
+  flex: 1;
+  min-width: 0;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.comentario-acao {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--cor-texto-secundario);
+  background: var(--cor-fundo);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  padding: 1px 6px;
+  margin: 2px 0;
 }
 
 .comentario-cabecalho {

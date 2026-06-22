@@ -28,6 +28,22 @@ function listar_comentarios_da_acao($acao_id)
     );
 }
 
+// Stream de comentarios de toda a demanda (de todas as acoes), mais recentes primeiro.
+function listar_comentarios_da_demanda($demanda_id)
+{
+    return executar_select(
+        "SELECT c.id, c.texto, c.autor_id, u.nome AS autor_nome, c.criado_em, c.editado_em,
+                a.id AS acao_id, a.titulo AS acao_titulo
+         FROM comentarios c
+         JOIN acoes a ON a.id = c.acao_id
+         JOIN usuarios u ON u.id = c.autor_id
+         WHERE a.demanda_id = ?
+         ORDER BY c.criado_em DESC",
+        "i",
+        [$demanda_id]
+    );
+}
+
 function buscar_comentario($id)
 {
     $linhas = executar_select(
