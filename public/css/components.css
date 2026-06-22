@@ -153,12 +153,20 @@
 }
 
 .sidebar-nav a {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: var(--espaco-2) var(--espaco-3);
   border-radius: var(--raio-pequeno);
   color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
   transition: background var(--transicao-rapida);
+}
+
+.nav-icone {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .sidebar-nav a:hover {
