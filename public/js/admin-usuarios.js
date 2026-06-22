@@ -18,9 +18,38 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("usuario-perfil").textContent = usuario.perfil;
   document.getElementById("botao-sair").addEventListener("click", sairDoSistema);
   document.getElementById("form-convite").addEventListener("submit", gerarConvite);
+  document.getElementById("botao-testar-email").addEventListener("click", testarEmail);
 
   carregarConvites();
 });
+
+async function testarEmail() {
+  const botao = document.getElementById("botao-testar-email");
+  const email = document.getElementById("teste-email").value.trim();
+
+  if (!validarEmailFront(email)) {
+    mostrarErro("teste-mensagem", "Informe um e-mail valido.");
+    return;
+  }
+
+  definirCarregando(botao, true);
+
+  try {
+    const resposta = await postApi("/api/admin/testar-email.php", { email: email });
+
+    if (resposta.ok) {
+      mostrarSucesso("teste-mensagem", resposta.message);
+    } else {
+      // Mostra o detalhe tecnico (so admin) para facilitar o diagnostico.
+      const detalhe = resposta.detalhe ? " (" + resposta.detalhe + ")" : "";
+      mostrarErro("teste-mensagem", resposta.error + detalhe);
+    }
+    definirCarregando(botao, false);
+  } catch (erro) {
+    mostrarErro("teste-mensagem", "Nao foi possivel testar o e-mail.");
+    definirCarregando(botao, false);
+  }
+}
 
 async function gerarConvite(evento) {
   evento.preventDefault();
