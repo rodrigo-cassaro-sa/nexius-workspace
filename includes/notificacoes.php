@@ -3,6 +3,19 @@
 // notificacoes.php
 // Notificacoes internas: criar, listar, contar nao lidas e marcar como lida.
 // Eventos chamam notificar()/notificar_varios(). Conteudo curto, sem dado sensivel.
+// Quando o SMTP estiver configurado, a notificacao tambem e enfileirada como e-mail.
+
+require_once __DIR__ . "/email.php";
+
+function email_do_usuario($usuario_id)
+{
+    $linhas = executar_select(
+        "SELECT email FROM usuarios WHERE id = ? AND ativo = 1 LIMIT 1",
+        "i",
+        [$usuario_id]
+    );
+    return empty($linhas) ? null : $linhas[0]["email"];
+}
 
 function notificar($usuario_id, $tipo, $titulo, $mensagem, $link)
 {
@@ -17,8 +30,19 @@ function notificar($usuario_id, $tipo, $titulo, $mensagem, $link)
 
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "issss", $usuario_id, $tipo, $titulo, $mensagem, $link);
+    $ok = mysqli_stmt_execute($stmt);
 
-    return mysqli_stmt_execute($stmt);
+    // E-mail operacional do mesmo evento (so quando o SMTP estiver configurado).
+    if ($ok && defined("SMTP_HOST") && SMTP_HOST !== "") {
+        $email = email_do_usuario($usuario_id);
+        if ($email) {
+            $base = (defined("APP_URL") && APP_URL !== "") ? rtrim(APP_URL, "/") . "/" : "";
+            $corpo = $mensagem . "\n\n" . $base . $link;
+            enfileirar_email($usuario_id, $email, $titulo . " - Workspace S&A", $corpo);
+        }
+    }
+
+    return $ok;
 }
 
 // Notifica varios usuarios, deduplicando e ignorando um usuario (ex.: o autor do evento).
