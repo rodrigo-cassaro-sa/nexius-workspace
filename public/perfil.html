@@ -26,7 +26,10 @@
 
     <div class="app-conteudo">
       <header class="app-topbar">
-        <strong>Perfil</strong>
+        <form class="topbar-busca" id="form-busca-topo" role="search">
+          <svg class="busca-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input class="busca-input" id="busca-topo" type="search" placeholder="Buscar demandas..." autocomplete="off" aria-label="Buscar demandas">
+        </form>
         <div class="topbar-usuario">
           <div id="sino-notificacoes" class="sino">
             <button id="sino-botao" class="sino-botao" type="button" aria-label="Notificações">
@@ -38,8 +41,13 @@
               <div id="sino-lista"></div>
             </div>
           </div>
-          <span id="usuario-nome"></span>
-          <span class="badge-perfil" id="usuario-perfil"></span>
+          <a href="perfil.html" class="usuario-chip">
+            <span class="avatar" id="usuario-avatar" aria-hidden="true"></span>
+            <span class="usuario-textos">
+              <span class="usuario-nome" id="usuario-nome"></span>
+              <span class="usuario-cargo" id="usuario-perfil"></span>
+            </span>
+          </a>
           <button id="botao-sair" class="botao botao-secundario" type="button">Sair</button>
         </div>
       </header>

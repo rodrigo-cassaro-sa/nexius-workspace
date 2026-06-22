@@ -221,6 +221,88 @@
   gap: var(--espaco-3);
 }
 
+/* Campo de busca na topbar (filtra demandas; em outras telas leva a lista filtrada) */
+.topbar-busca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 420px;
+  padding: 8px 12px;
+  background: var(--cor-fundo);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+}
+
+.topbar-busca:focus-within {
+  border-color: var(--cor-primaria);
+}
+
+.busca-icone {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--cor-texto-secundario);
+}
+
+.busca-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font: inherit;
+  color: var(--cor-texto);
+}
+
+.busca-input::placeholder {
+  color: var(--cor-texto-secundario);
+}
+
+/* Usuario na topbar: avatar com iniciais + nome + cargo */
+.usuario-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--cor-texto);
+}
+
+.usuario-chip:hover .usuario-nome {
+  text-decoration: underline;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--cor-primaria);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.usuario-textos {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.usuario-nome {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.usuario-cargo {
+  font-size: 12px;
+  color: var(--cor-texto-secundario);
+  text-transform: capitalize;
+}
+
 .badge-perfil {
   font-size: 12px;
   padding: 2px var(--espaco-2);

@@ -131,4 +131,13 @@
   .linha-campos {
     grid-template-columns: 1fr;
   }
+
+  /* Topbar estreita: a busca ocupa a largura e o texto do usuario recolhe (fica o avatar). */
+  .topbar-busca {
+    max-width: none;
+  }
+
+  .usuario-textos {
+    display: none;
+  }
 }

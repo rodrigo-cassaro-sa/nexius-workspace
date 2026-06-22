@@ -30,7 +30,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("form-nova").addEventListener("submit", salvarNova);
   }
 
-  document.getElementById("filtro-busca").addEventListener("input", debounce(recarregar, 350));
+  // A busca agora fica na topbar (#busca-topo). Aceita ?busca= vindo de outra tela.
+  const buscaTopo = document.getElementById("busca-topo");
+  const buscaInicial = new URLSearchParams(location.search).get("busca") || "";
+  if (buscaInicial) buscaTopo.value = buscaInicial;
+  buscaTopo.addEventListener("input", debounce(recarregar, 350));
+  document.getElementById("form-busca-topo").addEventListener("submit", function (e) { e.preventDefault(); recarregar(); });
+
   document.getElementById("filtro-status").addEventListener("change", recarregar);
   document.getElementById("filtro-responsavel").addEventListener("change", recarregar);
   document.getElementById("pag-anterior").addEventListener("click", function () { irPara(paginaAtual - 1); });
@@ -80,7 +86,7 @@ async function carregarDemandas() {
   mostrarCarregando("lista-demandas", 4);
   document.getElementById("paginacao").hidden = true;
 
-  const busca = document.getElementById("filtro-busca").value.trim();
+  const busca = document.getElementById("busca-topo").value.trim();
   const status = document.getElementById("filtro-status").value;
   const responsavel = document.getElementById("filtro-responsavel").value;
 

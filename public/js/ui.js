@@ -178,9 +178,48 @@ async function carregarSino() {
   }
 }
 
+// Iniciais a partir do nome (ex.: "Mario Silva" -> "MS").
+function iniciaisDoNome(nome) {
+  const partes = (nome || "").trim().split(/\s+/).filter(Boolean);
+  if (partes.length === 0) return "";
+  if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+  return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+}
+
+// Preenche o avatar da topbar com as iniciais. O nome chega de forma assincrona
+// (via sessao), entao observamos o elemento #usuario-nome e atualizamos quando muda.
+function configurarAvatar() {
+  const nomeEl = document.getElementById("usuario-nome");
+  const avatarEl = document.getElementById("usuario-avatar");
+  if (!nomeEl || !avatarEl) return;
+
+  function atualizar() {
+    avatarEl.textContent = iniciaisDoNome(nomeEl.textContent);
+  }
+
+  atualizar();
+  new MutationObserver(atualizar).observe(nomeEl, { childList: true, characterData: true, subtree: true });
+}
+
+// Busca da topbar. Na tela de demandas o proprio demandas.js filtra ao vivo;
+// nas demais telas, buscar leva para a lista de demandas ja filtrada.
+function configurarBuscaTopo() {
+  const form = document.getElementById("form-busca-topo");
+  if (!form) return;
+  if (location.pathname.endsWith("demandas.html")) return;
+
+  form.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    const termo = document.getElementById("busca-topo").value.trim();
+    window.location.href = "demandas.html?busca=" + encodeURIComponent(termo);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   atualizarContadorNotificacoes();
   configurarSino();
+  configurarAvatar();
+  configurarBuscaTopo();
 });
 
 // Liga os botoes de mostrar/ocultar senha. Funciona em qualquer tela com
