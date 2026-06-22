@@ -36,7 +36,10 @@ define("APP_URL", env_str("APP_URL", ""));                   // base usada em li
 define("COOKIE_SECURE", env_bool("COOKIE_SECURE", true));
 define("COOKIE_SAMESITE", env_str("COOKIE_SAMESITE", "Strict"));
 
-// SMTP (preencher na fase de e-mail)
+// Resend (API HTTP de e-mail). Se RESEND_API_KEY estiver definido, e usado no lugar do SMTP.
+define("RESEND_API_KEY", env_str("RESEND_API_KEY", ""));
+
+// SMTP (alternativa ao Resend; preencher na fase de e-mail)
 define("SMTP_HOST", env_str("SMTP_HOST", ""));
 define("SMTP_PORTA", (int) env_str("SMTP_PORTA", "587"));
 define("SMTP_USUARIO", env_str("SMTP_USUARIO", ""));

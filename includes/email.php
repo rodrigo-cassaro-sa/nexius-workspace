@@ -1,9 +1,17 @@
 <?php
 
 // email.php
-// Enfileira e-mails na tabela fila_email para envio posterior.
-// O ENVIO real (SMTP + cron) e da fase de e-mail; aqui so registramos na fila.
-// Assim, quem chama nao trava esperando o envio.
+// Registra e-mails na fila_email e, quando ha provedor configurado (Resend ou SMTP),
+// envia imediatamente (sem depender de cron). A fila serve de registro e fallback.
+
+require_once __DIR__ . "/mailer.php";
+
+// Ha provedor de e-mail configurado?
+function email_configurado()
+{
+    return (defined("RESEND_API_KEY") && RESEND_API_KEY !== "")
+        || (defined("SMTP_HOST") && SMTP_HOST !== "");
+}
 
 function enfileirar_email($usuario_id, $email_destino, $assunto, $mensagem)
 {
@@ -13,8 +21,22 @@ function enfileirar_email($usuario_id, $email_destino, $assunto, $mensagem)
 
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "isss", $usuario_id, $email_destino, $assunto, $mensagem);
+    if (!mysqli_stmt_execute($stmt)) {
+        return false;
+    }
+    $id = mysqli_insert_id($conn);
 
-    return mysqli_stmt_execute($stmt);
+    // Envio imediato quando ha provedor (Resend/SMTP). Em falha, fica pendente para retry.
+    if (email_configurado()) {
+        $resultado = enviar_email($email_destino, $assunto, $mensagem);
+        if ($resultado["ok"]) {
+            marcar_email_enviado($id);
+        } else {
+            marcar_email_erro($id, $resultado["erro"], 1);
+        }
+    }
+
+    return true;
 }
 
 // Limite de tentativas antes de marcar o e-mail como "erro" definitivo.

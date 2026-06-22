@@ -1,9 +1,61 @@
 <?php
 
 // mailer.php
-// Cliente SMTP minimo em PHP puro (sem dependencia externa).
-// Suporta STARTTLS (porta 587) e SSL implicito (porta 465), com AUTH LOGIN.
-// Usado pelo cron que processa a fila_email. Credenciais vem do config (SMTP_*).
+// Envio de e-mail. Dois provedores possiveis (config decide):
+//  - Resend (API HTTP) quando RESEND_API_KEY estiver definido.
+//  - SMTP em PHP puro (STARTTLS 587 / SSL 465, AUTH LOGIN) caso contrario.
+// enviar_email() escolhe o provedor; retorna ["ok" => bool, "erro" => string].
+
+// Envia por provedor configurado (Resend tem prioridade).
+function enviar_email($para, $assunto, $corpo)
+{
+    if (defined("RESEND_API_KEY") && RESEND_API_KEY !== "") {
+        return enviar_email_resend($para, $assunto, $corpo);
+    }
+    if (defined("SMTP_HOST") && SMTP_HOST !== "") {
+        return enviar_email_smtp($para, $assunto, $corpo);
+    }
+    return ["ok" => false, "erro" => "E-mail nao configurado."];
+}
+
+// Envio via API do Resend (https://resend.com/docs/api-reference/emails/send-email).
+function enviar_email_resend($para, $assunto, $corpo)
+{
+    $payload = json_encode([
+        "from" => SMTP_REMETENTE_NOME . " <" . SMTP_REMETENTE . ">",
+        "to" => [$para],
+        "subject" => $assunto,
+        "text" => $corpo
+    ], JSON_UNESCAPED_UNICODE);
+
+    $ch = curl_init("https://api.resend.com/emails");
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 15,
+        CURLOPT_HTTPHEADER => [
+            "Authorization: Bearer " . RESEND_API_KEY,
+            "Content-Type: application/json"
+        ]
+    ]);
+
+    $resposta = curl_exec($ch);
+    if ($resposta === false) {
+        $erro = curl_error($ch);
+        curl_close($ch);
+        return ["ok" => false, "erro" => "Resend: " . $erro];
+    }
+
+    $codigo = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($codigo >= 200 && $codigo < 300) {
+        return ["ok" => true, "erro" => ""];
+    }
+
+    return ["ok" => false, "erro" => "Resend HTTP " . $codigo . ": " . substr((string) $resposta, 0, 200)];
+}
 
 // Le uma resposta SMTP (pode ter varias linhas: "250-..." ate "250 ...").
 function smtp_ler($fp)

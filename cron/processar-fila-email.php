@@ -18,8 +18,8 @@ if (PHP_SAPI !== "cli") {
     exit;
 }
 
-if (!defined("SMTP_HOST") || SMTP_HOST === "") {
-    fwrite(STDERR, "SMTP nao configurado. Defina SMTP_HOST e demais variaveis.\n");
+if (!email_configurado()) {
+    fwrite(STDERR, "E-mail nao configurado. Defina RESEND_API_KEY ou as variaveis SMTP_*.\n");
     exit(1);
 }
 
@@ -28,7 +28,7 @@ $enviados = 0;
 $falhas = 0;
 
 foreach ($pendentes as $email) {
-    $resultado = enviar_email_smtp($email["email_destino"], $email["assunto"], $email["mensagem"]);
+    $resultado = enviar_email($email["email_destino"], $email["assunto"], $email["mensagem"]);
 
     if ($resultado["ok"]) {
         marcar_email_enviado($email["id"]);

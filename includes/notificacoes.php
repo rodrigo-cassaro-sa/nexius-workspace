@@ -32,8 +32,8 @@ function notificar($usuario_id, $tipo, $titulo, $mensagem, $link)
     mysqli_stmt_bind_param($stmt, "issss", $usuario_id, $tipo, $titulo, $mensagem, $link);
     $ok = mysqli_stmt_execute($stmt);
 
-    // E-mail operacional do mesmo evento (so quando o SMTP estiver configurado).
-    if ($ok && defined("SMTP_HOST") && SMTP_HOST !== "") {
+    // E-mail operacional do mesmo evento (so quando ha provedor configurado).
+    if ($ok && email_configurado()) {
         $email = email_do_usuario($usuario_id);
         if ($email) {
             $base = (defined("APP_URL") && APP_URL !== "") ? rtrim(APP_URL, "/") . "/" : "";
