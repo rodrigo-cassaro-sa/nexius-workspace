@@ -62,6 +62,25 @@ function atualizar_senha($id, $senha_hash)
     return mysqli_stmt_execute($stmt);
 }
 
+// Lista usuarios ativos (id, nome, perfil) para selects de responsavel e filtros.
+function listar_usuarios_ativos()
+{
+    return executar_select(
+        "SELECT id, nome, perfil FROM usuarios WHERE ativo = 1 ORDER BY nome ASC"
+    );
+}
+
+// Verifica se um usuario existe e esta ativo (validar responsavel informado).
+function usuario_ativo_existe($id)
+{
+    $linhas = executar_select(
+        "SELECT id FROM usuarios WHERE id = ? AND ativo = 1 LIMIT 1",
+        "i",
+        [$id]
+    );
+    return !empty($linhas);
+}
+
 // Marca o onboarding do usuario como concluido.
 function marcar_onboarding_concluido($id)
 {

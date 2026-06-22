@@ -64,6 +64,34 @@ function mostrarVazio(elementoId, texto) {
   alvo.appendChild(bloco);
 }
 
+// Mapeia um status (demanda ou acao) para a classe do badge.
+function classeBadgeStatus(status) {
+  const mapa = {
+    aberta: "badge",
+    em_andamento: "badge badge-info",
+    concluida: "badge badge-sucesso",
+    arquivada: "badge",
+    cancelada: "badge badge-erro",
+    pendente: "badge",
+    bloqueada: "badge badge-aviso"
+  };
+  return mapa[status] || "badge";
+}
+
+// Rotulo legivel de um status.
+function rotuloStatus(status) {
+  const mapa = {
+    aberta: "Aberta",
+    em_andamento: "Em andamento",
+    concluida: "Concluída",
+    arquivada: "Arquivada",
+    cancelada: "Cancelada",
+    pendente: "Pendente",
+    bloqueada: "Bloqueada"
+  };
+  return mapa[status] || status;
+}
+
 // Liga os botoes de mostrar/ocultar senha. Funciona em qualquer tela com
 // um botao ".botao-olho" e o atributo data-alvo apontando para o id do input.
 document.addEventListener("DOMContentLoaded", function () {

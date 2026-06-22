@@ -181,6 +181,39 @@
   margin-top: var(--espaco-4);
 }
 
+/* Linha de titulo com acao a direita (ex.: "Demandas" + botao Nova) */
+.linha-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+  margin-bottom: var(--espaco-3);
+}
+
+.linha-titulo h1,
+.linha-titulo h2 {
+  margin: 0;
+}
+
+/* Barra de filtros */
+.filtros {
+  display: flex;
+  gap: var(--espaco-2);
+  flex-wrap: wrap;
+  margin: var(--espaco-3) 0;
+}
+
+.filtros .campo-input {
+  max-width: 240px;
+}
+
+/* Acoes de uma demanda (editar/arquivar) */
+.acoes-demanda {
+  display: flex;
+  gap: var(--espaco-2);
+  margin-top: var(--espaco-4);
+}
+
 /* Badge de status (texto + cor; nunca so cor) */
 .badge {
   display: inline-block;

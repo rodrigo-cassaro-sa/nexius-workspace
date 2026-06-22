@@ -44,3 +44,29 @@ function conectar_banco()
 
     return $conexao;
 }
+
+// Executa um SELECT com prepared statement e retorna as linhas (array).
+// $tipos e $params permitem binds dinamicos (ex.: filtros opcionais).
+function executar_select($sql, $tipos = "", $params = [])
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, $sql);
+
+    if ($stmt === false) {
+        json_erro("Nao foi possivel processar a solicitacao.", 500);
+    }
+
+    if ($tipos !== "") {
+        mysqli_stmt_bind_param($stmt, $tipos, ...$params);
+    }
+
+    mysqli_stmt_execute($stmt);
+    $resultado = mysqli_stmt_get_result($stmt);
+
+    $linhas = [];
+    while ($linha = mysqli_fetch_assoc($resultado)) {
+        $linhas[] = $linha;
+    }
+
+    return $linhas;
+}

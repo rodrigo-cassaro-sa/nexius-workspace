@@ -1,0 +1,137 @@
+<?php
+
+// demandas.php
+// Acesso a dados e escopo de visibilidade das demandas (procedural, mysqli, prepared statements).
+// Regras de negocio reforcadas no backend (ver 01-descricao-produto.md secao 8 e 9).
+
+// Status manuais permitidos (concluida NUNCA e manual: vem da acao chave).
+function status_demanda_edicao()
+{
+    return ["aberta", "em_andamento"];
+}
+
+function status_demanda_arquivamento()
+{
+    return ["arquivada", "cancelada"];
+}
+
+// Cria uma demanda. Retorna o id ou false.
+function criar_demanda($titulo, $descricao, $responsavel_id, $criador_id)
+{
+    $conn = conectar_banco();
+    $sql = "INSERT INTO demandas (titulo, descricao, status, criador_id, responsavel_id)
+            VALUES (?, ?, 'aberta', ?, ?)";
+
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "ssii", $titulo, $descricao, $criador_id, $responsavel_id);
+    $ok = mysqli_stmt_execute($stmt);
+
+    return $ok ? mysqli_insert_id($conn) : false;
+}
+
+// Lista demandas conforme escopo do usuario e filtros opcionais.
+// Admin e Gestor veem todas; Colaborador ve apenas as em que esta envolvido.
+function listar_demandas($usuario_id, $perfil, $filtro_status, $busca)
+{
+    $sql = "SELECT d.id, d.titulo, d.status, d.responsavel_id,
+                   u.nome AS responsavel_nome, d.criado_em
+            FROM demandas d
+            LEFT JOIN usuarios u ON u.id = d.responsavel_id
+            WHERE 1 = 1";
+
+    $tipos = "";
+    $params = [];
+
+    // Escopo do colaborador: responsavel de alguma acao da demanda OU autor de comentario nela.
+    if ($perfil === "colaborador") {
+        $sql .= " AND (
+            EXISTS (SELECT 1 FROM acoes a WHERE a.demanda_id = d.id AND a.responsavel_id = ?)
+            OR EXISTS (SELECT 1 FROM comentarios c
+                       JOIN acoes a2 ON a2.id = c.acao_id
+                       WHERE a2.demanda_id = d.id AND c.autor_id = ?)
+        )";
+        $tipos .= "ii";
+        $params[] = $usuario_id;
+        $params[] = $usuario_id;
+    }
+
+    // Filtro de status. Sem filtro, esconde arquivada/cancelada.
+    if ($filtro_status !== "") {
+        $sql .= " AND d.status = ?";
+        $tipos .= "s";
+        $params[] = $filtro_status;
+    } else {
+        $sql .= " AND d.status NOT IN ('arquivada', 'cancelada')";
+    }
+
+    // Busca por titulo.
+    if ($busca !== "") {
+        $sql .= " AND d.titulo LIKE ?";
+        $tipos .= "s";
+        $params[] = "%" . $busca . "%";
+    }
+
+    $sql .= " ORDER BY d.criado_em DESC LIMIT 100";
+
+    return executar_select($sql, $tipos, $params);
+}
+
+// Busca uma demanda pelo id (com nomes de responsavel e criador).
+function buscar_demanda($id)
+{
+    $linhas = executar_select(
+        "SELECT d.id, d.titulo, d.descricao, d.status, d.responsavel_id, d.criador_id,
+                ur.nome AS responsavel_nome, uc.nome AS criador_nome,
+                d.concluida_em, d.criado_em, d.atualizado_em
+         FROM demandas d
+         LEFT JOIN usuarios ur ON ur.id = d.responsavel_id
+         LEFT JOIN usuarios uc ON uc.id = d.criador_id
+         WHERE d.id = ? LIMIT 1",
+        "i",
+        [$id]
+    );
+
+    return empty($linhas) ? null : $linhas[0];
+}
+
+// Escopo de visibilidade do colaborador sobre uma demanda especifica.
+function colaborador_envolvido_na_demanda($demanda_id, $usuario_id)
+{
+    $linhas = executar_select(
+        "SELECT 1 FROM demandas d WHERE d.id = ? AND (
+            EXISTS (SELECT 1 FROM acoes a WHERE a.demanda_id = d.id AND a.responsavel_id = ?)
+            OR EXISTS (SELECT 1 FROM comentarios c
+                       JOIN acoes a2 ON a2.id = c.acao_id
+                       WHERE a2.demanda_id = d.id AND c.autor_id = ?)
+         ) LIMIT 1",
+        "iii",
+        [$demanda_id, $usuario_id, $usuario_id]
+    );
+
+    return !empty($linhas);
+}
+
+// Atualiza dados da demanda (titulo, descricao, responsavel, status de edicao).
+function atualizar_demanda($id, $titulo, $descricao, $responsavel_id, $status)
+{
+    $conn = conectar_banco();
+    $sql = "UPDATE demandas SET titulo = ?, descricao = ?, responsavel_id = ?, status = ?
+            WHERE id = ?";
+
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "ssisi", $titulo, $descricao, $responsavel_id, $status, $id);
+
+    return mysqli_stmt_execute($stmt);
+}
+
+// Arquiva ou cancela a demanda (status arquivada/cancelada).
+function arquivar_demanda($id, $status)
+{
+    $conn = conectar_banco();
+    $sql = "UPDATE demandas SET status = ? WHERE id = ?";
+
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "si", $status, $id);
+
+    return mysqli_stmt_execute($stmt);
+}
