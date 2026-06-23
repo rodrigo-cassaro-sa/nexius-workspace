@@ -88,7 +88,7 @@
   </div>
 
   <!-- Modal: Nova demanda -->
-  <div id="modal-nova" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-nova-titulo">
+  <div id="modal-nova" class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="modal-nova-titulo">
     <div class="modal-conteudo">
       <h2 class="modal-titulo" id="modal-nova-titulo">Nova demanda</h2>
 
@@ -100,41 +100,37 @@
           <input class="campo-input" id="titulo" name="titulo" type="text" maxlength="160" required>
         </div>
 
-        <div class="campo">
-          <label class="campo-label" for="problema">Qual problema será resolvido? *</label>
-          <textarea class="campo-input" id="problema" rows="2" required></textarea>
-        </div>
-
-        <div class="campo">
-          <label class="campo-label" for="impacto">Qual o impacto operacional? *</label>
-          <textarea class="campo-input" id="impacto" rows="2" required></textarea>
-        </div>
-
-        <div class="campo">
-          <label class="campo-label" for="risco">Existe algum risco? Se sim, qual? *</label>
-          <textarea class="campo-input" id="risco" rows="2" required></textarea>
-        </div>
-
-        <div class="campo">
-          <label class="campo-label" for="afeta">Afeta outro sistema ou área? Se sim, qual? *</label>
-          <textarea class="campo-input" id="afeta" rows="2" required></textarea>
-        </div>
-
-        <div class="campo">
-          <label class="campo-label" for="workaround">Existe workaround? Se sim, qual? *</label>
-          <textarea class="campo-input" id="workaround" rows="2" required></textarea>
-        </div>
-
-        <div class="campo">
-          <label class="campo-label" for="sugestao">Sugestão de solução *</label>
-          <textarea class="campo-input" id="sugestao" rows="2" required></textarea>
-        </div>
-
-        <div class="campo">
-          <label class="campo-label" for="responsavel">Responsável</label>
-          <select class="campo-input" id="responsavel" name="responsavel">
-            <option value="">Sem responsável</option>
-          </select>
+        <div class="campos-grid">
+          <div class="campo">
+            <label class="campo-label" for="problema">Qual problema será resolvido? *</label>
+            <textarea class="campo-input" id="problema" rows="3" required></textarea>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="impacto">Qual o impacto operacional? *</label>
+            <textarea class="campo-input" id="impacto" rows="3" required></textarea>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="risco">Existe algum risco? Se sim, qual? *</label>
+            <textarea class="campo-input" id="risco" rows="3" required></textarea>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="afeta">Afeta outro sistema ou área? Se sim, qual? *</label>
+            <textarea class="campo-input" id="afeta" rows="3" required></textarea>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="workaround">Existe workaround? Se sim, qual? *</label>
+            <textarea class="campo-input" id="workaround" rows="3" required></textarea>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="sugestao">Sugestão de solução *</label>
+            <textarea class="campo-input" id="sugestao" rows="3" required></textarea>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="responsavel">Responsável</label>
+            <select class="campo-input" id="responsavel" name="responsavel">
+              <option value="">Sem responsável</option>
+            </select>
+          </div>
         </div>
 
         <div class="modal-acoes">

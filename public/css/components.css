@@ -890,6 +890,10 @@
   max-width: 560px;
 }
 
+.modal-xl .modal-conteudo {
+  max-width: 760px;
+}
+
 /* Linha de campos lado a lado (Responsavel / Prazo / Acao chave) */
 .linha-campos {
   display: grid;
