@@ -34,21 +34,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     return;
   }
 
-  configurarAbas();
   await carregarTudo();
 });
 
-function configurarAbas() {
-  document.querySelectorAll(".aba").forEach(function (aba) {
-    aba.addEventListener("click", function () {
-      document.querySelectorAll(".aba").forEach(function (a) { a.classList.remove("ativa"); });
-      aba.classList.add("ativa");
-      const alvo = aba.getAttribute("data-aba");
-      document.getElementById("aba-plano").hidden = alvo !== "plano";
-      document.getElementById("aba-info").hidden = alvo !== "info";
-    });
-  });
-}
+// (Abas removidas: a demanda tem uma unica visao, somente leitura.)
 
 async function carregarTudo() {
   try {
@@ -96,18 +85,8 @@ function prepararGestor() {
   document.getElementById("botao-acao-cancelar").addEventListener("click", function () { fecharModal("modal-acao"); });
   document.getElementById("form-acao").addEventListener("submit", salvarAcao);
 
-  // Edicao da demanda (aba Informacoes).
-  document.getElementById("e-titulo").value = demandaAtual.titulo;
-  document.getElementById("e-problema").value = demandaAtual.problema || "";
-  document.getElementById("e-impacto").value = demandaAtual.impacto_operacional || "";
-  document.getElementById("e-risco").value = demandaAtual.risco || "";
-  document.getElementById("e-afeta").value = demandaAtual.afeta_outros || "";
-  document.getElementById("e-workaround").value = demandaAtual.workaround || "";
-  document.getElementById("e-sugestao").value = demandaAtual.sugestao_solucao || "";
-  document.getElementById("e-status").value = (demandaAtual.status === "em_andamento") ? "em_andamento" : "aberta";
-  carregarResponsaveis("e-responsavel", demandaAtual.responsavel_id);
-  document.getElementById("form-editar").addEventListener("submit", salvarEdicao);
-
+  // Arquivamento da demanda (acao de ciclo de vida; nao edita o conteudo).
+  document.getElementById("demanda-acoes").hidden = false;
   document.getElementById("botao-arquivar").addEventListener("click", function () { abrirModal("modal-arquivar"); });
   document.getElementById("botao-arquivar-cancelar").addEventListener("click", function () { fecharModal("modal-arquivar"); });
   document.getElementById("botao-arquivar-confirmar").addEventListener("click", arquivar);
@@ -356,56 +335,7 @@ async function salvarAcao(evento) {
   }
 }
 
-async function salvarEdicao(evento) {
-  evento.preventDefault();
-
-  const botao = document.getElementById("botao-salvar-edicao");
-  const titulo = document.getElementById("e-titulo").value.trim();
-  const responsavel = document.getElementById("e-responsavel").value;
-  const status = document.getElementById("e-status").value;
-
-  // Questionario obrigatorio (6 perguntas).
-  const campos = {
-    problema: document.getElementById("e-problema").value.trim(),
-    impacto_operacional: document.getElementById("e-impacto").value.trim(),
-    risco: document.getElementById("e-risco").value.trim(),
-    afeta_outros: document.getElementById("e-afeta").value.trim(),
-    workaround: document.getElementById("e-workaround").value.trim(),
-    sugestao_solucao: document.getElementById("e-sugestao").value.trim()
-  };
-
-  if (!tamanhoEntre(titulo, 2, 160)) {
-    mostrarErro("edicao-mensagem", "Informe um título (2 a 160 caracteres).");
-    return;
-  }
-
-  const algumVazio = Object.keys(campos).some(function (k) { return campos[k].length < 2; });
-  if (algumVazio) {
-    mostrarErro("edicao-mensagem", "Responda todas as 6 perguntas obrigatórias.");
-    return;
-  }
-
-  definirCarregando(botao, true);
-
-  try {
-    const dados = Object.assign(
-      { id: demandaId, titulo: titulo, responsavel_id: responsavel, status: status },
-      campos
-    );
-    const resposta = await postApi("/api/demandas/atualizar.php", dados);
-
-    if (!resposta.ok) {
-      mostrarErro("edicao-mensagem", resposta.error);
-      definirCarregando(botao, false);
-      return;
-    }
-
-    window.location.reload();
-  } catch (erro) {
-    mostrarErro("edicao-mensagem", "Nao foi possivel salvar.");
-    definirCarregando(botao, false);
-  }
-}
+// (Edicao da demanda removida: a tela e somente leitura. Arquivar continua disponivel.)
 
 async function arquivar() {
   const botao = document.getElementById("botao-arquivar-confirmar");

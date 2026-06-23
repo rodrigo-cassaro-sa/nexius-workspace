@@ -77,13 +77,12 @@
               </div>
             </div>
 
-            <div class="abas">
-              <button class="aba ativa" data-aba="plano" type="button">Plano de ação</button>
-              <button class="aba" data-aba="info" type="button">Informações</button>
+            <div class="acoes-demanda" id="demanda-acoes" hidden>
+              <button type="button" class="botao botao-secundario" id="botao-arquivar">Arquivar demanda</button>
             </div>
           </section>
 
-          <!-- Aba: Plano de ação -->
+          <!-- Conteúdo da demanda: detalhamento + plano de ação (somente leitura) -->
           <div id="aba-plano">
             <section class="card" style="margin-bottom: var(--espaco-4);">
               <h2>Detalhamento da demanda</h2>
@@ -123,64 +122,6 @@
               <div id="lista-acoes">
                 <p class="texto-secundario">Carregando...</p>
               </div>
-            </section>
-          </div>
-
-          <!-- Aba: Informações (edição da demanda) -->
-          <div id="aba-info" hidden>
-            <section class="card">
-              <h2>Informações</h2>
-              <div id="edicao-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
-
-              <form id="form-editar" novalidate>
-                <div class="campo">
-                  <label class="campo-label" for="e-titulo">Título</label>
-                  <input class="campo-input" id="e-titulo" type="text" maxlength="160" required>
-                </div>
-                <div class="campos-grid">
-                  <div class="campo">
-                    <label class="campo-label" for="e-problema">Qual problema será resolvido? *</label>
-                    <textarea class="campo-input" id="e-problema" rows="3" required></textarea>
-                  </div>
-                  <div class="campo">
-                    <label class="campo-label" for="e-impacto">Qual o impacto operacional? *</label>
-                    <textarea class="campo-input" id="e-impacto" rows="3" required></textarea>
-                  </div>
-                  <div class="campo">
-                    <label class="campo-label" for="e-risco">Existe algum risco? Se sim, qual? *</label>
-                    <textarea class="campo-input" id="e-risco" rows="3" required></textarea>
-                  </div>
-                  <div class="campo">
-                    <label class="campo-label" for="e-afeta">Afeta outro sistema ou área? Se sim, qual? *</label>
-                    <textarea class="campo-input" id="e-afeta" rows="3" required></textarea>
-                  </div>
-                  <div class="campo">
-                    <label class="campo-label" for="e-workaround">Existe workaround? Se sim, qual? *</label>
-                    <textarea class="campo-input" id="e-workaround" rows="3" required></textarea>
-                  </div>
-                  <div class="campo">
-                    <label class="campo-label" for="e-sugestao">Sugestão de solução *</label>
-                    <textarea class="campo-input" id="e-sugestao" rows="3" required></textarea>
-                  </div>
-                  <div class="campo">
-                    <label class="campo-label" for="e-responsavel">Responsável</label>
-                    <select class="campo-input" id="e-responsavel">
-                      <option value="">Sem responsável</option>
-                    </select>
-                  </div>
-                  <div class="campo">
-                    <label class="campo-label" for="e-status">Status</label>
-                    <select class="campo-input" id="e-status">
-                      <option value="aberta">Aberta</option>
-                      <option value="em_andamento">Em andamento</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="acoes-demanda">
-                  <button type="submit" class="botao botao-primario" id="botao-salvar-edicao">Salvar</button>
-                  <button type="button" class="botao botao-secundario" id="botao-arquivar">Arquivar</button>
-                </div>
-              </form>
             </section>
           </div>
         </div>
