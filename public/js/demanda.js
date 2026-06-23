@@ -53,6 +53,7 @@ async function carregarTudo() {
     document.getElementById("conteudo").hidden = false;
     preencherCabecalho(demandaAtual);
     prepararGestor();
+    registrarVisita();
     await carregarAcoes();
   } catch (erro) {
     document.getElementById("carregando").hidden = true;
@@ -354,6 +355,71 @@ async function arquivar() {
     fecharModal("modal-arquivar");
     definirCarregando(botao, false);
   }
+}
+
+// ---- Visitas (lastro: quem abriu a demanda e quando) ----
+
+async function registrarVisita() {
+  try {
+    const resposta = await postApi("/api/demandas/registrar-visita.php", { demanda_id: demandaId });
+    if (resposta.ok) {
+      renderizarVisitas(resposta.data.visitas);
+    }
+  } catch (erro) {
+    // Visitas sao secundarias; nao bloqueiam a tela.
+  }
+}
+
+function renderizarVisitas(visitas) {
+  const alvo = document.getElementById("lista-visitas");
+  if (!alvo) return;
+  alvo.innerHTML = "";
+
+  if (!visitas || visitas.length === 0) {
+    const p = document.createElement("p");
+    p.className = "texto-secundario";
+    p.textContent = "Ninguém visualizou ainda.";
+    alvo.appendChild(p);
+    return;
+  }
+
+  visitas.forEach(function (v) {
+    const item = document.createElement("div");
+    item.className = "visita-item";
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.style.background = corDoNome(v.usuario_nome);
+    avatar.textContent = iniciais(v.usuario_nome);
+    item.appendChild(avatar);
+
+    const corpo = document.createElement("div");
+    corpo.className = "visita-corpo";
+
+    const nome = document.createElement("span");
+    nome.className = "visita-nome";
+    nome.textContent = v.usuario_nome;
+
+    const total = parseInt(v.total_visitas, 10) || 1;
+    const detalhe = document.createElement("span");
+    detalhe.className = "visita-detalhe texto-secundario";
+    detalhe.textContent = "Última visita: " + formatarDataHora(v.ultima_visita)
+      + " · " + total + (total === 1 ? " visita" : " visitas");
+
+    corpo.appendChild(nome);
+    corpo.appendChild(detalhe);
+    item.appendChild(corpo);
+
+    alvo.appendChild(item);
+  });
+}
+
+// Formata "YYYY-MM-DD HH:MM:SS" como "DD/MM/YYYY HH:MM".
+function formatarDataHora(iso) {
+  if (!iso) return "—";
+  const s = String(iso);
+  if (s.length < 16) return s;
+  return s.substring(8, 10) + "/" + s.substring(5, 7) + "/" + s.substring(0, 4) + " " + s.substring(11, 16);
 }
 
 // ---- Comentarios (estilo forum: abaixo de cada acao) ----

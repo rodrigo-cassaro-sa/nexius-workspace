@@ -158,6 +158,23 @@ CREATE TABLE IF NOT EXISTS comentarios (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
+-- demanda_visitas (lastro: quem abriu a demanda e quando)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS demanda_visitas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  demanda_id INT NOT NULL,
+  usuario_id INT NOT NULL,
+  primeira_visita DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  ultima_visita DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  total_visitas INT NOT NULL DEFAULT 1,
+  UNIQUE KEY uq_demanda_visita (demanda_id, usuario_id),
+  KEY idx_dv_demanda (demanda_id),
+  KEY idx_dv_usuario (usuario_id),
+  CONSTRAINT fk_dv_demanda FOREIGN KEY (demanda_id) REFERENCES demandas(id),
+  CONSTRAINT fk_dv_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
 -- notificacoes
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS notificacoes (
