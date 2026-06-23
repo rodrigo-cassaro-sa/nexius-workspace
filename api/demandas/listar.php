@@ -36,13 +36,19 @@ if ($objetivo !== "" && !in_array($objetivo, ["reducao_custo", "relevancia_marca
     $objetivo = "";
 }
 
+$sla = trim($_GET["sla"] ?? "");
+if ($sla !== "" && !in_array($sla, ["aguardando", "vencido", "respondida_prazo", "respondida_fora"], true)) {
+    $sla = "";
+}
+
 $filtros = [
     "status" => $filtro_status,
     "solicitante" => isset($_GET["solicitante"]) ? (int) $_GET["solicitante"] : 0,
     "busca" => trim($_GET["busca"] ?? ""),
     "intencao" => $intencao,
     "pilar" => $pilar,
-    "objetivo" => $objetivo
+    "objetivo" => $objetivo,
+    "sla" => $sla
 ];
 
 $por_pagina = 10;

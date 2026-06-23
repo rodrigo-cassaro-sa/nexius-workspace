@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("filtro-pilar").addEventListener("change", recarregar);
   document.getElementById("filtro-intencao").addEventListener("change", recarregar);
   document.getElementById("filtro-objetivo").addEventListener("change", recarregar);
+  document.getElementById("filtro-sla").addEventListener("change", recarregar);
   document.getElementById("pag-anterior").addEventListener("click", function () { irPara(paginaAtual - 1); });
   document.getElementById("pag-proxima").addEventListener("click", function () { irPara(paginaAtual + 1); });
 
@@ -97,6 +98,7 @@ async function carregarDemandas() {
   const pilar = document.getElementById("filtro-pilar").value;
   const intencao = document.getElementById("filtro-intencao").value;
   const objetivo = document.getElementById("filtro-objetivo").value;
+  const sla = document.getElementById("filtro-sla").value;
 
   const url = "/api/demandas/listar.php"
     + "?busca=" + encodeURIComponent(busca)
@@ -105,6 +107,7 @@ async function carregarDemandas() {
     + "&pilar=" + encodeURIComponent(pilar)
     + "&intencao=" + encodeURIComponent(intencao)
     + "&objetivo=" + encodeURIComponent(objetivo)
+    + "&sla=" + encodeURIComponent(sla)
     + "&pagina=" + paginaAtual;
 
   try {

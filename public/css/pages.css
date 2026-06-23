@@ -384,6 +384,16 @@
   margin-top: 2px;
 }
 
+/* Cabecalho da lista: titulo + acao principal (Criar demanda) */
+.lista-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--espaco-3);
+}
+
 .prioridade-alta > td:first-child {
   border-left: 3px solid #c13a3a;
 }

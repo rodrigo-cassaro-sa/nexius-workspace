@@ -117,6 +117,18 @@ function montar_where_demandas($usuario_id, $perfil, $filtros)
         $params[] = $filtros["objetivo"];
     }
 
+    // Filtro de SLA de resposta (3 dias). Sem parametros: usa data do banco.
+    $sla = $filtros["sla"] ?? "";
+    if ($sla === "aguardando") {
+        $where .= " AND d.respondida_em IS NULL AND NOW() <= DATE_ADD(d.criado_em, INTERVAL 3 DAY)";
+    } elseif ($sla === "vencido") {
+        $where .= " AND d.respondida_em IS NULL AND NOW() > DATE_ADD(d.criado_em, INTERVAL 3 DAY)";
+    } elseif ($sla === "respondida_prazo") {
+        $where .= " AND d.respondida_em IS NOT NULL AND d.respondida_em <= DATE_ADD(d.criado_em, INTERVAL 3 DAY)";
+    } elseif ($sla === "respondida_fora") {
+        $where .= " AND d.respondida_em IS NOT NULL AND d.respondida_em > DATE_ADD(d.criado_em, INTERVAL 3 DAY)";
+    }
+
     return [$where, $tipos, $params];
 }
 

@@ -56,6 +56,14 @@
         <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
 
         <section class="card">
+          <div class="lista-cabecalho">
+            <div>
+              <h1 class="pagina-titulo">Demandas</h1>
+              <p class="pagina-subtitulo">Solicitações priorizadas por GUT, com SLA de resposta.</p>
+            </div>
+            <button id="botao-nova" class="botao botao-primario" type="button" hidden>+ Criar demanda</button>
+          </div>
+
           <div class="barra-ferramentas">
             <select class="campo-input" id="filtro-status" aria-label="Status">
               <option value="">Status: todos</option>
@@ -87,7 +95,13 @@
               <option value="relevancia_marca">Relevância da marca</option>
               <option value="organizacao_trabalho">Organização do trabalho</option>
             </select>
-            <button id="botao-nova" class="botao botao-primario acao-direita" type="button" hidden>+ Criar demanda</button>
+            <select class="campo-input" id="filtro-sla" aria-label="SLA">
+              <option value="">SLA: todos</option>
+              <option value="aguardando">Aguardando resposta</option>
+              <option value="vencido">SLA vencido</option>
+              <option value="respondida_prazo">Respondida no prazo</option>
+              <option value="respondida_fora">Respondida fora do prazo</option>
+            </select>
           </div>
 
           <div id="lista-demandas">
