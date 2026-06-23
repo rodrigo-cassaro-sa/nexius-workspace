@@ -93,6 +93,36 @@ function listar_usuarios_ativos()
     );
 }
 
+// Lista TODOS os usuarios (gestao de usuarios - admin). Sem dado sensivel.
+function listar_usuarios()
+{
+    return executar_select(
+        "SELECT id, nome, email, perfil, ativo, criado_em
+         FROM usuarios ORDER BY nome ASC"
+    );
+}
+
+// Atualiza o perfil de um usuario (gestao de usuarios).
+function atualizar_perfil_usuario($id, $perfil)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE usuarios SET perfil = ? WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "si", $perfil, $id);
+
+    return mysqli_stmt_execute($stmt);
+}
+
+// Ativa/inativa um usuario (inativo nao consegue logar).
+function definir_ativo_usuario($id, $ativo)
+{
+    $ativo = $ativo ? 1 : 0;
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE usuarios SET ativo = ? WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "ii", $ativo, $id);
+
+    return mysqli_stmt_execute($stmt);
+}
+
 // Verifica se um usuario existe e esta ativo (validar responsavel informado).
 function usuario_ativo_existe($id)
 {

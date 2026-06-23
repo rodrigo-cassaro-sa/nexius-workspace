@@ -1,6 +1,8 @@
 // admin-usuarios.js
-// Tela de administracao: convidar usuarios e listar convites.
+// Tela de administracao: convidar, gerenciar usuarios e convites.
 // Exige sessao e perfil administrador (o backend tambem valida tudo).
+
+let usuarioLogadoId = 0;
 
 document.addEventListener("DOMContentLoaded", async function () {
   const usuario = await exigirSessaoNoFront();
@@ -14,12 +16,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     return;
   }
 
+  usuarioLogadoId = usuario.id;
   document.getElementById("usuario-nome").textContent = usuario.nome;
   document.getElementById("usuario-perfil").textContent = usuario.perfil;
   document.getElementById("botao-sair").addEventListener("click", sairDoSistema);
   document.getElementById("form-convite").addEventListener("submit", gerarConvite);
   document.getElementById("botao-testar-email").addEventListener("click", testarEmail);
 
+  carregarUsuarios();
   carregarConvites();
 });
 
@@ -120,7 +124,7 @@ function preencherTabelaConvites(alvo, convites) {
   tabela.className = "tabela";
 
   const cabecalho = document.createElement("tr");
-  ["E-mail", "Perfil", "Status", "Expira em"].forEach(function (texto) {
+  ["E-mail", "Perfil", "Status", "Expira em", "Ações"].forEach(function (texto) {
     const th = document.createElement("th");
     th.textContent = texto;
     cabecalho.appendChild(th);
@@ -134,8 +138,177 @@ function preencherTabelaConvites(alvo, convites) {
       td.textContent = texto;
       linha.appendChild(td);
     });
+
+    const tdAcoes = document.createElement("td");
+    if (convite.status === "pendente") {
+      const copiar = document.createElement("button");
+      copiar.className = "botao-link";
+      copiar.type = "button";
+      copiar.textContent = "Copiar link";
+      copiar.addEventListener("click", function () { copiarLinkConvite(convite.token); });
+      tdAcoes.appendChild(copiar);
+
+      const cancelar = document.createElement("button");
+      cancelar.className = "botao-link";
+      cancelar.type = "button";
+      cancelar.textContent = "Cancelar";
+      cancelar.style.marginLeft = "8px";
+      cancelar.addEventListener("click", function () { cancelarConvite(convite.id); });
+      tdAcoes.appendChild(cancelar);
+    } else {
+      tdAcoes.textContent = "—";
+    }
+    linha.appendChild(tdAcoes);
+
     tabela.appendChild(linha);
   });
 
   alvo.appendChild(tabela);
+}
+
+function copiarLinkConvite(token) {
+  const link = window.location.origin + "/cadastro.html?token=" + token;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(function () {
+      mostrarSucesso("mensagem", "Link copiado para a área de transferência.");
+    }, function () {
+      mostrarSucesso("mensagem", "Link: " + link);
+    });
+  } else {
+    mostrarSucesso("mensagem", "Link: " + link);
+  }
+}
+
+async function cancelarConvite(id) {
+  try {
+    const resposta = await postApi("/api/convites/cancelar.php", { id: id });
+    if (!resposta.ok) {
+      mostrarErro("mensagem", resposta.error);
+      return;
+    }
+    mostrarSucesso("mensagem", resposta.message);
+    carregarConvites();
+  } catch (erro) {
+    mostrarErro("mensagem", "Nao foi possivel cancelar o convite.");
+  }
+}
+
+// ---- Usuarios cadastrados (gestao) ----
+
+async function carregarUsuarios() {
+  const alvo = document.getElementById("lista-usuarios");
+  try {
+    const resposta = await getApi("/api/usuarios/listar-todos.php");
+    if (!resposta.ok) {
+      alvo.textContent = "Nao foi possivel carregar os usuarios.";
+      return;
+    }
+    renderUsuarios(alvo, resposta.data.usuarios);
+  } catch (erro) {
+    alvo.textContent = "Nao foi possivel carregar os usuarios.";
+  }
+}
+
+function renderUsuarios(alvo, usuarios) {
+  alvo.innerHTML = "";
+
+  const tabela = document.createElement("table");
+  tabela.className = "tabela";
+
+  const cab = document.createElement("tr");
+  ["Nome", "E-mail", "Perfil", "Status", "Ação"].forEach(function (t) {
+    const th = document.createElement("th");
+    th.textContent = t;
+    cab.appendChild(th);
+  });
+  tabela.appendChild(cab);
+
+  usuarios.forEach(function (u) {
+    const ehVoce = parseInt(u.id, 10) === parseInt(usuarioLogadoId, 10);
+    const ativo = parseInt(u.ativo, 10) === 1;
+
+    const tr = document.createElement("tr");
+
+    const tdNome = document.createElement("td");
+    tdNome.textContent = u.nome + (ehVoce ? " (você)" : "");
+    tr.appendChild(tdNome);
+
+    const tdEmail = document.createElement("td");
+    tdEmail.textContent = u.email;
+    tr.appendChild(tdEmail);
+
+    // Perfil (select que altera; bloqueado na propria linha).
+    const tdPerfil = document.createElement("td");
+    const sel = document.createElement("select");
+    sel.className = "campo-input";
+    [["colaborador", "Colaborador"], ["gestor", "Gestor"], ["administrador", "Administrador"]].forEach(function (op) {
+      const opt = document.createElement("option");
+      opt.value = op[0];
+      opt.textContent = op[1];
+      if (u.perfil === op[0]) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    if (ehVoce) {
+      sel.disabled = true;
+      sel.title = "Você não pode alterar o próprio perfil.";
+    } else {
+      sel.addEventListener("change", function () { alterarPerfil(u.id, sel.value); });
+    }
+    tdPerfil.appendChild(sel);
+    tr.appendChild(tdPerfil);
+
+    // Status (badge).
+    const tdStatus = document.createElement("td");
+    const badge = document.createElement("span");
+    badge.className = ativo ? "badge badge-sucesso" : "badge";
+    badge.textContent = ativo ? "Ativo" : "Inativo";
+    tdStatus.appendChild(badge);
+    tr.appendChild(tdStatus);
+
+    // Acao (inativar/reativar; bloqueado na propria linha).
+    const tdAcao = document.createElement("td");
+    if (ehVoce) {
+      tdAcao.textContent = "—";
+    } else {
+      const btn = document.createElement("button");
+      btn.className = "botao botao-secundario";
+      btn.type = "button";
+      btn.textContent = ativo ? "Inativar" : "Reativar";
+      btn.addEventListener("click", function () { alternarAtivo(u.id, ativo ? 0 : 1); });
+      tdAcao.appendChild(btn);
+    }
+    tr.appendChild(tdAcao);
+
+    tabela.appendChild(tr);
+  });
+
+  alvo.appendChild(tabela);
+}
+
+async function alterarPerfil(id, perfil) {
+  try {
+    const resposta = await postApi("/api/usuarios/atualizar-perfil.php", { id: id, perfil: perfil });
+    if (resposta.ok) {
+      mostrarSucesso("usuarios-mensagem", resposta.message);
+    } else {
+      mostrarErro("usuarios-mensagem", resposta.error);
+    }
+  } catch (erro) {
+    mostrarErro("usuarios-mensagem", "Nao foi possivel atualizar o perfil.");
+  }
+  carregarUsuarios();
+}
+
+async function alternarAtivo(id, ativo) {
+  try {
+    const resposta = await postApi("/api/usuarios/definir-ativo.php", { id: id, ativo: ativo });
+    if (resposta.ok) {
+      mostrarSucesso("usuarios-mensagem", resposta.message);
+    } else {
+      mostrarErro("usuarios-mensagem", resposta.error);
+    }
+  } catch (erro) {
+    mostrarErro("usuarios-mensagem", "Nao foi possivel atualizar o usuario.");
+  }
+  carregarUsuarios();
 }

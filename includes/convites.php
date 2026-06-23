@@ -59,7 +59,7 @@ function marcar_convite_aceito($id, $usuario_id)
 function listar_convites()
 {
     $conn = conectar_banco();
-    $sql = "SELECT id, email, perfil, status, expira_em, criado_em
+    $sql = "SELECT id, email, perfil, status, token, expira_em, criado_em
             FROM convites ORDER BY criado_em DESC LIMIT 100";
 
     $resultado = mysqli_query($conn, $sql);
@@ -69,4 +69,15 @@ function listar_convites()
     }
 
     return $linhas;
+}
+
+// Cancela um convite pendente especifico (gestao de usuarios).
+function cancelar_convite($id)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE convites SET status = 'cancelado' WHERE id = ? AND status = 'pendente'");
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+
+    return mysqli_stmt_affected_rows($stmt) > 0;
 }
