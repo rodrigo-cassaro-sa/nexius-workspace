@@ -61,30 +61,38 @@
         </div>
 
         <div id="conteudo" hidden>
-          <section class="card">
-            <div class="demanda-cabecalho">
-              <div>
-                <div class="linha-titulo">
-                  <h1 id="d-titulo"></h1>
-                  <span class="badge" id="d-status"></span>
-                </div>
+          <section class="card demanda-header">
+            <div class="demanda-header-topo">
+              <div class="linha-titulo">
+                <h1 id="d-titulo"></h1>
+                <span class="badge" id="d-status"></span>
               </div>
-              <div class="demanda-meta">
-                <p class="kpi-rotulo">Solicitante</p>
-                <p id="d-solicitante">—</p>
-                <p class="kpi-rotulo">Solicitado em</p>
-                <p id="d-solicitado-em">—</p>
-                <p class="kpi-rotulo">SLA de resposta</p>
-                <p id="d-sla">—</p>
-                <p class="kpi-rotulo">Prazo</p>
-                <p id="d-prazo">—</p>
-                <p class="kpi-rotulo">Prioridade (GUT)</p>
-                <p id="d-prioridade">—</p>
+              <div class="acoes-demanda" id="demanda-acoes" hidden>
+                <button type="button" class="botao botao-secundario" id="botao-arquivar">Arquivar demanda</button>
               </div>
             </div>
 
-            <div class="acoes-demanda" id="demanda-acoes" hidden>
-              <button type="button" class="botao botao-secundario" id="botao-arquivar">Arquivar demanda</button>
+            <div class="demanda-stats">
+              <div class="stat">
+                <span class="stat-rotulo">Solicitante</span>
+                <span class="stat-valor" id="d-solicitante">—</span>
+              </div>
+              <div class="stat">
+                <span class="stat-rotulo">Solicitado em</span>
+                <span class="stat-valor" id="d-solicitado-em">—</span>
+              </div>
+              <div class="stat">
+                <span class="stat-rotulo">SLA de resposta</span>
+                <span class="badge" id="d-sla">—</span>
+              </div>
+              <div class="stat">
+                <span class="stat-rotulo">Prazo</span>
+                <span class="stat-valor" id="d-prazo">—</span>
+              </div>
+              <div class="stat">
+                <span class="stat-rotulo">Prioridade (GUT)</span>
+                <span class="badge" id="d-prioridade">—</span>
+              </div>
             </div>
           </section>
 

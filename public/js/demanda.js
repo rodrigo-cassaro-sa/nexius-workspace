@@ -75,11 +75,18 @@ function preencherCabecalho(d) {
   badge.textContent = rotuloStatus(d.status);
   document.getElementById("d-solicitante").textContent = d.criador_nome || "—";
   document.getElementById("d-solicitado-em").textContent = formatarDataHora(d.criado_em);
-  document.getElementById("d-sla").textContent = calcularSlaTexto(d.criado_em, d.respondida_em);
 
-  // Prioridade GUT (G*U*T).
+  const sla = calcularSlaBadge(d.criado_em, d.respondida_em);
+  const elSla = document.getElementById("d-sla");
+  elSla.textContent = sla.texto;
+  elSla.className = sla.classe;
+  elSla.title = d.respondida_em ? ("Respondida em " + formatarDataHora(d.respondida_em)) : "";
+
+  // Prioridade GUT (G*U*T) como badge colorido.
   const prio = (parseInt(d.gut_gravidade, 10) || 0) * (parseInt(d.gut_urgencia, 10) || 0) * (parseInt(d.gut_tendencia, 10) || 0);
-  document.getElementById("d-prioridade").textContent = prio > 0 ? (prio + " · " + rotuloGut(prio)) : "—";
+  const elPrio = document.getElementById("d-prioridade");
+  elPrio.textContent = prio > 0 ? (prio + " · " + rotuloGut(prio)) : "—";
+  elPrio.className = prio > 0 ? classeGut(prio) : "badge";
 
   // Questionario da demanda (6 perguntas).
   document.getElementById("d-problema").textContent = d.problema || "—";
@@ -98,20 +105,22 @@ function preencherCabecalho(d) {
 }
 
 // SLA de resposta (3 dias a partir da solicitacao). Respondida = 1a acao criada.
-function calcularSlaTexto(criadoEm, respondidaEm) {
-  if (!criadoEm) return "—";
+// Retorna { texto, classe (badge) }.
+function calcularSlaBadge(criadoEm, respondidaEm) {
+  if (!criadoEm) return { texto: "—", classe: "badge" };
   const criado = new Date(String(criadoEm).replace(" ", "T"));
   const prazo = new Date(criado.getTime() + 3 * 24 * 60 * 60 * 1000);
 
   if (respondidaEm) {
     const resp = new Date(String(respondidaEm).replace(" ", "T"));
-    const dentro = resp <= prazo;
-    return "Respondida em " + formatarDataHora(respondidaEm) + (dentro ? " (no prazo)" : " (fora do prazo)");
+    return resp <= prazo
+      ? { texto: "Respondida no prazo", classe: "badge badge-sucesso" }
+      : { texto: "Respondida fora do prazo", classe: "badge badge-aviso" };
   }
   const agora = new Date();
-  if (agora > prazo) return "Vencido (sem resposta)";
+  if (agora > prazo) return { texto: "SLA vencido", classe: "badge badge-erro" };
   const dias = Math.ceil((prazo - agora) / (24 * 60 * 60 * 1000));
-  return "Aguardando resposta · vence em " + dias + " dia(s)";
+  return { texto: "Aguardando · vence em " + dias + "d", classe: "badge badge-info" };
 }
 
 // Rotulo da prioridade GUT: Alta >= 75, Media 25-74, Baixa < 25.
@@ -119,6 +128,13 @@ function rotuloGut(p) {
   if (p >= 75) return "Alta";
   if (p >= 25) return "Média";
   return "Baixa";
+}
+
+// Classe (badge) da prioridade GUT.
+function classeGut(p) {
+  if (p >= 75) return "badge badge-erro";
+  if (p >= 25) return "badge badge-aviso";
+  return "badge";
 }
 
 // Mapeia os valores (slug) da triagem para rotulos legiveis.
