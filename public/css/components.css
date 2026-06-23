@@ -416,24 +416,15 @@
 
 /* Barra de ferramentas (busca + filtros + acao a direita) */
 .barra-ferramentas {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: var(--espaco-2);
-  flex-wrap: wrap;
   margin: var(--espaco-3) 0 var(--espaco-4);
 }
 
-.barra-ferramentas .campo-busca {
-  flex: 1;
-  min-width: 180px;
-}
-
 .barra-ferramentas .campo-input {
-  max-width: 200px;
-}
-
-.barra-ferramentas .acao-direita {
-  margin-left: auto;
+  max-width: none;
+  width: 100%;
 }
 
 /* Barra de progresso (acoes concluidas / total) */
