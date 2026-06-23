@@ -38,7 +38,7 @@ if ($objetivo !== "" && !in_array($objetivo, ["reducao_custo", "relevancia_marca
 
 $filtros = [
     "status" => $filtro_status,
-    "responsavel" => isset($_GET["responsavel"]) ? (int) $_GET["responsavel"] : 0,
+    "solicitante" => isset($_GET["solicitante"]) ? (int) $_GET["solicitante"] : 0,
     "busca" => trim($_GET["busca"] ?? ""),
     "intencao" => $intencao,
     "pilar" => $pilar,

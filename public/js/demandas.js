@@ -40,14 +40,14 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("form-busca-topo").addEventListener("submit", function (e) { e.preventDefault(); recarregar(); });
 
   document.getElementById("filtro-status").addEventListener("change", recarregar);
-  document.getElementById("filtro-responsavel").addEventListener("change", recarregar);
+  document.getElementById("filtro-solicitante").addEventListener("change", recarregar);
   document.getElementById("filtro-pilar").addEventListener("change", recarregar);
   document.getElementById("filtro-intencao").addEventListener("change", recarregar);
   document.getElementById("filtro-objetivo").addEventListener("change", recarregar);
   document.getElementById("pag-anterior").addEventListener("click", function () { irPara(paginaAtual - 1); });
   document.getElementById("pag-proxima").addEventListener("click", function () { irPara(paginaAtual + 1); });
 
-  carregarFiltroResponsaveis();
+  carregarFiltroSolicitantes();
   carregarDemandas();
 });
 
@@ -70,8 +70,8 @@ function irPara(pagina) {
   carregarDemandas();
 }
 
-async function carregarFiltroResponsaveis() {
-  const select = document.getElementById("filtro-responsavel");
+async function carregarFiltroSolicitantes() {
+  const select = document.getElementById("filtro-solicitante");
   try {
     const resposta = await getApi("/api/usuarios/listar.php");
     if (!resposta.ok) return;
@@ -93,7 +93,7 @@ async function carregarDemandas() {
 
   const busca = document.getElementById("busca-topo").value.trim();
   const status = document.getElementById("filtro-status").value;
-  const responsavel = document.getElementById("filtro-responsavel").value;
+  const solicitante = document.getElementById("filtro-solicitante").value;
   const pilar = document.getElementById("filtro-pilar").value;
   const intencao = document.getElementById("filtro-intencao").value;
   const objetivo = document.getElementById("filtro-objetivo").value;
@@ -101,7 +101,7 @@ async function carregarDemandas() {
   const url = "/api/demandas/listar.php"
     + "?busca=" + encodeURIComponent(busca)
     + "&status=" + encodeURIComponent(status)
-    + "&responsavel=" + encodeURIComponent(responsavel)
+    + "&solicitante=" + encodeURIComponent(solicitante)
     + "&pilar=" + encodeURIComponent(pilar)
     + "&intencao=" + encodeURIComponent(intencao)
     + "&objetivo=" + encodeURIComponent(objetivo)
@@ -135,7 +135,7 @@ function renderizarLista(alvo, demandas) {
 
   const thead = document.createElement("thead");
   const cab = document.createElement("tr");
-  ["Título", "Prioridade", "Status", "Responsável", "SLA", "Progresso", "Prazo", ""].forEach(function (texto) {
+  ["Título", "Prioridade", "Status", "Solicitante", "SLA", "Progresso", "Prazo", ""].forEach(function (texto) {
     const th = document.createElement("th");
     th.textContent = texto;
     cab.appendChild(th);
@@ -163,7 +163,7 @@ function renderizarLista(alvo, demandas) {
     tdStatus.appendChild(badge);
     tr.appendChild(tdStatus);
 
-    tr.appendChild(celula("Responsável", d.responsavel_nome || "—"));
+    tr.appendChild(celula("Solicitante", d.solicitante_nome || "—"));
     tr.appendChild(celulaSla(d));
 
     tr.appendChild(celulaProgresso(d));

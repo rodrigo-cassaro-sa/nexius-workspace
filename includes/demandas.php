@@ -86,11 +86,11 @@ function montar_where_demandas($usuario_id, $perfil, $filtros)
         $where .= " AND d.status NOT IN ('arquivada', 'cancelada')";
     }
 
-    // Responsavel.
-    if ($filtros["responsavel"] > 0) {
-        $where .= " AND d.responsavel_id = ?";
+    // Solicitante (criador da demanda).
+    if (($filtros["solicitante"] ?? 0) > 0) {
+        $where .= " AND d.criador_id = ?";
         $tipos .= "i";
-        $params[] = $filtros["responsavel"];
+        $params[] = $filtros["solicitante"];
     }
 
     // Busca por titulo.
@@ -133,15 +133,15 @@ function listar_demandas($usuario_id, $perfil, $filtros, $pagina, $por_pagina)
 
     // Progresso = acoes concluidas / total de acoes (exceto canceladas).
     // Prazo = prazo da acao chave. (Acoes ainda nao existem nesta fase: vem 0/0 e null.)
-    $sql = "SELECT d.id, d.titulo, d.status, d.responsavel_id,
-                   u.nome AS responsavel_nome, d.criado_em, d.respondida_em,
+    $sql = "SELECT d.id, d.titulo, d.status, d.criador_id,
+                   uc.nome AS solicitante_nome, d.criado_em, d.respondida_em,
                    d.gut_gravidade, d.gut_urgencia, d.gut_tendencia,
                    COALESCE(d.gut_gravidade * d.gut_urgencia * d.gut_tendencia, 0) AS prioridade,
                    (SELECT COUNT(*) FROM acoes a WHERE a.demanda_id = d.id AND a.status <> 'cancelada') AS total_acoes,
                    (SELECT COUNT(*) FROM acoes a WHERE a.demanda_id = d.id AND a.status = 'concluida') AS acoes_concluidas,
                    (SELECT a.prazo FROM acoes a WHERE a.demanda_id = d.id AND a.chave = 1 LIMIT 1) AS prazo_chave
             FROM demandas d
-            LEFT JOIN usuarios u ON u.id = d.responsavel_id"
+            LEFT JOIN usuarios uc ON uc.id = d.criador_id"
             . $where . " ORDER BY prioridade DESC, d.criado_em DESC LIMIT ? OFFSET ?";
 
     $tipos_lista = $tipos . "ii";
