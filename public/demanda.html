@@ -114,35 +114,16 @@
                 </div>
               </dl>
             </section>
-            <div class="plano-grid">
-              <section class="card">
-                <div class="linha-titulo">
-                  <h2>Ações</h2>
-                  <button class="botao botao-primario" id="botao-nova-acao" type="button" hidden>+ Nova ação</button>
-                </div>
-                <div id="lista-acoes">
-                  <p class="texto-secundario">Carregando...</p>
-                </div>
-              </section>
-
-              <section class="card">
-                <h2>Comentários</h2>
-
-                <form id="form-comentario" novalidate>
-                  <div id="coment-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
-                  <div class="campo">
-                    <label class="campo-label" for="coment-acao">Comentar na ação</label>
-                    <select class="campo-input" id="coment-acao"></select>
-                  </div>
-                  <textarea class="campo-input" id="coment-texto" rows="2" placeholder="Escreva um comentário..."></textarea>
-                  <div class="coment-enviar">
-                    <button class="botao botao-primario" id="botao-comentar" type="submit">Enviar</button>
-                  </div>
-                </form>
-
-                <div id="coment-lista"></div>
-              </section>
-            </div>
+            <section class="card">
+              <div class="linha-titulo">
+                <h2>Plano de ação</h2>
+                <button class="botao botao-primario" id="botao-nova-acao" type="button" hidden>+ Nova ação</button>
+              </div>
+              <div id="coment-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+              <div id="lista-acoes">
+                <p class="texto-secundario">Carregando...</p>
+              </div>
+            </section>
           </div>
 
           <!-- Aba: Informações (edição da demanda) -->

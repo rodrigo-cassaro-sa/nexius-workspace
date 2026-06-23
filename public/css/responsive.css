@@ -144,6 +144,15 @@
     grid-template-columns: 1fr;
   }
 
+  /* Ação: cabeçalho empilha (status abaixo das infos). */
+  .acao-cabecalho {
+    flex-direction: column;
+  }
+
+  .acao-status-area {
+    align-items: flex-start;
+  }
+
   /* Topbar estreita: a busca ocupa a largura e o texto do usuario recolhe (fica o avatar). */
   .topbar-busca {
     max-width: none;

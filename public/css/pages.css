@@ -360,6 +360,71 @@
   flex-wrap: wrap;
 }
 
+/* Plano de acao estilo forum: cada acao e um bloco com comentarios recuados abaixo */
+.acao-item {
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  padding: var(--espaco-3) var(--espaco-4);
+  margin-bottom: var(--espaco-4);
+}
+
+.acao-item:last-child {
+  margin-bottom: 0;
+}
+
+.acao-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--espaco-3);
+}
+
+.acao-nome {
+  font-weight: 600;
+}
+
+.acao-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-4);
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--cor-texto-secundario);
+}
+
+.acao-status-area {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--espaco-2);
+  flex-shrink: 0;
+}
+
+/* Comentarios recuados (tab/forum) sob a acao */
+.acao-comentarios {
+  margin-top: var(--espaco-3);
+  padding-left: var(--espaco-4);
+  border-left: 2px solid var(--cor-borda);
+}
+
+.acao-coment-vazio {
+  margin: 0 0 var(--espaco-2);
+  font-size: 13px;
+}
+
+.coment-form {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--espaco-2);
+  margin-top: var(--espaco-2);
+}
+
+.coment-form textarea {
+  flex: 1;
+  min-height: 38px;
+  resize: vertical;
+}
+
 .badge-chave {
   background: rgba(78, 57, 47, 0.1);
   border-color: var(--cor-primaria);
