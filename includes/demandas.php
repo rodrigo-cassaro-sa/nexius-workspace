@@ -231,6 +231,18 @@ function atualizar_demanda($id, $titulo, $responsavel_id, $status, $campos)
     return mysqli_stmt_execute($stmt);
 }
 
+// Coloca a demanda "em andamento" se ainda estiver "aberta" (progresso comecou).
+// Disparado ao concluir uma acao nao-chave. Nao mexe em demanda concluida/arquivada.
+function marcar_demanda_em_andamento($demanda_id)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE demandas SET status = 'em_andamento' WHERE id = ? AND status = 'aberta'");
+    mysqli_stmt_bind_param($stmt, "i", $demanda_id);
+    mysqli_stmt_execute($stmt);
+
+    return mysqli_stmt_affected_rows($stmt) > 0;
+}
+
 // Marca a demanda como respondida (lastro do SLA), apenas na primeira vez.
 // "Responder" = criar a primeira acao (plano de acao) da demanda.
 function marcar_demanda_respondida($demanda_id)

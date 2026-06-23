@@ -55,9 +55,11 @@ mysqli_begin_transaction($conn);
 
 $ok = concluir_acao($id);
 
-// Acao chave conclui a demanda.
+// Acao chave conclui a demanda; acao nao-chave coloca a demanda "em andamento" (se aberta).
 if ($ok && (int) $acao["chave"] === 1) {
     $ok = concluir_demanda_por_acao_chave($acao["demanda_id"]);
+} elseif ($ok) {
+    marcar_demanda_em_andamento($acao["demanda_id"]);
 }
 
 if (!$ok) {
