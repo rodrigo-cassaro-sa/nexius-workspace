@@ -39,6 +39,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   document.getElementById("filtro-status").addEventListener("change", recarregar);
   document.getElementById("filtro-responsavel").addEventListener("change", recarregar);
+  document.getElementById("filtro-pilar").addEventListener("change", recarregar);
+  document.getElementById("filtro-intencao").addEventListener("change", recarregar);
+  document.getElementById("filtro-objetivo").addEventListener("change", recarregar);
   document.getElementById("pag-anterior").addEventListener("click", function () { irPara(paginaAtual - 1); });
   document.getElementById("pag-proxima").addEventListener("click", function () { irPara(paginaAtual + 1); });
 
@@ -89,11 +92,17 @@ async function carregarDemandas() {
   const busca = document.getElementById("busca-topo").value.trim();
   const status = document.getElementById("filtro-status").value;
   const responsavel = document.getElementById("filtro-responsavel").value;
+  const pilar = document.getElementById("filtro-pilar").value;
+  const intencao = document.getElementById("filtro-intencao").value;
+  const objetivo = document.getElementById("filtro-objetivo").value;
 
   const url = "/api/demandas/listar.php"
     + "?busca=" + encodeURIComponent(busca)
     + "&status=" + encodeURIComponent(status)
     + "&responsavel=" + encodeURIComponent(responsavel)
+    + "&pilar=" + encodeURIComponent(pilar)
+    + "&intencao=" + encodeURIComponent(intencao)
+    + "&objetivo=" + encodeURIComponent(objetivo)
     + "&pagina=" + paginaAtual;
 
   try {

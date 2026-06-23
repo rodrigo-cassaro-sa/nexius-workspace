@@ -100,6 +100,23 @@ function montar_where_demandas($usuario_id, $perfil, $filtros)
         $params[] = "%" . $filtros["busca"] . "%";
     }
 
+    // Filtros de triagem (intencao, pilar, objetivo).
+    if (($filtros["intencao"] ?? "") !== "") {
+        $where .= " AND d.intencao = ?";
+        $tipos .= "s";
+        $params[] = $filtros["intencao"];
+    }
+    if (($filtros["pilar"] ?? "") !== "") {
+        $where .= " AND d.pilar = ?";
+        $tipos .= "s";
+        $params[] = $filtros["pilar"];
+    }
+    if (($filtros["objetivo"] ?? "") !== "") {
+        $where .= " AND d.objetivo = ?";
+        $tipos .= "s";
+        $params[] = $filtros["objetivo"];
+    }
+
     return [$where, $tipos, $params];
 }
 

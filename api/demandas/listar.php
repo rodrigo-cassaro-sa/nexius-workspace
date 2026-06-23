@@ -22,10 +22,27 @@ if ($filtro_status !== "" && !in_array($filtro_status, $status_validos, true)) {
     $filtro_status = "";
 }
 
+// Filtros de triagem (validam contra as listas fechadas).
+$intencao = trim($_GET["intencao"] ?? "");
+if ($intencao !== "" && !in_array($intencao, ["melhoria", "defeito", "nova_solucao"], true)) {
+    $intencao = "";
+}
+$pilar = trim($_GET["pilar"] ?? "");
+if ($pilar !== "" && !in_array($pilar, ["processo", "financeiro", "pessoas", "cliente"], true)) {
+    $pilar = "";
+}
+$objetivo = trim($_GET["objetivo"] ?? "");
+if ($objetivo !== "" && !in_array($objetivo, ["reducao_custo", "relevancia_marca", "organizacao_trabalho"], true)) {
+    $objetivo = "";
+}
+
 $filtros = [
     "status" => $filtro_status,
     "responsavel" => isset($_GET["responsavel"]) ? (int) $_GET["responsavel"] : 0,
-    "busca" => trim($_GET["busca"] ?? "")
+    "busca" => trim($_GET["busca"] ?? ""),
+    "intencao" => $intencao,
+    "pilar" => $pilar,
+    "objetivo" => $objetivo
 ];
 
 $por_pagina = 10;
