@@ -221,6 +221,9 @@ function renderizarAcoes(alvo, acoes) {
   acoes.forEach(function (a, indice) {
     const item = document.createElement("div");
     item.className = "acao-item";
+    if (parseInt(a.chave, 10) === 1) {
+      item.classList.add("acao-item-chave");
+    }
 
     // Cabecalho: numero + titulo (+ chave), meta (responsavel/prazo) e status/concluir.
     const cab = document.createElement("div");
@@ -270,6 +273,17 @@ function renderizarAcoes(alvo, acoes) {
 
     rodape.appendChild(btnDet);
     rodape.appendChild(vistos);
+
+    // Tornar chave: gestor/admin, apenas nas acoes que ainda nao sao a chave.
+    if ((perfilUsuario === "administrador" || perfilUsuario === "gestor") && parseInt(a.chave, 10) !== 1) {
+      const btnChave = document.createElement("button");
+      btnChave.className = "botao-link";
+      btnChave.type = "button";
+      btnChave.textContent = "★ Tornar chave";
+      btnChave.addEventListener("click", function () { tornarChave(a.id); });
+      rodape.appendChild(btnChave);
+    }
+
     info.appendChild(rodape);
 
     cab.appendChild(info);
@@ -350,6 +364,20 @@ async function confirmarAssinatura() {
   }
 }
 
+// Define uma acao como a chave da demanda (gestor/admin). Recarrega o plano.
+async function tornarChave(acaoId) {
+  try {
+    const resposta = await postApi("/api/acoes/definir-chave.php", { id: acaoId });
+    if (!resposta.ok) {
+      mostrarErro("mensagem", resposta.error);
+      return;
+    }
+    await carregarAcoes();
+  } catch (erro) {
+    mostrarErro("mensagem", "Nao foi possivel definir a ação chave.");
+  }
+}
+
 async function abrirNovaAcao() {
   document.getElementById("form-acao").reset();
   document.getElementById("acao-mensagem").hidden = true;
@@ -396,7 +424,6 @@ async function salvarAcao(evento) {
   const descricao = document.getElementById("a-descricao").value.trim();
   const responsavel = document.getElementById("a-responsavel").value;
   const prazo = document.getElementById("a-prazo").value;
-  const chave = document.getElementById("a-chave").checked;
 
   const prereqValor = document.getElementById("a-prerequisito").value;
   const prerequisitos = prereqValor ? [parseInt(prereqValor, 10)] : [];
@@ -415,7 +442,6 @@ async function salvarAcao(evento) {
       descricao: descricao,
       responsavel_id: responsavel,
       prazo: prazo,
-      chave: chave,
       prerequisitos: prerequisitos
     });
 

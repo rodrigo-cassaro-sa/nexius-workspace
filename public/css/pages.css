@@ -440,6 +440,12 @@
   margin-bottom: 0;
 }
 
+/* Acao chave: marco de conclusao da demanda (destaque) */
+.acao-item-chave {
+  border-color: var(--cor-primaria);
+  border-left: 3px solid var(--cor-primaria);
+}
+
 .acao-cabecalho {
   display: flex;
   justify-content: space-between;

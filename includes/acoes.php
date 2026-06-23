@@ -16,6 +16,29 @@ function limpar_chave_da_demanda($demanda_id)
     mysqli_stmt_execute($stmt);
 }
 
+// A demanda ja tem uma acao chave ativa? (toda demanda deve ter exatamente uma.)
+function demanda_tem_chave($demanda_id)
+{
+    $linhas = executar_select(
+        "SELECT id FROM acoes WHERE demanda_id = ? AND chave = 1 AND status <> 'cancelada' LIMIT 1",
+        "i",
+        [$demanda_id]
+    );
+    return !empty($linhas);
+}
+
+// Define a acao chave da demanda (limpa as demais e marca esta).
+function definir_acao_chave($acao_id, $demanda_id)
+{
+    limpar_chave_da_demanda($demanda_id);
+
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE acoes SET chave = 1 WHERE id = ? AND demanda_id = ?");
+    mysqli_stmt_bind_param($stmt, "ii", $acao_id, $demanda_id);
+
+    return mysqli_stmt_execute($stmt);
+}
+
 // Cria uma acao. Retorna o id ou false.
 function criar_acao($demanda_id, $titulo, $descricao, $responsavel_id, $prazo, $chave)
 {

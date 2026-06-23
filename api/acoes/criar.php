@@ -26,7 +26,6 @@ $titulo = trim($body["titulo"] ?? "");
 $descricao = trim($body["descricao"] ?? "");
 $responsavel_id = isset($body["responsavel_id"]) && $body["responsavel_id"] !== "" ? (int) $body["responsavel_id"] : null;
 $prazo = trim($body["prazo"] ?? "");
-$chave = !empty($body["chave"]) ? 1 : 0;
 $prerequisitos = isset($body["prerequisitos"]) && is_array($body["prerequisitos"]) ? $body["prerequisitos"] : [];
 
 $erros = [];
@@ -47,6 +46,10 @@ $demanda = buscar_demanda($demanda_id);
 if (!$demanda) {
     json_erro("Demanda nao encontrada.", 404);
 }
+
+// Toda demanda deve ter exatamente uma acao chave: a primeira acao nasce chave.
+// As demais nascem normais (a chave pode ser trocada depois, com 1 clique).
+$chave = demanda_tem_chave($demanda_id) ? 0 : 1;
 
 $id = criar_acao(
     $demanda_id,
