@@ -25,6 +25,12 @@ if ($id <= 0) {
     json_erro("Acao nao informada.", 400);
 }
 
+// Conclusao exige assinatura: confirmacao explicita do responsavel (lastro).
+$assinado = isset($body["assinado"]) && $body["assinado"] === true;
+if (!$assinado) {
+    json_erro("Conclusao requer assinatura (confirmacao).", 400);
+}
+
 $acao = buscar_acao($id);
 if (!$acao) {
     json_erro("Acao nao encontrada.", 404);
@@ -60,7 +66,7 @@ if (!$ok) {
 }
 
 mysqli_commit($conn);
-registrar_log("acao_concluida", "acao_id=" . $id);
+registrar_log("acao_concluida", "acao_id=" . $id . " assinado=1");
 
 // Notifica o criador da demanda sobre a conclusao (e, se foi a acao chave, a demanda concluida).
 $ator = obter_usuario_logado_id();

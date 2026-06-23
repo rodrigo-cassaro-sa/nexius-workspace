@@ -8,6 +8,7 @@ let usuarioId = 0;
 let demandaAtual = null;
 let acoesAtuais = [];
 let comentariosAtuais = [];
+let acaoParaAssinar = 0;
 
 document.addEventListener("DOMContentLoaded", async function () {
   const usuario = await exigirSessaoNoFront();
@@ -23,6 +24,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("usuario-perfil").textContent = usuario.perfil;
   document.getElementById("botao-sair").addEventListener("click", sairDoSistema);
   document.getElementById("botao-det-fechar").addEventListener("click", function () { fecharModal("modal-acao-detalhe"); });
+  document.getElementById("assinar-confirma").addEventListener("change", function () {
+    document.getElementById("botao-assinar-confirmar").disabled = !this.checked;
+  });
+  document.getElementById("botao-assinar-cancelar").addEventListener("click", function () { fecharModal("modal-assinar"); });
+  document.getElementById("botao-assinar-confirmar").addEventListener("click", confirmarAssinatura);
   if (perfilUsuario === "administrador") {
     document.getElementById("nav-usuarios").hidden = false;
   }
@@ -241,7 +247,7 @@ function renderizarAcoes(alvo, acoes) {
       botao.className = "botao botao-secundario";
       botao.type = "button";
       botao.textContent = "Concluir";
-      botao.addEventListener("click", function () { concluirAcao(a.id, botao); });
+      botao.addEventListener("click", function () { abrirAssinatura(a); });
       statusArea.appendChild(botao);
     }
 
@@ -255,19 +261,39 @@ function renderizarAcoes(alvo, acoes) {
   });
 }
 
-async function concluirAcao(id, botao) {
+// Conclusao com assinatura (declaracao + 1 clique): abre o modal de confirmacao.
+function abrirAssinatura(a) {
+  acaoParaAssinar = a.id;
+  document.getElementById("assinar-acao").textContent = "Ação: " + a.titulo;
+  document.getElementById("assinar-confirma").checked = false;
+  document.getElementById("botao-assinar-confirmar").disabled = true;
+  document.getElementById("assinar-mensagem").hidden = true;
+  abrirModal("modal-assinar");
+}
+
+async function confirmarAssinatura() {
+  if (acaoParaAssinar <= 0) return;
+
+  if (!document.getElementById("assinar-confirma").checked) {
+    mostrarErro("assinar-mensagem", "Marque a confirmação para assinar.");
+    return;
+  }
+
+  const botao = document.getElementById("botao-assinar-confirmar");
   definirCarregando(botao, true);
+
   try {
-    const resposta = await postApi("/api/acoes/concluir.php", { id: id });
+    const resposta = await postApi("/api/acoes/concluir.php", { id: acaoParaAssinar, assinado: true });
     if (!resposta.ok) {
-      mostrarErro("mensagem", resposta.error);
+      mostrarErro("assinar-mensagem", resposta.error);
       definirCarregando(botao, false);
       return;
     }
-    // Recarrega demanda (status pode ter mudado) e acoes.
+    fecharModal("modal-assinar");
+    definirCarregando(botao, false);
     await carregarTudo();
   } catch (erro) {
-    mostrarErro("mensagem", "Nao foi possivel concluir a ação.");
+    mostrarErro("assinar-mensagem", "Nao foi possivel concluir a ação.");
     definirCarregando(botao, false);
   }
 }

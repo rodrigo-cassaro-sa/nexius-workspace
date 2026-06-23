@@ -218,6 +218,27 @@
     </div>
   </div>
 
+  <!-- Modal: Assinar conclusão (lastro de execução) -->
+  <div id="modal-assinar" class="modal" role="dialog" aria-modal="true" aria-labelledby="assinar-titulo">
+    <div class="modal-conteudo">
+      <h2 class="modal-titulo" id="assinar-titulo">Concluir ação</h2>
+      <div id="assinar-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+      <p id="assinar-acao" class="texto-secundario"></p>
+      <p>Esta conclusão fica registrada com o seu nome, data e hora como lastro de execução, e não pode ser desfeita.</p>
+
+      <label class="assinar-check">
+        <input type="checkbox" id="assinar-confirma">
+        <span>Confirmo e assino a conclusão desta ação.</span>
+      </label>
+
+      <div class="modal-acoes">
+        <button type="button" class="botao botao-secundario" id="botao-assinar-cancelar">Cancelar</button>
+        <button type="button" class="botao botao-primario" id="botao-assinar-confirmar" disabled>Assinar e concluir</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: confirmar arquivar -->
   <div id="modal-arquivar" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-arquivar-titulo">
     <div class="modal-conteudo">

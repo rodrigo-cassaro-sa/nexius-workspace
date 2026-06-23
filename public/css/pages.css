@@ -471,6 +471,15 @@
   margin-bottom: var(--espaco-2);
 }
 
+/* Declaracao de assinatura na conclusao */
+.assinar-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--espaco-2);
+  margin: var(--espaco-3) 0;
+  cursor: pointer;
+}
+
 .badge-chave {
   background: rgba(78, 57, 47, 0.1);
   border-color: var(--cor-primaria);
