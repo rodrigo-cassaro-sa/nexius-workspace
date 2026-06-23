@@ -241,6 +241,11 @@
   padding: var(--espaco-5);
 }
 
+/* Respiro entre cards empilhados no conteudo (ex.: Perfil, Usuarios). */
+.app-main > .card + .card {
+  margin-top: var(--espaco-4);
+}
+
 /* Topbar (barra superior das telas internas) */
 .topbar {
   display: flex;
