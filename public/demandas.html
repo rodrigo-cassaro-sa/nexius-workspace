@@ -130,6 +130,42 @@
             <label class="campo-label" for="sugestao">Sugestão de solução *</label>
             <textarea class="campo-input" id="sugestao" rows="3" required></textarea>
           </div>
+
+          <div class="gut-ajuda">
+            <strong>Prioridade (GUT)</strong>
+            <p class="texto-secundario">A prioridade é <strong>G × U × T</strong> (1 a 125): <strong>Gravidade</strong> (o quanto é grave), <strong>Urgência</strong> (o quão rápido exige ação) e <strong>Tendência</strong> (o quanto tende a piorar). Quanto maior o valor, mais prioritária — <strong>Alta</strong>: ≥ 75 · <strong>Média</strong>: 25–74 · <strong>Baixa</strong>: &lt; 25.</p>
+          </div>
+
+          <div class="campo">
+            <label class="campo-label" for="gut-gravidade">Gravidade (G) *</label>
+            <select class="campo-input" id="gut-gravidade" required>
+              <option value="1">1 — Sem gravidade</option>
+              <option value="2">2 — Pouco grave</option>
+              <option value="3" selected>3 — Grave</option>
+              <option value="4">4 — Muito grave</option>
+              <option value="5">5 — Extremamente grave</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="gut-urgencia">Urgência (U) *</label>
+            <select class="campo-input" id="gut-urgencia" required>
+              <option value="1">1 — Pode esperar</option>
+              <option value="2">2 — Pouco urgente</option>
+              <option value="3" selected>3 — Merece atenção</option>
+              <option value="4">4 — Muito urgente</option>
+              <option value="5">5 — Ação imediata</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="gut-tendencia">Tendência (T) *</label>
+            <select class="campo-input" id="gut-tendencia" required>
+              <option value="1">1 — Não vai mudar</option>
+              <option value="2">2 — Piora a longo prazo</option>
+              <option value="3" selected>3 — Piora a médio prazo</option>
+              <option value="4">4 — Piora a curto prazo</option>
+              <option value="5">5 — Piora rapidamente</option>
+            </select>
+          </div>
         </div>
 
         <div class="modal-acoes">

@@ -75,6 +75,10 @@ function preencherCabecalho(d) {
   badge.textContent = rotuloStatus(d.status);
   document.getElementById("d-responsavel").textContent = d.responsavel_nome || "—";
 
+  // Prioridade GUT (G*U*T).
+  const prio = (parseInt(d.gut_gravidade, 10) || 0) * (parseInt(d.gut_urgencia, 10) || 0) * (parseInt(d.gut_tendencia, 10) || 0);
+  document.getElementById("d-prioridade").textContent = prio > 0 ? (prio + " · " + rotuloGut(prio)) : "—";
+
   // Questionario da demanda (6 perguntas).
   document.getElementById("d-problema").textContent = d.problema || "—";
   document.getElementById("d-impacto").textContent = d.impacto_operacional || "—";
@@ -82,6 +86,13 @@ function preencherCabecalho(d) {
   document.getElementById("d-afeta").textContent = d.afeta_outros || "—";
   document.getElementById("d-workaround").textContent = d.workaround || "—";
   document.getElementById("d-sugestao").textContent = d.sugestao_solucao || "—";
+}
+
+// Rotulo da prioridade GUT: Alta >= 75, Media 25-74, Baixa < 25.
+function rotuloGut(p) {
+  if (p >= 75) return "Alta";
+  if (p >= 25) return "Média";
+  return "Baixa";
 }
 
 function prepararGestor() {

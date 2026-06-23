@@ -22,13 +22,14 @@ function criar_demanda($titulo, $responsavel_id, $criador_id, $campos)
     $conn = conectar_banco();
     $sql = "INSERT INTO demandas
                 (titulo, status, criador_id, responsavel_id,
-                 problema, impacto_operacional, risco, afeta_outros, workaround, sugestao_solucao)
-            VALUES (?, 'aberta', ?, ?, ?, ?, ?, ?, ?, ?)";
+                 problema, impacto_operacional, risco, afeta_outros, workaround, sugestao_solucao,
+                 gut_gravidade, gut_urgencia, gut_tendencia)
+            VALUES (?, 'aberta', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param(
         $stmt,
-        "siissssss",
+        "siissssssiii",
         $titulo,
         $criador_id,
         $responsavel_id,
@@ -37,7 +38,10 @@ function criar_demanda($titulo, $responsavel_id, $criador_id, $campos)
         $campos["risco"],
         $campos["afeta_outros"],
         $campos["workaround"],
-        $campos["sugestao_solucao"]
+        $campos["sugestao_solucao"],
+        $campos["gut_gravidade"],
+        $campos["gut_urgencia"],
+        $campos["gut_tendencia"]
     );
     $ok = mysqli_stmt_execute($stmt);
 
@@ -105,12 +109,14 @@ function listar_demandas($usuario_id, $perfil, $filtros, $pagina, $por_pagina)
     // Prazo = prazo da acao chave. (Acoes ainda nao existem nesta fase: vem 0/0 e null.)
     $sql = "SELECT d.id, d.titulo, d.status, d.responsavel_id,
                    u.nome AS responsavel_nome, d.criado_em,
+                   d.gut_gravidade, d.gut_urgencia, d.gut_tendencia,
+                   COALESCE(d.gut_gravidade * d.gut_urgencia * d.gut_tendencia, 0) AS prioridade,
                    (SELECT COUNT(*) FROM acoes a WHERE a.demanda_id = d.id AND a.status <> 'cancelada') AS total_acoes,
                    (SELECT COUNT(*) FROM acoes a WHERE a.demanda_id = d.id AND a.status = 'concluida') AS acoes_concluidas,
                    (SELECT a.prazo FROM acoes a WHERE a.demanda_id = d.id AND a.chave = 1 LIMIT 1) AS prazo_chave
             FROM demandas d
             LEFT JOIN usuarios u ON u.id = d.responsavel_id"
-            . $where . " ORDER BY d.criado_em DESC LIMIT ? OFFSET ?";
+            . $where . " ORDER BY prioridade DESC, d.criado_em DESC LIMIT ? OFFSET ?";
 
     $tipos_lista = $tipos . "ii";
     $params_lista = array_merge($params, [$por_pagina, $offset]);
@@ -126,6 +132,7 @@ function buscar_demanda($id)
     $linhas = executar_select(
         "SELECT d.id, d.titulo, d.descricao, d.status, d.responsavel_id, d.criador_id,
                 d.problema, d.impacto_operacional, d.risco, d.afeta_outros, d.workaround, d.sugestao_solucao,
+                d.gut_gravidade, d.gut_urgencia, d.gut_tendencia,
                 ur.nome AS responsavel_nome, uc.nome AS criador_nome,
                 d.concluida_em, d.criado_em, d.atualizado_em
          FROM demandas d

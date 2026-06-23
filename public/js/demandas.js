@@ -124,7 +124,7 @@ function renderizarLista(alvo, demandas) {
 
   const thead = document.createElement("thead");
   const cab = document.createElement("tr");
-  ["Título", "Status", "Responsável", "Progresso", "Prazo", ""].forEach(function (texto) {
+  ["Título", "Prioridade", "Status", "Responsável", "Progresso", "Prazo", ""].forEach(function (texto) {
     const th = document.createElement("th");
     th.textContent = texto;
     cab.appendChild(th);
@@ -136,7 +136,13 @@ function renderizarLista(alvo, demandas) {
   demandas.forEach(function (d) {
     const tr = document.createElement("tr");
 
+    const prioridade = parseInt(d.prioridade, 10) || 0;
+    if (prioridade >= 75) {
+      tr.classList.add("prioridade-alta");
+    }
+
     tr.appendChild(celula("Título", d.titulo));
+    tr.appendChild(celulaPrioridade(prioridade));
 
     const tdStatus = document.createElement("td");
     tdStatus.setAttribute("data-rotulo", "Status");
@@ -196,6 +202,41 @@ function celulaProgresso(d) {
 
   td.appendChild(barra);
   td.appendChild(texto);
+  return td;
+}
+
+// Classifica a prioridade GUT (G*U*T): Alta >= 75, Media 25-74, Baixa < 25.
+function classificarGut(p) {
+  if (!p || p <= 0) return null;
+  if (p >= 75) return { rotulo: "Alta", classe: "badge badge-erro" };
+  if (p >= 25) return { rotulo: "Média", classe: "badge badge-aviso" };
+  return { rotulo: "Baixa", classe: "badge" };
+}
+
+function celulaPrioridade(prioridade) {
+  const td = document.createElement("td");
+  td.setAttribute("data-rotulo", "Prioridade");
+
+  const info = classificarGut(prioridade);
+  if (!info) {
+    td.textContent = "—";
+    return td;
+  }
+
+  const wrap = document.createElement("span");
+  wrap.className = "prioridade-celula";
+
+  const score = document.createElement("span");
+  score.className = "prioridade-score";
+  score.textContent = prioridade;
+
+  const badge = document.createElement("span");
+  badge.className = info.classe;
+  badge.textContent = info.rotulo;
+
+  wrap.appendChild(score);
+  wrap.appendChild(badge);
+  td.appendChild(wrap);
   return td;
 }
 
@@ -270,6 +311,13 @@ async function salvarNova(evento) {
     sugestao_solucao: document.getElementById("sugestao").value.trim()
   };
 
+  // Matriz GUT (1 a 5). Prioridade = G * U * T.
+  const gut = {
+    gut_gravidade: parseInt(document.getElementById("gut-gravidade").value, 10) || 0,
+    gut_urgencia: parseInt(document.getElementById("gut-urgencia").value, 10) || 0,
+    gut_tendencia: parseInt(document.getElementById("gut-tendencia").value, 10) || 0
+  };
+
   if (!tamanhoEntre(titulo, 2, 160)) {
     mostrarErro("modal-mensagem", "Informe um título (2 a 160 caracteres).");
     return;
@@ -284,7 +332,7 @@ async function salvarNova(evento) {
   definirCarregando(botao, true);
 
   try {
-    const dados = Object.assign({ titulo: titulo, responsavel_id: responsavel }, campos);
+    const dados = Object.assign({ titulo: titulo, responsavel_id: responsavel }, campos, gut);
     const resposta = await postApi("/api/demandas/criar.php", dados);
 
     if (!resposta.ok) {

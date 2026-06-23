@@ -42,6 +42,13 @@ $mensagens_campos = [
     "sugestao_solucao" => "Informe a sugestao de solucao."
 ];
 
+// Matriz GUT (1 a 5). Prioridade = G * U * T.
+$gut = [
+    "gut_gravidade" => isset($body["gut_gravidade"]) ? (int) $body["gut_gravidade"] : 0,
+    "gut_urgencia" => isset($body["gut_urgencia"]) ? (int) $body["gut_urgencia"] : 0,
+    "gut_tendencia" => isset($body["gut_tendencia"]) ? (int) $body["gut_tendencia"] : 0
+];
+
 $erros = [];
 if (!validar_tamanho($titulo, 2, 160)) {
     $erros["titulo"] = "Informe um titulo (2 a 160 caracteres).";
@@ -51,12 +58,19 @@ foreach ($mensagens_campos as $campo => $mensagem) {
         $erros[$campo] = $mensagem;
     }
 }
+foreach (["gut_gravidade", "gut_urgencia", "gut_tendencia"] as $campo_gut) {
+    if ($gut[$campo_gut] < 1 || $gut[$campo_gut] > 5) {
+        $erros[$campo_gut] = "Selecione um valor de 1 a 5.";
+    }
+}
 if ($responsavel_id !== null && !usuario_ativo_existe($responsavel_id)) {
     $erros["responsavel_id"] = "Responsavel invalido.";
 }
 if (!empty($erros)) {
     json_response(["ok" => false, "error" => "Verifique os campos.", "errors" => $erros], 400);
 }
+
+$campos = array_merge($campos, $gut);
 
 $id = criar_demanda($titulo, $responsavel_id, obter_usuario_logado_id(), $campos);
 if (!$id) {
