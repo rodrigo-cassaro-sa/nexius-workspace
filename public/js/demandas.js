@@ -318,6 +318,15 @@ async function salvarNova(evento) {
     gut_tendencia: parseInt(document.getElementById("gut-tendencia").value, 10) || 0
   };
 
+  // Triagem (classificacao da demanda).
+  const triagem = {
+    origem: document.getElementById("origem").value.trim(),
+    momento_etapa: document.getElementById("momento").value.trim(),
+    intencao: document.getElementById("intencao").value,
+    pilar: document.getElementById("pilar").value,
+    objetivo: document.getElementById("objetivo").value
+  };
+
   if (!tamanhoEntre(titulo, 2, 160)) {
     mostrarErro("modal-mensagem", "Informe um título (2 a 160 caracteres).");
     return;
@@ -329,10 +338,19 @@ async function salvarNova(evento) {
     return;
   }
 
+  if (triagem.origem.length < 2 || triagem.momento_etapa.length < 2) {
+    mostrarErro("modal-mensagem", "Preencha \"Onde?\" e \"Em qual momento ou etapa?\".");
+    return;
+  }
+  if (!triagem.intencao || !triagem.pilar || !triagem.objetivo) {
+    mostrarErro("modal-mensagem", "Selecione intenção, pilar e objetivo na triagem.");
+    return;
+  }
+
   definirCarregando(botao, true);
 
   try {
-    const dados = Object.assign({ titulo: titulo, responsavel_id: responsavel }, campos, gut);
+    const dados = Object.assign({ titulo: titulo, responsavel_id: responsavel }, campos, triagem, gut);
     const resposta = await postApi("/api/demandas/criar.php", dados);
 
     if (!resposta.ok) {

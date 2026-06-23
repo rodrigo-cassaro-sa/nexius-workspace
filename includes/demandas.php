@@ -23,13 +23,17 @@ function criar_demanda($titulo, $responsavel_id, $criador_id, $campos)
     $sql = "INSERT INTO demandas
                 (titulo, status, criador_id, responsavel_id,
                  problema, impacto_operacional, risco, afeta_outros, workaround, sugestao_solucao,
+                 origem, momento_etapa, intencao, pilar, objetivo,
                  gut_gravidade, gut_urgencia, gut_tendencia)
-            VALUES (?, 'aberta', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            VALUES (?, 'aberta', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    // titulo(s) + criador/responsavel(ii) + 6 perguntas(ssssss) + 5 triagem(sssss) + 3 gut(iii)
+    $tipos = "s" . "ii" . "ssssss" . "sssss" . "iii";
 
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param(
         $stmt,
-        "siissssssiii",
+        $tipos,
         $titulo,
         $criador_id,
         $responsavel_id,
@@ -39,6 +43,11 @@ function criar_demanda($titulo, $responsavel_id, $criador_id, $campos)
         $campos["afeta_outros"],
         $campos["workaround"],
         $campos["sugestao_solucao"],
+        $campos["origem"],
+        $campos["momento_etapa"],
+        $campos["intencao"],
+        $campos["pilar"],
+        $campos["objetivo"],
         $campos["gut_gravidade"],
         $campos["gut_urgencia"],
         $campos["gut_tendencia"]
@@ -132,6 +141,7 @@ function buscar_demanda($id)
     $linhas = executar_select(
         "SELECT d.id, d.titulo, d.descricao, d.status, d.responsavel_id, d.criador_id,
                 d.problema, d.impacto_operacional, d.risco, d.afeta_outros, d.workaround, d.sugestao_solucao,
+                d.origem, d.momento_etapa, d.intencao, d.pilar, d.objetivo,
                 d.gut_gravidade, d.gut_urgencia, d.gut_tendencia,
                 ur.nome AS responsavel_nome, uc.nome AS criador_nome,
                 d.concluida_em, d.criado_em, d.atualizado_em

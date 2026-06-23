@@ -86,6 +86,13 @@ function preencherCabecalho(d) {
   document.getElementById("d-afeta").textContent = d.afeta_outros || "—";
   document.getElementById("d-workaround").textContent = d.workaround || "—";
   document.getElementById("d-sugestao").textContent = d.sugestao_solucao || "—";
+
+  // Triagem.
+  document.getElementById("d-origem").textContent = d.origem || "—";
+  document.getElementById("d-momento").textContent = d.momento_etapa || "—";
+  document.getElementById("d-intencao").textContent = rotuloTriagem("intencao", d.intencao);
+  document.getElementById("d-pilar").textContent = rotuloTriagem("pilar", d.pilar);
+  document.getElementById("d-objetivo").textContent = rotuloTriagem("objetivo", d.objetivo);
 }
 
 // Rotulo da prioridade GUT: Alta >= 75, Media 25-74, Baixa < 25.
@@ -93,6 +100,21 @@ function rotuloGut(p) {
   if (p >= 75) return "Alta";
   if (p >= 25) return "Média";
   return "Baixa";
+}
+
+// Mapeia os valores (slug) da triagem para rotulos legiveis.
+const ROTULOS_TRIAGEM = {
+  intencao: { melhoria: "Melhoria", defeito: "Corrigir defeito", nova_solucao: "Nova solução" },
+  pilar: { processo: "Processo", financeiro: "Financeiro", pessoas: "Pessoas", cliente: "Cliente" },
+  objetivo: {
+    reducao_custo: "Redução de custo",
+    relevancia_marca: "Aumento da relevância da marca",
+    organizacao_trabalho: "Organização do trabalho"
+  }
+};
+
+function rotuloTriagem(tipo, valor) {
+  return (ROTULOS_TRIAGEM[tipo] && ROTULOS_TRIAGEM[tipo][valor]) || valor || "—";
 }
 
 function prepararGestor() {

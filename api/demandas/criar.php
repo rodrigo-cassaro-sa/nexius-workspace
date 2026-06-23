@@ -49,6 +49,19 @@ $gut = [
     "gut_tendencia" => isset($body["gut_tendencia"]) ? (int) $body["gut_tendencia"] : 0
 ];
 
+// Triagem (ajuda a classificar e montar o plano de acao).
+$triagem = [
+    "origem" => trim($body["origem"] ?? ""),
+    "momento_etapa" => trim($body["momento_etapa"] ?? ""),
+    "intencao" => trim($body["intencao"] ?? ""),
+    "pilar" => trim($body["pilar"] ?? ""),
+    "objetivo" => trim($body["objetivo"] ?? "")
+];
+
+$intencoes = ["melhoria", "defeito", "nova_solucao"];
+$pilares = ["processo", "financeiro", "pessoas", "cliente"];
+$objetivos = ["reducao_custo", "relevancia_marca", "organizacao_trabalho"];
+
 $erros = [];
 if (!validar_tamanho($titulo, 2, 160)) {
     $erros["titulo"] = "Informe um titulo (2 a 160 caracteres).";
@@ -63,6 +76,21 @@ foreach (["gut_gravidade", "gut_urgencia", "gut_tendencia"] as $campo_gut) {
         $erros[$campo_gut] = "Selecione um valor de 1 a 5.";
     }
 }
+if (!validar_tamanho($triagem["origem"], 2, 200)) {
+    $erros["origem"] = "Informe onde (sistema, processo ou area).";
+}
+if (!validar_tamanho($triagem["momento_etapa"], 2, 200)) {
+    $erros["momento_etapa"] = "Informe o momento ou etapa.";
+}
+if (!valor_em_lista($triagem["intencao"], $intencoes)) {
+    $erros["intencao"] = "Selecione a intencao.";
+}
+if (!valor_em_lista($triagem["pilar"], $pilares)) {
+    $erros["pilar"] = "Selecione o pilar impactado.";
+}
+if (!valor_em_lista($triagem["objetivo"], $objetivos)) {
+    $erros["objetivo"] = "Selecione o objetivo principal.";
+}
 if ($responsavel_id !== null && !usuario_ativo_existe($responsavel_id)) {
     $erros["responsavel_id"] = "Responsavel invalido.";
 }
@@ -70,7 +98,7 @@ if (!empty($erros)) {
     json_response(["ok" => false, "error" => "Verifique os campos.", "errors" => $erros], 400);
 }
 
-$campos = array_merge($campos, $gut);
+$campos = array_merge($campos, $triagem, $gut);
 
 $id = criar_demanda($titulo, $responsavel_id, obter_usuario_logado_id(), $campos);
 if (!$id) {

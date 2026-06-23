@@ -341,6 +341,20 @@
   grid-column: span 2;
 }
 
+/* Subtitulo de secao dentro do formulario (Triagem, Analise...) */
+.form-secao {
+  grid-column: 1 / -1;
+  margin-top: var(--espaco-2);
+}
+
+.form-secao strong {
+  font-size: 15px;
+}
+
+.form-secao p {
+  margin: 2px 0 0;
+}
+
 /* Caixa explicativa da prioridade GUT (ocupa a largura toda da grade) */
 .gut-ajuda {
   grid-column: 1 / -1;

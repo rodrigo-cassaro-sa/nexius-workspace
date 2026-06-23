@@ -106,6 +106,51 @@
               <option value="">Sem responsável</option>
             </select>
           </div>
+
+          <div class="form-secao">
+            <strong>Triagem</strong>
+            <p class="texto-secundario">Classifica a demanda e ajuda a montar o plano de ação.</p>
+          </div>
+          <div class="campo campo-2col">
+            <label class="campo-label" for="origem">Onde? (sistema, processo, área) *</label>
+            <input class="campo-input" id="origem" type="text" maxlength="200" required>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="momento">Em qual momento ou etapa? *</label>
+            <input class="campo-input" id="momento" type="text" maxlength="200" required>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="intencao">Qual a intenção? *</label>
+            <select class="campo-input" id="intencao" required>
+              <option value="">Selecione...</option>
+              <option value="melhoria">Melhoria</option>
+              <option value="defeito">Corrigir defeito</option>
+              <option value="nova_solucao">Nova solução</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="pilar">Principal pilar impactado? *</label>
+            <select class="campo-input" id="pilar" required>
+              <option value="">Selecione...</option>
+              <option value="processo">Processo</option>
+              <option value="financeiro">Financeiro</option>
+              <option value="pessoas">Pessoas</option>
+              <option value="cliente">Cliente</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="objetivo">Objetivo principal? *</label>
+            <select class="campo-input" id="objetivo" required>
+              <option value="">Selecione...</option>
+              <option value="reducao_custo">Redução de custo</option>
+              <option value="relevancia_marca">Aumento da relevância da marca</option>
+              <option value="organizacao_trabalho">Organização do trabalho</option>
+            </select>
+          </div>
+
+          <div class="form-secao">
+            <strong>Análise da demanda</strong>
+          </div>
           <div class="campo">
             <label class="campo-label" for="problema">Qual problema será resolvido? *</label>
             <textarea class="campo-input" id="problema" rows="3" required></textarea>
