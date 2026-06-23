@@ -15,15 +15,30 @@ function status_demanda_arquivamento()
     return ["arquivada", "cancelada"];
 }
 
-// Cria uma demanda. Retorna o id ou false.
-function criar_demanda($titulo, $descricao, $responsavel_id, $criador_id)
+// Cria uma demanda com o questionario (6 campos). Retorna o id ou false.
+// $campos = [problema, impacto_operacional, risco, afeta_outros, workaround, sugestao_solucao]
+function criar_demanda($titulo, $responsavel_id, $criador_id, $campos)
 {
     $conn = conectar_banco();
-    $sql = "INSERT INTO demandas (titulo, descricao, status, criador_id, responsavel_id)
-            VALUES (?, ?, 'aberta', ?, ?)";
+    $sql = "INSERT INTO demandas
+                (titulo, status, criador_id, responsavel_id,
+                 problema, impacto_operacional, risco, afeta_outros, workaround, sugestao_solucao)
+            VALUES (?, 'aberta', ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ssii", $titulo, $descricao, $criador_id, $responsavel_id);
+    mysqli_stmt_bind_param(
+        $stmt,
+        "siissssss",
+        $titulo,
+        $criador_id,
+        $responsavel_id,
+        $campos["problema"],
+        $campos["impacto_operacional"],
+        $campos["risco"],
+        $campos["afeta_outros"],
+        $campos["workaround"],
+        $campos["sugestao_solucao"]
+    );
     $ok = mysqli_stmt_execute($stmt);
 
     return $ok ? mysqli_insert_id($conn) : false;
@@ -110,6 +125,7 @@ function buscar_demanda($id)
 {
     $linhas = executar_select(
         "SELECT d.id, d.titulo, d.descricao, d.status, d.responsavel_id, d.criador_id,
+                d.problema, d.impacto_operacional, d.risco, d.afeta_outros, d.workaround, d.sugestao_solucao,
                 ur.nome AS responsavel_nome, uc.nome AS criador_nome,
                 d.concluida_em, d.criado_em, d.atualizado_em
          FROM demandas d
@@ -140,15 +156,31 @@ function colaborador_envolvido_na_demanda($demanda_id, $usuario_id)
     return !empty($linhas);
 }
 
-// Atualiza dados da demanda (titulo, descricao, responsavel, status de edicao).
-function atualizar_demanda($id, $titulo, $descricao, $responsavel_id, $status)
+// Atualiza dados da demanda (titulo, questionario, responsavel, status de edicao).
+// $campos = [problema, impacto_operacional, risco, afeta_outros, workaround, sugestao_solucao]
+function atualizar_demanda($id, $titulo, $responsavel_id, $status, $campos)
 {
     $conn = conectar_banco();
-    $sql = "UPDATE demandas SET titulo = ?, descricao = ?, responsavel_id = ?, status = ?
+    $sql = "UPDATE demandas SET titulo = ?, responsavel_id = ?, status = ?,
+                problema = ?, impacto_operacional = ?, risco = ?,
+                afeta_outros = ?, workaround = ?, sugestao_solucao = ?
             WHERE id = ?";
 
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ssisi", $titulo, $descricao, $responsavel_id, $status, $id);
+    mysqli_stmt_bind_param(
+        $stmt,
+        "sisssssssi",
+        $titulo,
+        $responsavel_id,
+        $status,
+        $campos["problema"],
+        $campos["impacto_operacional"],
+        $campos["risco"],
+        $campos["afeta_outros"],
+        $campos["workaround"],
+        $campos["sugestao_solucao"],
+        $id
+    );
 
     return mysqli_stmt_execute($stmt);
 }

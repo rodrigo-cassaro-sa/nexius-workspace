@@ -68,7 +68,6 @@
                   <h1 id="d-titulo"></h1>
                   <span class="badge" id="d-status"></span>
                 </div>
-                <p id="d-descricao" class="texto-secundario"></p>
               </div>
               <div class="demanda-meta">
                 <p class="kpi-rotulo">Responsável</p>
@@ -86,6 +85,23 @@
 
           <!-- Aba: Plano de ação -->
           <div id="aba-plano">
+            <section class="card" style="margin-bottom: var(--espaco-4);">
+              <h2>Detalhamento da demanda</h2>
+              <dl class="detalhamento">
+                <dt>Qual problema será resolvido?</dt>
+                <dd id="d-problema">—</dd>
+                <dt>Qual o impacto operacional?</dt>
+                <dd id="d-impacto">—</dd>
+                <dt>Existe algum risco? Se sim, qual?</dt>
+                <dd id="d-risco">—</dd>
+                <dt>Afeta outro sistema ou área? Se sim, qual?</dt>
+                <dd id="d-afeta">—</dd>
+                <dt>Existe workaround? Se sim, qual?</dt>
+                <dd id="d-workaround">—</dd>
+                <dt>Sugestão de solução</dt>
+                <dd id="d-sugestao">—</dd>
+              </dl>
+            </section>
             <div class="plano-grid">
               <section class="card">
                 <div class="linha-titulo">
@@ -129,8 +145,28 @@
                   <input class="campo-input" id="e-titulo" type="text" maxlength="160" required>
                 </div>
                 <div class="campo">
-                  <label class="campo-label" for="e-descricao">Descrição</label>
-                  <textarea class="campo-input" id="e-descricao" rows="3"></textarea>
+                  <label class="campo-label" for="e-problema">Qual problema será resolvido? *</label>
+                  <textarea class="campo-input" id="e-problema" rows="2" required></textarea>
+                </div>
+                <div class="campo">
+                  <label class="campo-label" for="e-impacto">Qual o impacto operacional? *</label>
+                  <textarea class="campo-input" id="e-impacto" rows="2" required></textarea>
+                </div>
+                <div class="campo">
+                  <label class="campo-label" for="e-risco">Existe algum risco? Se sim, qual? *</label>
+                  <textarea class="campo-input" id="e-risco" rows="2" required></textarea>
+                </div>
+                <div class="campo">
+                  <label class="campo-label" for="e-afeta">Afeta outro sistema ou área? Se sim, qual? *</label>
+                  <textarea class="campo-input" id="e-afeta" rows="2" required></textarea>
+                </div>
+                <div class="campo">
+                  <label class="campo-label" for="e-workaround">Existe workaround? Se sim, qual? *</label>
+                  <textarea class="campo-input" id="e-workaround" rows="2" required></textarea>
+                </div>
+                <div class="campo">
+                  <label class="campo-label" for="e-sugestao">Sugestão de solução *</label>
+                  <textarea class="campo-input" id="e-sugestao" rows="2" required></textarea>
                 </div>
                 <div class="campo">
                   <label class="campo-label" for="e-responsavel">Responsável</label>

@@ -258,22 +258,34 @@ async function salvarNova(evento) {
 
   const botao = document.getElementById("botao-salvar");
   const titulo = document.getElementById("titulo").value.trim();
-  const descricao = document.getElementById("descricao").value.trim();
   const responsavel = document.getElementById("responsavel").value;
+
+  // Questionario obrigatorio (6 perguntas).
+  const campos = {
+    problema: document.getElementById("problema").value.trim(),
+    impacto_operacional: document.getElementById("impacto").value.trim(),
+    risco: document.getElementById("risco").value.trim(),
+    afeta_outros: document.getElementById("afeta").value.trim(),
+    workaround: document.getElementById("workaround").value.trim(),
+    sugestao_solucao: document.getElementById("sugestao").value.trim()
+  };
 
   if (!tamanhoEntre(titulo, 2, 160)) {
     mostrarErro("modal-mensagem", "Informe um título (2 a 160 caracteres).");
     return;
   }
 
+  const algumVazio = Object.keys(campos).some(function (k) { return campos[k].length < 2; });
+  if (algumVazio) {
+    mostrarErro("modal-mensagem", "Responda todas as 6 perguntas obrigatórias.");
+    return;
+  }
+
   definirCarregando(botao, true);
 
   try {
-    const resposta = await postApi("/api/demandas/criar.php", {
-      titulo: titulo,
-      descricao: descricao,
-      responsavel_id: responsavel
-    });
+    const dados = Object.assign({ titulo: titulo, responsavel_id: responsavel }, campos);
+    const resposta = await postApi("/api/demandas/criar.php", dados);
 
     if (!resposta.ok) {
       mostrarErro("modal-mensagem", resposta.error);

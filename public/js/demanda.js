@@ -76,8 +76,15 @@ function preencherCabecalho(d) {
   const badge = document.getElementById("d-status");
   badge.className = classeBadgeStatus(d.status);
   badge.textContent = rotuloStatus(d.status);
-  document.getElementById("d-descricao").textContent = d.descricao || "Sem descrição.";
   document.getElementById("d-responsavel").textContent = d.responsavel_nome || "—";
+
+  // Questionario da demanda (6 perguntas).
+  document.getElementById("d-problema").textContent = d.problema || "—";
+  document.getElementById("d-impacto").textContent = d.impacto_operacional || "—";
+  document.getElementById("d-risco").textContent = d.risco || "—";
+  document.getElementById("d-afeta").textContent = d.afeta_outros || "—";
+  document.getElementById("d-workaround").textContent = d.workaround || "—";
+  document.getElementById("d-sugestao").textContent = d.sugestao_solucao || "—";
 }
 
 function prepararGestor() {
@@ -91,7 +98,12 @@ function prepararGestor() {
 
   // Edicao da demanda (aba Informacoes).
   document.getElementById("e-titulo").value = demandaAtual.titulo;
-  document.getElementById("e-descricao").value = demandaAtual.descricao || "";
+  document.getElementById("e-problema").value = demandaAtual.problema || "";
+  document.getElementById("e-impacto").value = demandaAtual.impacto_operacional || "";
+  document.getElementById("e-risco").value = demandaAtual.risco || "";
+  document.getElementById("e-afeta").value = demandaAtual.afeta_outros || "";
+  document.getElementById("e-workaround").value = demandaAtual.workaround || "";
+  document.getElementById("e-sugestao").value = demandaAtual.sugestao_solucao || "";
   document.getElementById("e-status").value = (demandaAtual.status === "em_andamento") ? "em_andamento" : "aberta";
   carregarResponsaveis("e-responsavel", demandaAtual.responsavel_id);
   document.getElementById("form-editar").addEventListener("submit", salvarEdicao);
@@ -352,25 +364,38 @@ async function salvarEdicao(evento) {
 
   const botao = document.getElementById("botao-salvar-edicao");
   const titulo = document.getElementById("e-titulo").value.trim();
-  const descricao = document.getElementById("e-descricao").value.trim();
   const responsavel = document.getElementById("e-responsavel").value;
   const status = document.getElementById("e-status").value;
+
+  // Questionario obrigatorio (6 perguntas).
+  const campos = {
+    problema: document.getElementById("e-problema").value.trim(),
+    impacto_operacional: document.getElementById("e-impacto").value.trim(),
+    risco: document.getElementById("e-risco").value.trim(),
+    afeta_outros: document.getElementById("e-afeta").value.trim(),
+    workaround: document.getElementById("e-workaround").value.trim(),
+    sugestao_solucao: document.getElementById("e-sugestao").value.trim()
+  };
 
   if (!tamanhoEntre(titulo, 2, 160)) {
     mostrarErro("edicao-mensagem", "Informe um título (2 a 160 caracteres).");
     return;
   }
 
+  const algumVazio = Object.keys(campos).some(function (k) { return campos[k].length < 2; });
+  if (algumVazio) {
+    mostrarErro("edicao-mensagem", "Responda todas as 6 perguntas obrigatórias.");
+    return;
+  }
+
   definirCarregando(botao, true);
 
   try {
-    const resposta = await postApi("/api/demandas/atualizar.php", {
-      id: demandaId,
-      titulo: titulo,
-      descricao: descricao,
-      responsavel_id: responsavel,
-      status: status
-    });
+    const dados = Object.assign(
+      { id: demandaId, titulo: titulo, responsavel_id: responsavel, status: status },
+      campos
+    );
+    const resposta = await postApi("/api/demandas/atualizar.php", dados);
 
     if (!resposta.ok) {
       mostrarErro("edicao-mensagem", resposta.error);

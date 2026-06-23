@@ -300,6 +300,24 @@
   text-decoration: underline;
 }
 
+/* Detalhamento da demanda (questionario de 6 perguntas) */
+.detalhamento {
+  margin: 0;
+  display: grid;
+  gap: var(--espaco-3);
+}
+
+.detalhamento dt {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--cor-texto-secundario);
+}
+
+.detalhamento dd {
+  margin: 2px 0 0;
+  white-space: pre-wrap;
+}
+
 /* Detalhe da demanda */
 .demanda-cabecalho {
   display: flex;

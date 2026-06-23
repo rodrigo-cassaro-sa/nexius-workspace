@@ -23,9 +23,27 @@ if ($body === null) {
 
 $id = isset($body["id"]) ? (int) $body["id"] : 0;
 $titulo = trim($body["titulo"] ?? "");
-$descricao = trim($body["descricao"] ?? "");
 $status = trim($body["status"] ?? "");
 $responsavel_id = isset($body["responsavel_id"]) && $body["responsavel_id"] !== "" ? (int) $body["responsavel_id"] : null;
+
+// Questionario obrigatorio da demanda (6 perguntas).
+$campos = [
+    "problema" => trim($body["problema"] ?? ""),
+    "impacto_operacional" => trim($body["impacto_operacional"] ?? ""),
+    "risco" => trim($body["risco"] ?? ""),
+    "afeta_outros" => trim($body["afeta_outros"] ?? ""),
+    "workaround" => trim($body["workaround"] ?? ""),
+    "sugestao_solucao" => trim($body["sugestao_solucao"] ?? "")
+];
+
+$mensagens_campos = [
+    "problema" => "Informe qual problema sera resolvido.",
+    "impacto_operacional" => "Informe o impacto operacional.",
+    "risco" => "Informe se existe algum risco (e qual).",
+    "afeta_outros" => "Informe se afeta outro sistema ou area (e qual).",
+    "workaround" => "Informe se existe workaround (e qual).",
+    "sugestao_solucao" => "Informe a sugestao de solucao."
+];
 
 $erros = [];
 if ($id <= 0) {
@@ -36,6 +54,11 @@ if (!validar_tamanho($titulo, 2, 160)) {
 }
 if (!valor_em_lista($status, status_demanda_edicao())) {
     $erros["status"] = "Status invalido.";
+}
+foreach ($mensagens_campos as $campo => $mensagem) {
+    if (!validar_tamanho($campos[$campo], 2, 2000)) {
+        $erros[$campo] = $mensagem;
+    }
 }
 if ($responsavel_id !== null && !usuario_ativo_existe($responsavel_id)) {
     $erros["responsavel_id"] = "Responsavel invalido.";
@@ -49,7 +72,7 @@ if (!$demanda) {
     json_erro("Demanda nao encontrada.", 404);
 }
 
-if (!atualizar_demanda($id, $titulo, $descricao !== "" ? $descricao : null, $responsavel_id, $status)) {
+if (!atualizar_demanda($id, $titulo, $responsavel_id, $status, $campos)) {
     json_erro("Nao foi possivel salvar a demanda.", 500);
 }
 
