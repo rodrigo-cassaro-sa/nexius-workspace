@@ -274,8 +274,11 @@ function renderizarAcoes(alvo, acoes) {
     rodape.appendChild(btnDet);
     rodape.appendChild(vistos);
 
-    // Tornar chave: gestor/admin, apenas nas acoes que ainda nao sao a chave.
-    if ((perfilUsuario === "administrador" || perfilUsuario === "gestor") && parseInt(a.chave, 10) !== 1) {
+    // Tornar chave: gestor/admin, apenas em acoes que ainda nao sao a chave
+    // e que nao estejam concluidas/canceladas (a chave e o marco a concluir).
+    if ((perfilUsuario === "administrador" || perfilUsuario === "gestor")
+      && parseInt(a.chave, 10) !== 1
+      && a.status !== "concluida" && a.status !== "cancelada") {
       const btnChave = document.createElement("button");
       btnChave.className = "botao-link";
       btnChave.type = "button";

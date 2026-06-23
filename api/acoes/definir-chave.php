@@ -26,6 +26,9 @@ if (!$acao) {
     json_erro("Acao nao encontrada.", 404);
 }
 
+if ($acao["status"] === "concluida") {
+    json_erro("Uma acao ja concluida nao pode virar a chave.", 409);
+}
 if ($acao["status"] === "cancelada") {
     json_erro("Uma acao cancelada nao pode ser a chave.", 409);
 }
