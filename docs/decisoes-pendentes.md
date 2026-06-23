@@ -44,6 +44,7 @@ Todas refletidas em `01-descricao-produto.md` (§9, §16 e §19).
 
 ## Ainda em aberto (não bloqueiam documentação nem modelagem)
 
+- **D14 — Gamificação (solicitada no Prompt 10, fora do escopo atual).** Todos os documentos colocam gamificação **fora do MVP** (briefing; descrição §17/§23; banco §10; arquitetura; mapa de telas §Gamificação; prompt de mockup). Por isso **não foi implementada** — apenas o plano foi registrado em `docs/gamificacao/10-plano-gamificacao.md`, com proposta para fase futura. **Para implementar, é preciso decisão de produto** que atualize `00-briefing-projeto.md`, `01-descricao-produto.md` (§17/§23), `03-mapa-de-telas.md` e `03-modelagem-banco-dados.md` (§10). Status: **aberto**.
 - Endereço do **e-mail de suporte** exibido na tela de Ajuda — definir depois (placeholder em `config` até ter o oficial).
 - **Logo definitiva** do Grupo Nexius (hoje placeholder em texto) — depende de anexo.
 - **Envio real de e-mail (fase de e-mail):** a recuperação de senha já gera o token e **enfileira** o e-mail em `fila_email`, mas o **envio efetivo (SMTP + cron)** ainda não existe. Enquanto isso, para testar a redefinição, o token pode ser lido em `tokens_recuperacao` (ou na mensagem em `fila_email`) e usado em `redefinir-senha.html?token=...`. Também exige `APP_URL` setada para o link do e-mail ficar absoluto.
