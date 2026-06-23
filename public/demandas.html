@@ -95,12 +95,17 @@
       <div id="modal-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
 
       <form id="form-nova" novalidate>
-        <div class="campo">
-          <label class="campo-label" for="titulo">Nome da nova demanda</label>
-          <input class="campo-input" id="titulo" name="titulo" type="text" maxlength="160" required>
-        </div>
-
         <div class="campos-grid">
+          <div class="campo campo-2col">
+            <label class="campo-label" for="titulo">Nome da nova demanda *</label>
+            <input class="campo-input" id="titulo" name="titulo" type="text" maxlength="160" required>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="responsavel">Responsável</label>
+            <select class="campo-input" id="responsavel" name="responsavel">
+              <option value="">Sem responsável</option>
+            </select>
+          </div>
           <div class="campo">
             <label class="campo-label" for="problema">Qual problema será resolvido? *</label>
             <textarea class="campo-input" id="problema" rows="3" required></textarea>
@@ -124,12 +129,6 @@
           <div class="campo">
             <label class="campo-label" for="sugestao">Sugestão de solução *</label>
             <textarea class="campo-input" id="sugestao" rows="3" required></textarea>
-          </div>
-          <div class="campo">
-            <label class="campo-label" for="responsavel">Responsável</label>
-            <select class="campo-input" id="responsavel" name="responsavel">
-              <option value="">Sem responsável</option>
-            </select>
           </div>
         </div>
 

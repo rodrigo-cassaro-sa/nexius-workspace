@@ -950,7 +950,9 @@
 }
 
 .modal-titulo {
-  margin: 0 0 var(--espaco-3);
+  margin: 0 0 var(--espaco-4);
+  padding-bottom: var(--espaco-3);
+  border-bottom: 1px solid var(--cor-borda);
   font-size: 18px;
 }
 
@@ -959,4 +961,6 @@
   justify-content: flex-end;
   gap: var(--espaco-2);
   margin-top: var(--espaco-4);
+  padding-top: var(--espaco-4);
+  border-top: 1px solid var(--cor-borda);
 }

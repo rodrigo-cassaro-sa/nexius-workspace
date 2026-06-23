@@ -327,7 +327,18 @@
 }
 
 .campos-grid .campo {
-  margin-bottom: var(--espaco-2);
+  margin-bottom: 0;
+}
+
+/* Rotulos com altura uniforme: alinha os campos da grade mesmo quando o texto quebra. */
+.campos-grid .campo-label {
+  line-height: 1.3;
+  min-height: 2.6em;
+}
+
+/* Campo que ocupa 2 colunas (ex.: nome da demanda) */
+.campo-2col {
+  grid-column: span 2;
 }
 
 /* Detalhe da demanda */

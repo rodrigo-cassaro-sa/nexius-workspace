@@ -144,6 +144,11 @@
     grid-template-columns: 1fr;
   }
 
+  /* Em 1 coluna nao precisa reservar 2 linhas no rotulo. */
+  .campos-grid .campo-label {
+    min-height: 0;
+  }
+
   /* Ação: cabeçalho empilha (status abaixo das infos). */
   .acao-cabecalho {
     flex-direction: column;
