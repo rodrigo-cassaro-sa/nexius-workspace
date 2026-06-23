@@ -32,11 +32,15 @@ $erros = [];
 if (!validar_tamanho($titulo, 2, 160)) {
     $erros["titulo"] = "Informe um titulo (2 a 160 caracteres).";
 }
-if ($prazo !== "" && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $prazo)) {
-    $erros["prazo"] = "Data invalida.";
-}
-if ($responsavel_id !== null && !usuario_ativo_existe($responsavel_id)) {
+if ($responsavel_id === null) {
+    $erros["responsavel_id"] = "Selecione o responsavel pela acao.";
+} elseif (!usuario_ativo_existe($responsavel_id)) {
     $erros["responsavel_id"] = "Responsavel invalido.";
+}
+if ($prazo === "") {
+    $erros["prazo"] = "Informe o prazo da acao.";
+} elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $prazo)) {
+    $erros["prazo"] = "Data invalida.";
 }
 if (!empty($erros)) {
     json_response(["ok" => false, "error" => "Verifique os campos.", "errors" => $erros], 400);

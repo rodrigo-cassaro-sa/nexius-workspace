@@ -435,6 +435,14 @@ async function salvarAcao(evento) {
     mostrarErro("acao-mensagem", "Informe um título (2 a 160 caracteres).");
     return;
   }
+  if (!responsavel) {
+    mostrarErro("acao-mensagem", "Selecione o responsável pela ação.");
+    return;
+  }
+  if (!prazo) {
+    mostrarErro("acao-mensagem", "Informe o prazo da ação.");
+    return;
+  }
 
   definirCarregando(botao, true);
 
