@@ -116,6 +116,12 @@
   .plano-grid {
     grid-template-columns: 1fr;
   }
+
+  /* Detalhamento e edição: de 3 para 2 colunas no tablet. */
+  .detalhamento,
+  .campos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 640px) {
@@ -129,6 +135,12 @@
 
   /* No modal estreito, os campos lado a lado empilham. */
   .linha-campos {
+    grid-template-columns: 1fr;
+  }
+
+  /* Detalhamento e edição: 1 coluna no celular. */
+  .detalhamento,
+  .campos-grid {
     grid-template-columns: 1fr;
   }
 

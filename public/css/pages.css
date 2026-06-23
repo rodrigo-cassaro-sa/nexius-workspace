@@ -300,11 +300,12 @@
   text-decoration: underline;
 }
 
-/* Detalhamento da demanda (questionario de 6 perguntas) */
+/* Detalhamento da demanda (questionario de 6 perguntas) em 3 colunas */
 .detalhamento {
   margin: 0;
   display: grid;
-  gap: var(--espaco-3);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--espaco-4);
 }
 
 .detalhamento dt {
@@ -314,8 +315,19 @@
 }
 
 .detalhamento dd {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
   white-space: pre-wrap;
+}
+
+/* Formulario em 3 colunas (compacta a edicao da demanda) */
+.campos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--espaco-3);
+}
+
+.campos-grid .campo {
+  margin-bottom: var(--espaco-2);
 }
 
 /* Detalhe da demanda */
