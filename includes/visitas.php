@@ -30,3 +30,26 @@ function listar_visitas_demanda($demanda_id)
         [$demanda_id]
     );
 }
+
+// Marca que o usuario viu o detalhe de uma acao (guarda a 1a visualizacao).
+function marcar_acao_visualizada($acao_id, $usuario_id)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "INSERT IGNORE INTO acao_visualizacoes (acao_id, usuario_id) VALUES (?, ?)");
+    mysqli_stmt_bind_param($stmt, "ii", $acao_id, $usuario_id);
+
+    return mysqli_stmt_execute($stmt);
+}
+
+function listar_visualizacoes_acao($acao_id)
+{
+    return executar_select(
+        "SELECT av.usuario_id, u.nome AS usuario_nome, av.visualizado_em
+         FROM acao_visualizacoes av
+         JOIN usuarios u ON u.id = av.usuario_id
+         WHERE av.acao_id = ?
+         ORDER BY av.visualizado_em ASC",
+        "i",
+        [$acao_id]
+    );
+}

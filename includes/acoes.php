@@ -43,7 +43,8 @@ function listar_acoes_da_demanda($demanda_id)
                 a.status, a.prazo, a.chave, a.concluida_em,
                 (SELECT COUNT(*) FROM acao_prerequisitos ap
                  JOIN acoes p ON p.id = ap.prerequisito_acao_id
-                 WHERE ap.acao_id = a.id AND p.status <> 'concluida') AS prereq_pendentes
+                 WHERE ap.acao_id = a.id AND p.status <> 'concluida') AS prereq_pendentes,
+                (SELECT COUNT(*) FROM acao_visualizacoes av WHERE av.acao_id = a.id) AS total_visualizacoes
          FROM acoes a
          LEFT JOIN usuarios ur ON ur.id = a.responsavel_id
          WHERE a.demanda_id = ? AND a.status <> 'cancelada'

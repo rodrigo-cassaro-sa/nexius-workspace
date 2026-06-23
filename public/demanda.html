@@ -192,6 +192,32 @@
     </div>
   </div>
 
+  <!-- Modal: Detalhes da ação (marca como visualizado ao abrir) -->
+  <div id="modal-acao-detalhe" class="modal" role="dialog" aria-modal="true" aria-labelledby="det-titulo">
+    <div class="modal-conteudo">
+      <h2 class="modal-titulo" id="det-titulo">Detalhes da ação</h2>
+
+      <div class="det-cabecalho">
+        <span class="badge" id="det-status"></span>
+        <span id="det-chave" class="badge badge-chave" hidden>Ação chave</span>
+      </div>
+
+      <p class="texto-secundario" id="det-metas"></p>
+
+      <p class="kpi-rotulo">Descrição</p>
+      <p id="det-descricao">—</p>
+
+      <h3>Quem visualizou esta tarefa</h3>
+      <div id="det-visualizacoes">
+        <p class="texto-secundario">Carregando...</p>
+      </div>
+
+      <div class="modal-acoes">
+        <button type="button" class="botao botao-secundario" id="botao-det-fechar">Fechar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: confirmar arquivar -->
   <div id="modal-arquivar" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-arquivar-titulo">
     <div class="modal-conteudo">

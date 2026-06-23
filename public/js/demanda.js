@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("usuario-nome").textContent = usuario.nome;
   document.getElementById("usuario-perfil").textContent = usuario.perfil;
   document.getElementById("botao-sair").addEventListener("click", sairDoSistema);
+  document.getElementById("botao-det-fechar").addEventListener("click", function () { fecharModal("modal-acao-detalhe"); });
   if (perfilUsuario === "administrador") {
     document.getElementById("nav-usuarios").hidden = false;
   }
@@ -193,6 +194,25 @@ function renderizarAcoes(alvo, acoes) {
     meta.appendChild(resp);
     meta.appendChild(prazo);
     info.appendChild(meta);
+
+    // Rodape: "Ver detalhes" (abre popup e marca visualizado) + contador de vistos.
+    const rodape = document.createElement("div");
+    rodape.className = "acao-rodape";
+
+    const btnDet = document.createElement("button");
+    btnDet.className = "botao-link";
+    btnDet.type = "button";
+    btnDet.textContent = "Ver detalhes";
+
+    const vistos = document.createElement("span");
+    vistos.className = "acao-vistos texto-secundario";
+    atualizarContadorVistos(vistos, parseInt(a.total_visualizacoes, 10) || 0);
+
+    btnDet.addEventListener("click", function () { abrirDetalheAcao(a, vistos); });
+
+    rodape.appendChild(btnDet);
+    rodape.appendChild(vistos);
+    info.appendChild(rodape);
 
     cab.appendChild(info);
 
@@ -420,6 +440,93 @@ function formatarDataHora(iso) {
   const s = String(iso);
   if (s.length < 16) return s;
   return s.substring(8, 10) + "/" + s.substring(5, 7) + "/" + s.substring(0, 4) + " " + s.substring(11, 16);
+}
+
+// ---- Visualizacao de tarefa (popup com detalhes; marca quem viu) ----
+
+function abrirDetalheAcao(a, elementoVistos) {
+  document.getElementById("det-titulo").textContent = a.titulo;
+
+  const status = document.getElementById("det-status");
+  const derivado = statusDerivado(a);
+  status.className = classeBadgeStatus(derivado);
+  status.textContent = rotuloStatus(derivado);
+
+  document.getElementById("det-chave").hidden = parseInt(a.chave, 10) !== 1;
+  document.getElementById("det-metas").textContent =
+    "Responsável: " + (a.responsavel_nome || "—") + " · Prazo: " + (a.prazo ? a.prazo.substring(0, 10) : "—");
+  document.getElementById("det-descricao").textContent = a.descricao || "Sem descrição.";
+
+  const lista = document.getElementById("det-visualizacoes");
+  lista.innerHTML = "";
+  const carregando = document.createElement("p");
+  carregando.className = "texto-secundario";
+  carregando.textContent = "Carregando...";
+  lista.appendChild(carregando);
+
+  abrirModal("modal-acao-detalhe");
+  marcarVisualizada(a.id, lista, elementoVistos);
+}
+
+async function marcarVisualizada(acaoId, listaEl, elementoVistos) {
+  try {
+    const resposta = await postApi("/api/acoes/visualizar.php", { acao_id: acaoId });
+    if (!resposta.ok) {
+      listaEl.innerHTML = "";
+      const p = document.createElement("p");
+      p.className = "texto-secundario";
+      p.textContent = resposta.error || "Nao foi possivel carregar.";
+      listaEl.appendChild(p);
+      return;
+    }
+    renderizarVisualizacoes(listaEl, resposta.data.visualizacoes);
+    if (elementoVistos) {
+      atualizarContadorVistos(elementoVistos, resposta.data.visualizacoes.length);
+    }
+  } catch (erro) {
+    // silencioso: visualizacao e secundaria.
+  }
+}
+
+function renderizarVisualizacoes(alvo, lista) {
+  alvo.innerHTML = "";
+
+  if (!lista || lista.length === 0) {
+    const p = document.createElement("p");
+    p.className = "texto-secundario";
+    p.textContent = "Ninguém visualizou ainda.";
+    alvo.appendChild(p);
+    return;
+  }
+
+  lista.forEach(function (v) {
+    const item = document.createElement("div");
+    item.className = "visita-item";
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.style.background = corDoNome(v.usuario_nome);
+    avatar.textContent = iniciais(v.usuario_nome);
+    item.appendChild(avatar);
+
+    const corpo = document.createElement("div");
+    corpo.className = "visita-corpo";
+    const nome = document.createElement("span");
+    nome.className = "visita-nome";
+    nome.textContent = v.usuario_nome;
+    const det = document.createElement("span");
+    det.className = "visita-detalhe texto-secundario";
+    det.textContent = "Visualizou em " + formatarDataHora(v.visualizado_em);
+    corpo.appendChild(nome);
+    corpo.appendChild(det);
+    item.appendChild(corpo);
+
+    alvo.appendChild(item);
+  });
+}
+
+function atualizarContadorVistos(elemento, n) {
+  elemento.textContent = n > 0 ? ("Visto por " + n + (n === 1 ? " pessoa" : " pessoas")) : "Não visualizado";
 }
 
 // ---- Comentarios (estilo forum: abaixo de cada acao) ----

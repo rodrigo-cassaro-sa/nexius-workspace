@@ -452,6 +452,25 @@
   font-size: 13px;
 }
 
+/* Rodape da acao: "Ver detalhes" + contador de visualizacoes */
+.acao-rodape {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  margin-top: 6px;
+}
+
+.acao-vistos {
+  font-size: 13px;
+}
+
+/* Cabecalho do modal de detalhes da acao */
+.det-cabecalho {
+  display: flex;
+  gap: var(--espaco-2);
+  margin-bottom: var(--espaco-2);
+}
+
 .badge-chave {
   background: rgba(78, 57, 47, 0.1);
   border-color: var(--cor-primaria);
