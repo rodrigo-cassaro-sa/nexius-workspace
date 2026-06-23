@@ -73,7 +73,9 @@ function preencherCabecalho(d) {
   const badge = document.getElementById("d-status");
   badge.className = classeBadgeStatus(d.status);
   badge.textContent = rotuloStatus(d.status);
-  document.getElementById("d-responsavel").textContent = d.responsavel_nome || "—";
+  document.getElementById("d-solicitante").textContent = d.criador_nome || "—";
+  document.getElementById("d-solicitado-em").textContent = formatarDataHora(d.criado_em);
+  document.getElementById("d-sla").textContent = calcularSlaTexto(d.criado_em, d.respondida_em);
 
   // Prioridade GUT (G*U*T).
   const prio = (parseInt(d.gut_gravidade, 10) || 0) * (parseInt(d.gut_urgencia, 10) || 0) * (parseInt(d.gut_tendencia, 10) || 0);
@@ -93,6 +95,23 @@ function preencherCabecalho(d) {
   document.getElementById("d-intencao").textContent = rotuloTriagem("intencao", d.intencao);
   document.getElementById("d-pilar").textContent = rotuloTriagem("pilar", d.pilar);
   document.getElementById("d-objetivo").textContent = rotuloTriagem("objetivo", d.objetivo);
+}
+
+// SLA de resposta (3 dias a partir da solicitacao). Respondida = 1a acao criada.
+function calcularSlaTexto(criadoEm, respondidaEm) {
+  if (!criadoEm) return "—";
+  const criado = new Date(String(criadoEm).replace(" ", "T"));
+  const prazo = new Date(criado.getTime() + 3 * 24 * 60 * 60 * 1000);
+
+  if (respondidaEm) {
+    const resp = new Date(String(respondidaEm).replace(" ", "T"));
+    const dentro = resp <= prazo;
+    return "Respondida em " + formatarDataHora(respondidaEm) + (dentro ? " (no prazo)" : " (fora do prazo)");
+  }
+  const agora = new Date();
+  if (agora > prazo) return "Vencido (sem resposta)";
+  const dias = Math.ceil((prazo - agora) / (24 * 60 * 60 * 1000));
+  return "Aguardando resposta · vence em " + dias + " dia(s)";
 }
 
 // Rotulo da prioridade GUT: Alta >= 75, Media 25-74, Baixa < 25.

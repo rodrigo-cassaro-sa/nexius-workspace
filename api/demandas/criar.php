@@ -21,7 +21,9 @@ if ($body === null) {
 }
 
 $titulo = trim($body["titulo"] ?? "");
-$responsavel_id = isset($body["responsavel_id"]) && $body["responsavel_id"] !== "" ? (int) $body["responsavel_id"] : null;
+// O solicitante e o proprio criador (criador_id). A demanda nasce sem responsavel:
+// quem trata e definido depois, via plano de acao (responsavel de cada acao).
+$responsavel_id = null;
 
 // Questionario obrigatorio da demanda (6 perguntas).
 $campos = [
@@ -90,9 +92,6 @@ if (!valor_em_lista($triagem["pilar"], $pilares)) {
 }
 if (!valor_em_lista($triagem["objetivo"], $objetivos)) {
     $erros["objetivo"] = "Selecione o objetivo principal.";
-}
-if ($responsavel_id !== null && !usuario_ativo_existe($responsavel_id)) {
-    $erros["responsavel_id"] = "Responsavel invalido.";
 }
 if (!empty($erros)) {
     json_response(["ok" => false, "error" => "Verifique os campos.", "errors" => $erros], 400);

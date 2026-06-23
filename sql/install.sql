@@ -97,6 +97,7 @@ CREATE TABLE IF NOT EXISTS demandas (
   criador_id INT NOT NULL,
   responsavel_id INT NULL,
   concluida_em DATETIME NULL,
+  respondida_em DATETIME NULL,
   criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   KEY idx_demandas_status (status),

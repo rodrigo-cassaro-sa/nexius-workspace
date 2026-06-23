@@ -379,6 +379,11 @@
   font-weight: 700;
 }
 
+.sla-sub {
+  font-size: 12px;
+  margin-top: 2px;
+}
+
 .prioridade-alta > td:first-child {
   border-left: 3px solid #c13a3a;
 }

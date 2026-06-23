@@ -67,6 +67,11 @@ if (!empty($prerequisitos)) {
 
 registrar_log("acao_criada", "acao_id=" . $id . " demanda_id=" . $demanda_id);
 
+// SLA: a primeira acao criada "responde" a demanda (lastro do prazo de resposta).
+if (marcar_demanda_respondida($demanda_id)) {
+    registrar_log("demanda_respondida", "demanda_id=" . $demanda_id);
+}
+
 // Notifica o responsavel atribuido a acao (se nao for o proprio criador).
 if ($responsavel_id !== null) {
     notificar_varios(

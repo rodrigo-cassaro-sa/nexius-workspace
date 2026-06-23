@@ -134,7 +134,7 @@ function listar_demandas($usuario_id, $perfil, $filtros, $pagina, $por_pagina)
     // Progresso = acoes concluidas / total de acoes (exceto canceladas).
     // Prazo = prazo da acao chave. (Acoes ainda nao existem nesta fase: vem 0/0 e null.)
     $sql = "SELECT d.id, d.titulo, d.status, d.responsavel_id,
-                   u.nome AS responsavel_nome, d.criado_em,
+                   u.nome AS responsavel_nome, d.criado_em, d.respondida_em,
                    d.gut_gravidade, d.gut_urgencia, d.gut_tendencia,
                    COALESCE(d.gut_gravidade * d.gut_urgencia * d.gut_tendencia, 0) AS prioridade,
                    (SELECT COUNT(*) FROM acoes a WHERE a.demanda_id = d.id AND a.status <> 'cancelada') AS total_acoes,
@@ -161,7 +161,7 @@ function buscar_demanda($id)
                 d.origem, d.momento_etapa, d.intencao, d.pilar, d.objetivo,
                 d.gut_gravidade, d.gut_urgencia, d.gut_tendencia,
                 ur.nome AS responsavel_nome, uc.nome AS criador_nome,
-                d.concluida_em, d.criado_em, d.atualizado_em
+                d.concluida_em, d.respondida_em, d.criado_em, d.atualizado_em
          FROM demandas d
          LEFT JOIN usuarios ur ON ur.id = d.responsavel_id
          LEFT JOIN usuarios uc ON uc.id = d.criador_id
@@ -217,6 +217,18 @@ function atualizar_demanda($id, $titulo, $responsavel_id, $status, $campos)
     );
 
     return mysqli_stmt_execute($stmt);
+}
+
+// Marca a demanda como respondida (lastro do SLA), apenas na primeira vez.
+// "Responder" = criar a primeira acao (plano de acao) da demanda.
+function marcar_demanda_respondida($demanda_id)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE demandas SET respondida_em = NOW() WHERE id = ? AND respondida_em IS NULL");
+    mysqli_stmt_bind_param($stmt, "i", $demanda_id);
+    mysqli_stmt_execute($stmt);
+
+    return mysqli_stmt_affected_rows($stmt) > 0;
 }
 
 // Arquiva ou cancela a demanda (status arquivada/cancelada).

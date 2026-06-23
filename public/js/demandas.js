@@ -4,6 +4,7 @@
 let perfilUsuario = "";
 let paginaAtual = 1;
 let totalPaginas = 1;
+let usuarioAtual = null;
 
 document.addEventListener("DOMContentLoaded", async function () {
   const usuario = await exigirSessaoNoFront();
@@ -14,6 +15,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   perfilUsuario = usuario.perfil;
+  usuarioAtual = usuario;
   document.getElementById("usuario-nome").textContent = usuario.nome;
   document.getElementById("usuario-perfil").textContent = usuario.perfil;
   document.getElementById("botao-sair").addEventListener("click", sairDoSistema);
@@ -133,7 +135,7 @@ function renderizarLista(alvo, demandas) {
 
   const thead = document.createElement("thead");
   const cab = document.createElement("tr");
-  ["Título", "Prioridade", "Status", "Responsável", "Progresso", "Prazo", ""].forEach(function (texto) {
+  ["Título", "Prioridade", "Status", "Responsável", "SLA", "Progresso", "Prazo", ""].forEach(function (texto) {
     const th = document.createElement("th");
     th.textContent = texto;
     cab.appendChild(th);
@@ -162,6 +164,7 @@ function renderizarLista(alvo, demandas) {
     tr.appendChild(tdStatus);
 
     tr.appendChild(celula("Responsável", d.responsavel_nome || "—"));
+    tr.appendChild(celulaSla(d));
 
     tr.appendChild(celulaProgresso(d));
 
@@ -266,6 +269,64 @@ function celulaPrazo(prazo) {
   return td;
 }
 
+// Data de hoje como DD/MM/AAAA.
+function dataHoje() {
+  const d = new Date();
+  return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+}
+
+// Formata "YYYY-MM-DD HH:MM:SS" como DD/MM/AAAA.
+function formatarData(iso) {
+  if (!iso) return "—";
+  const s = String(iso);
+  return s.substring(8, 10) + "/" + s.substring(5, 7) + "/" + s.substring(0, 4);
+}
+
+// SLA de resposta: 3 dias a partir da solicitacao (criado_em).
+// "Respondida" = primeira acao criada (respondida_em).
+function calcularSla(criadoEm, respondidaEm) {
+  if (!criadoEm) return null;
+  const criado = new Date(String(criadoEm).replace(" ", "T"));
+  const prazo = new Date(criado.getTime() + 3 * 24 * 60 * 60 * 1000);
+
+  if (respondidaEm) {
+    const resp = new Date(String(respondidaEm).replace(" ", "T"));
+    return resp <= prazo
+      ? { rotulo: "Respondida no prazo", classe: "badge badge-sucesso" }
+      : { rotulo: "Respondida fora do prazo", classe: "badge badge-aviso" };
+  }
+
+  const agora = new Date();
+  if (agora > prazo) {
+    return { rotulo: "SLA vencido", classe: "badge badge-erro" };
+  }
+  const dias = Math.ceil((prazo - agora) / (24 * 60 * 60 * 1000));
+  return { rotulo: "Aguardando · " + dias + "d", classe: "badge badge-info" };
+}
+
+function celulaSla(d) {
+  const td = document.createElement("td");
+  td.setAttribute("data-rotulo", "SLA");
+
+  const info = calcularSla(d.criado_em, d.respondida_em);
+  if (!info) {
+    td.textContent = "—";
+    return td;
+  }
+
+  const badge = document.createElement("span");
+  badge.className = info.classe;
+  badge.textContent = info.rotulo;
+  td.appendChild(badge);
+
+  const sub = document.createElement("div");
+  sub.className = "texto-secundario sla-sub";
+  sub.textContent = "Solic.: " + formatarData(d.criado_em);
+  td.appendChild(sub);
+
+  return td;
+}
+
 function renderizarPaginacao(total, pagina, porPagina) {
   totalPaginas = Math.max(1, Math.ceil(total / porPagina));
   paginaAtual = pagina;
@@ -279,28 +340,13 @@ function renderizarPaginacao(total, pagina, porPagina) {
   document.getElementById("paginacao").hidden = false;
 }
 
-async function abrirNova() {
+function abrirNova() {
   document.getElementById("form-nova").reset();
   document.getElementById("modal-mensagem").hidden = true;
-  await carregarResponsaveis();
+  // Solicitante = usuario logado (criador). Data de solicitacao = hoje.
+  document.getElementById("solicitante-nome").value = usuarioAtual ? usuarioAtual.nome : "";
+  document.getElementById("solicitado-em").textContent = dataHoje();
   abrirModal("modal-nova");
-}
-
-async function carregarResponsaveis() {
-  const select = document.getElementById("responsavel");
-  try {
-    const resposta = await getApi("/api/usuarios/listar.php");
-    if (!resposta.ok) return;
-    select.length = 1;
-    resposta.data.usuarios.forEach(function (u) {
-      const opt = document.createElement("option");
-      opt.value = u.id;
-      opt.textContent = u.nome;
-      select.appendChild(opt);
-    });
-  } catch (erro) {
-    // Mantem apenas "Sem responsável".
-  }
 }
 
 async function salvarNova(evento) {
@@ -308,7 +354,6 @@ async function salvarNova(evento) {
 
   const botao = document.getElementById("botao-salvar");
   const titulo = document.getElementById("titulo").value.trim();
-  const responsavel = document.getElementById("responsavel").value;
 
   // Questionario obrigatorio (6 perguntas).
   const campos = {
@@ -359,7 +404,7 @@ async function salvarNova(evento) {
   definirCarregando(botao, true);
 
   try {
-    const dados = Object.assign({ titulo: titulo, responsavel_id: responsavel }, campos, triagem, gut);
+    const dados = Object.assign({ titulo: titulo }, campos, triagem, gut);
     const resposta = await postApi("/api/demandas/criar.php", dados);
 
     if (!resposta.ok) {
