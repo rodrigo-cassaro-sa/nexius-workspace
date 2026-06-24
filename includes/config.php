@@ -50,6 +50,12 @@ define("SMTP_REMETENTE_NOME", env_str("SMTP_REMETENTE_NOME", "Workspace S&A"));
 // Suporte (exibido na tela de Ajuda) - definir endereco oficial depois
 define("EMAIL_SUPORTE", env_str("EMAIL_SUPORTE", "suporte@exemplo.com"));
 
+// Anexos de demandas (uploads). A pasta fica FORA da raiz publica (servida so via API,
+// com checagem de permissao). Em EasyPanel/Docker, aponte ANEXOS_DIR para um volume persistente.
+define("ANEXOS_DIR", env_str("ANEXOS_DIR", __DIR__ . "/../storage/anexos"));
+define("ANEXO_TAMANHO_MAX", (int) env_str("ANEXO_TAMANHO_MAX", "10485760")); // 10 MB por arquivo
+define("ANEXOS_MAX_POR_ENVIO", (int) env_str("ANEXOS_MAX_POR_ENVIO", "10"));  // arquivos por envio
+
 // Diagnostico temporario: quando HEALTH_DEBUG=1, o erro real de conexao com o banco
 // aparece na resposta (campo "debug"). Use so para diagnosticar e DESLIGUE depois.
 define("HEALTH_DEBUG", env_bool("HEALTH_DEBUG", false));

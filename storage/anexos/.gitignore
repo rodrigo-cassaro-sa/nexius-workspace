@@ -1,0 +1,5 @@
+# Pasta de anexos de demandas (uploads). Os arquivos enviados NUNCA sao versionados.
+# Mantemos apenas a estrutura da pasta e os arquivos de protecao.
+*
+!.gitignore
+!.htaccess

@@ -185,6 +185,16 @@ function buscar_demanda($id)
     return empty($linhas) ? null : $linhas[0];
 }
 
+// Pode o usuario ver esta demanda? Admin/Gestor veem tudo; Colaborador so se envolvido.
+// Reaproveitado por endpoints que dependem do escopo (ex.: anexos).
+function usuario_pode_ver_demanda($demanda_id, $usuario_id, $perfil)
+{
+    if ($perfil !== "colaborador") {
+        return true;
+    }
+    return colaborador_envolvido_na_demanda($demanda_id, $usuario_id);
+}
+
 // Escopo de visibilidade do colaborador sobre uma demanda especifica.
 function colaborador_envolvido_na_demanda($demanda_id, $usuario_id)
 {

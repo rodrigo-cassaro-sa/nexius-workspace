@@ -1,0 +1,14 @@
+# Defesa em profundidade: mesmo que esta pasta caia sob a raiz web por engano,
+# nada aqui pode ser acessado/baixado diretamente. O download so acontece via
+# api/anexos/baixar.php (com login e checagem de permissao).
+
+# Apache 2.4+
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+
+# Apache 2.2
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

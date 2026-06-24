@@ -61,6 +61,7 @@ async function carregarTudo() {
     preencherCabecalho(demandaAtual);
     prepararGestor();
     registrarVisita();
+    carregarAnexos();
     await carregarAcoes();
   } catch (erro) {
     document.getElementById("carregando").hidden = true;
@@ -506,6 +507,82 @@ async function arquivar() {
     fecharModal("modal-arquivar");
     definirCarregando(botao, false);
   }
+}
+
+// ---- Anexos (somente leitura: lista + download seguro via API) ----
+
+async function carregarAnexos() {
+  const alvo = document.getElementById("lista-anexos");
+  if (!alvo) return;
+
+  try {
+    const resposta = await getApi("/api/anexos/listar.php?demanda_id=" + demandaId);
+    if (!resposta.ok) {
+      alvo.innerHTML = "";
+      const p = document.createElement("p");
+      p.className = "texto-secundario";
+      p.textContent = "Nao foi possivel carregar os anexos.";
+      alvo.appendChild(p);
+      return;
+    }
+    renderizarAnexos(alvo, resposta.data.anexos);
+  } catch (erro) {
+    alvo.innerHTML = "";
+    const p = document.createElement("p");
+    p.className = "texto-secundario";
+    p.textContent = "Nao foi possivel carregar os anexos.";
+    alvo.appendChild(p);
+  }
+}
+
+function renderizarAnexos(alvo, anexos) {
+  alvo.innerHTML = "";
+
+  if (!anexos || anexos.length === 0) {
+    const p = document.createElement("p");
+    p.className = "texto-secundario";
+    p.textContent = "Nenhum anexo nesta demanda.";
+    alvo.appendChild(p);
+    return;
+  }
+
+  anexos.forEach(function (a) {
+    const item = document.createElement("div");
+    item.className = "anexo-item";
+
+    const corpo = document.createElement("div");
+    corpo.className = "anexo-corpo";
+
+    const nome = document.createElement("span");
+    nome.className = "anexo-nome";
+    nome.textContent = a.nome_original;
+
+    const meta = document.createElement("span");
+    meta.className = "anexo-meta texto-secundario";
+    meta.textContent = formatarTamanho(a.tamanho)
+      + " · enviado por " + (a.criado_por_nome || "—")
+      + " em " + formatarDataHora(a.criado_em);
+
+    corpo.appendChild(nome);
+    corpo.appendChild(meta);
+
+    const baixar = document.createElement("a");
+    baixar.className = "botao botao-secundario";
+    baixar.href = "/api/anexos/baixar.php?id=" + a.id;
+    baixar.textContent = "Baixar";
+
+    item.appendChild(corpo);
+    item.appendChild(baixar);
+    alvo.appendChild(item);
+  });
+}
+
+// Formata bytes como KB/MB legivel.
+function formatarTamanho(bytes) {
+  const n = parseInt(bytes, 10) || 0;
+  if (n < 1024) return n + " B";
+  if (n < 1048576) return (n / 1024).toFixed(0) + " KB";
+  return (n / 1048576).toFixed(1) + " MB";
 }
 
 // ---- Visitas (lastro: quem abriu a demanda e quando) ----

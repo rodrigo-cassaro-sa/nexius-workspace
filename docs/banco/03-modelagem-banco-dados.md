@@ -154,9 +154,26 @@ Nenhuma tabela. Gamificação está fora do MVP (`01-descricao-produto.md` §23)
 
 Sem tabelas dedicadas. A retenção é apoiada por dados já existentes: `notificacoes` (atribuição/novo comentário trazem o usuário de volta) e as consultas do dashboard ("minhas ações" e pendências) sobre `acoes`/`demandas`. Não há tabela de métricas no MVP.
 
+## 11-A. Anexos de demandas (decisão de produto — D17)
+
+Tabela `anexos` (trazida ao escopo por decisão de produto; ver D17 em `decisoes-pendentes.md`). Guarda apenas **metadados**; o arquivo fica em pasta privada fora da raiz pública (`storage/anexos/`), servido só via `api/anexos/baixar.php` com login + escopo.
+
+| Campo | Tipo | Observação |
+|---|---|---|
+| `id` | INT PK AI | |
+| `demanda_id` | INT NOT NULL | FK → `demandas(id)` |
+| `nome_original` | VARCHAR(255) | nome exibido ao usuário |
+| `nome_armazenado` | VARCHAR(120) UNIQUE | nome aleatório em disco (nunca o original) |
+| `mime` | VARCHAR(120) | MIME real conferido por `finfo` |
+| `tamanho` | INT | bytes |
+| `criado_por` | INT NOT NULL | FK → `usuarios(id)` |
+| `criado_em` | DATETIME | default `CURRENT_TIMESTAMP` |
+
+Migration: `008_add_anexos.sql`. Validação (tamanho/extensão allowlist/MIME), renomeação e bloqueio de execução ficam no backend (`includes/anexos.php`), conforme `boas-praticas-seguranca.md` §9.
+
 ## 12. Fora do MVP
 
-Não modelado agora (sem evidência ou explicitamente fora): pagamentos, gamificação/progresso, preferências/opt-out (e-mails são operacionais; tema fica no `localStorage`, não no banco), tabela de equipe, tabela de observadores, offline/sincronização, push/SMS/WhatsApp, uploads, webhooks, relatórios e qualquer tabela de permissões granular.
+Não modelado agora (sem evidência ou explicitamente fora): pagamentos, gamificação/progresso, preferências/opt-out (e-mails são operacionais; tema fica no `localStorage`, não no banco), tabela de equipe, tabela de observadores, offline/sincronização, push/SMS/WhatsApp, webhooks, relatórios e qualquer tabela de permissões granular. (Uploads deixaram de estar fora do MVP por decisão de produto — ver §11-A e D17.)
 
 ## 13. Decisões pendentes
 

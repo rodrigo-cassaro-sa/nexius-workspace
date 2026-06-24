@@ -275,7 +275,9 @@ Todos os perfis envolvidos na demanda; edição do plano apenas Gestor/Responsá
 
 ### Dados exibidos
 
-Dados da demanda (título, descrição, status, responsável); lista de ações (ação, responsável, prazo, status, marcação de chave e pré-requisito); progresso ("X/Y concluídas"); comentários dentro de cada ação.
+Dados da demanda (título, descrição, status, responsável); **anexos** (arquivos enviados na criação, com download seguro — ver D17); lista de ações (ação, responsável, prazo, status, marcação de chave e pré-requisito); progresso ("X/Y concluídas"); comentários dentro de cada ação.
+
+> **Anexos (D17):** na criação da demanda (modal Nova demanda, Gestor/Admin) é possível anexar arquivos de apoio (PDF, imagens, Office, TXT, CSV, ZIP; até 10 arquivos de 10 MB). Eles aparecem aqui em uma seção "Anexos" somente leitura, com botão **Baixar**. Os arquivos ficam em pasta privada e só são servidos via API com login + escopo de visibilidade da demanda.
 
 ### Ações disponíveis
 

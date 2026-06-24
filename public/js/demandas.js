@@ -404,6 +404,15 @@ async function salvarNova(evento) {
     return;
   }
 
+  // Anexos (opcional). Pre-valida no cliente para nao criar a demanda se houver arquivo invalido.
+  // O backend revalida (tamanho, extensao e MIME real) — esta checagem e so de conveniencia.
+  const arquivos = document.getElementById("anexos").files;
+  const erroAnexo = validarAnexosCliente(arquivos);
+  if (erroAnexo) {
+    mostrarErro("modal-mensagem", erroAnexo);
+    return;
+  }
+
   definirCarregando(botao, true);
 
   try {
@@ -416,11 +425,74 @@ async function salvarNova(evento) {
       return;
     }
 
+    // Demanda criada: envia os anexos selecionados (se houver).
+    let aviso = "";
+    if (arquivos && arquivos.length > 0) {
+      aviso = await enviarAnexos(resposta.data.id, arquivos);
+    }
+
     fecharModal("modal-nova");
     definirCarregando(botao, false);
     recarregar();
+    if (aviso) {
+      mostrarErro("mensagem", aviso);
+    }
   } catch (erro) {
     mostrarErro("modal-mensagem", "Nao foi possivel criar a demanda.");
     definirCarregando(botao, false);
+  }
+}
+
+// Extensoes e tamanho aceitos (espelham o backend; backend e a barreira real).
+const ANEXOS_EXTENSOES = ["pdf", "png", "jpg", "jpeg", "gif", "webp", "doc", "docx",
+  "xls", "xlsx", "ppt", "pptx", "txt", "csv", "zip"];
+const ANEXO_TAMANHO_MAX = 10 * 1024 * 1024;
+const ANEXOS_MAX = 10;
+
+// Pre-validacao no cliente. Retorna "" se ok ou uma mensagem de erro.
+function validarAnexosCliente(arquivos) {
+  if (!arquivos || arquivos.length === 0) return "";
+  if (arquivos.length > ANEXOS_MAX) return "Selecione no máximo " + ANEXOS_MAX + " arquivos.";
+  for (let i = 0; i < arquivos.length; i++) {
+    const f = arquivos[i];
+    const ext = (f.name.split(".").pop() || "").toLowerCase();
+    if (ANEXOS_EXTENSOES.indexOf(ext) === -1) {
+      return "Tipo de arquivo não permitido: " + f.name;
+    }
+    if (f.size > ANEXO_TAMANHO_MAX) {
+      return "Arquivo acima de 10 MB: " + f.name;
+    }
+  }
+  return "";
+}
+
+// Envia os anexos (multipart) da demanda recem-criada. Nao usa postApi (que e JSON).
+// Retorna "" se tudo certo, ou uma mensagem de aviso (a demanda ja foi criada de qualquer forma).
+async function enviarAnexos(demandaId, arquivos) {
+  const fd = new FormData();
+  fd.append("demanda_id", demandaId);
+  for (let i = 0; i < arquivos.length; i++) {
+    fd.append("arquivos[]", arquivos[i]);
+  }
+
+  try {
+    const resposta = await fetch("/api/anexos/enviar.php", {
+      method: "POST",
+      credentials: "include",
+      cache: "no-store",
+      body: fd
+    });
+    const dados = await resposta.json();
+
+    if (!dados.ok) {
+      return "A demanda foi criada, mas os anexos não puderam ser enviados.";
+    }
+    if (dados.data.rejeitados && dados.data.rejeitados.length > 0) {
+      const lista = dados.data.rejeitados.map(function (r) { return r.nome + " (" + r.erro + ")"; }).join("; ");
+      return "Demanda criada. Anexos não aceitos: " + lista;
+    }
+    return "";
+  } catch (erro) {
+    return "A demanda foi criada, mas os anexos não puderam ser enviados.";
   }
 }
