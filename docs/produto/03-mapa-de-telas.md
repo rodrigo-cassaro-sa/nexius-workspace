@@ -223,6 +223,35 @@ Badges de status com texto + cor; números de resumo em destaque sóbrio.
 
 ---
 
+## Ações (lista global)
+
+> Tela acrescentada por decisão de produto (D16 em `decisoes-pendentes.md`). Consolida
+> elementos já documentados — lista de ações, filtros como na lista de demandas, popup de
+> detalhe da ação e escopo de visibilidade — numa visão única de **todas as ações** que o
+> usuário acompanha. Corresponde ao slot "Plano de ação" do mockup. Sem tabela nova (usa `acoes`).
+
+### Objetivo
+Ver e filtrar rapidamente todas as ações (de várias demandas), sem abrir uma a uma.
+
+### Quem acessa
+Todos os perfis. O conteúdo respeita o **escopo** (Colaborador só vê ações de demandas em
+que está envolvido; Gestor/Admin veem todas) — validado no backend.
+
+### Dados exibidos
+Tabela: ação (+ marca de chave), demanda (link), responsável, prazo, status (com "bloqueada"
+derivada de pré-requisito). Filtros: busca por título, status, responsável, situação
+(atrasadas/bloqueadas). Paginação. Popup de detalhe: descrição, responsável, prazo, status,
+chave, "quem visualizou" (marca a visualização ao abrir) e atalho para a demanda.
+
+### Estados
+Carregando (skeleton), vazio ("Nenhuma ação encontrada"), erro, sucesso, sem permissão
+(o escopo limita o conteúdo).
+
+### Responsivo
+Tabela vira cards no mobile (mesmo padrão da lista de demandas).
+
+---
+
 ## Tela principal da operação — Detalhe da demanda (plano de ação)
 
 > Esta é a tela central do produto. Mostra a demanda e seu plano de ação (lista de ações), com comentários por ação.

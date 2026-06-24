@@ -77,6 +77,85 @@ function listar_acoes_da_demanda($demanda_id)
     );
 }
 
+// Monta o WHERE da lista GLOBAL de acoes (escopo + filtros). Reaproveitado na contagem e na lista.
+// Escopo: Admin/Gestor veem todas; Colaborador so as acoes de demandas em que esta envolvido.
+function montar_where_acoes($usuario_id, $perfil, $filtros)
+{
+    $where = " WHERE a.status <> 'cancelada' AND d.status NOT IN ('arquivada', 'cancelada')";
+    $tipos = "";
+    $params = [];
+
+    if ($perfil === "colaborador") {
+        $where .= " AND (
+            EXISTS (SELECT 1 FROM acoes ae WHERE ae.demanda_id = d.id AND ae.responsavel_id = ?)
+            OR EXISTS (SELECT 1 FROM comentarios c JOIN acoes a2 ON a2.id = c.acao_id
+                       WHERE a2.demanda_id = d.id AND c.autor_id = ?)
+        )";
+        $tipos .= "ii";
+        $params[] = $usuario_id;
+        $params[] = $usuario_id;
+    }
+
+    if ($filtros["status"] !== "") {
+        $where .= " AND a.status = ?";
+        $tipos .= "s";
+        $params[] = $filtros["status"];
+    }
+
+    if ($filtros["responsavel"] > 0) {
+        $where .= " AND a.responsavel_id = ?";
+        $tipos .= "i";
+        $params[] = $filtros["responsavel"];
+    }
+
+    if ($filtros["busca"] !== "") {
+        $where .= " AND a.titulo LIKE ?";
+        $tipos .= "s";
+        $params[] = "%" . $filtros["busca"] . "%";
+    }
+
+    // Situacao derivada (atrasada/bloqueada): sem parametros (usa data/subconsulta).
+    if ($filtros["situacao"] === "atrasadas") {
+        $where .= " AND a.status = 'pendente' AND a.prazo IS NOT NULL AND a.prazo < CURDATE()";
+    } elseif ($filtros["situacao"] === "bloqueadas") {
+        $where .= " AND a.status = 'pendente' AND EXISTS (
+            SELECT 1 FROM acao_prerequisitos ap JOIN acoes p ON p.id = ap.prerequisito_acao_id
+            WHERE ap.acao_id = a.id AND p.status <> 'concluida')";
+    }
+
+    return [$where, $tipos, $params];
+}
+
+// Lista GLOBAL de acoes (de varias demandas), com escopo, filtros e paginacao.
+function listar_acoes($usuario_id, $perfil, $filtros, $pagina, $por_pagina)
+{
+    list($where, $tipos, $params) = montar_where_acoes($usuario_id, $perfil, $filtros);
+
+    $total = (int) executar_select(
+        "SELECT COUNT(*) AS total FROM acoes a JOIN demandas d ON d.id = a.demanda_id" . $where,
+        $tipos,
+        $params
+    )[0]["total"];
+
+    $offset = ($pagina - 1) * $por_pagina;
+
+    $sql = "SELECT a.id, a.titulo, a.descricao, a.status, a.prazo, a.chave,
+                   a.responsavel_id, ur.nome AS responsavel_nome,
+                   d.id AS demanda_id, d.titulo AS demanda_titulo,
+                   (SELECT COUNT(*) FROM acao_prerequisitos ap
+                    JOIN acoes p ON p.id = ap.prerequisito_acao_id
+                    WHERE ap.acao_id = a.id AND p.status <> 'concluida') AS prereq_pendentes
+            FROM acoes a
+            JOIN demandas d ON d.id = a.demanda_id
+            LEFT JOIN usuarios ur ON ur.id = a.responsavel_id"
+            . $where . " ORDER BY (a.prazo IS NULL), a.prazo ASC, a.id DESC LIMIT ? OFFSET ?";
+
+    $tipos_lista = $tipos . "ii";
+    $params_lista = array_merge($params, [$por_pagina, $offset]);
+
+    return ["acoes" => executar_select($sql, $tipos_lista, $params_lista), "total" => $total];
+}
+
 // Busca uma acao (inclui demanda_id e chave para as regras).
 function buscar_acao($id)
 {

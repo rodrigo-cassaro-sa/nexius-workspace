@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard - Workspace S&amp;A</title>
+  <title>Ações - Workspace S&amp;A</title>
 
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/theme.css">
@@ -12,14 +12,14 @@
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-  <!-- Tela: Dashboard. Protegida: exige sessao valida (checada no JS via api/auth/me.php). -->
+  <!-- Tela: Acoes (lista global de acoes de varias demandas, com filtros e popup). -->
   <div class="app-shell">
     <aside class="sidebar">
       <div class="sidebar-marca">Workspace S&amp;A</div>
       <nav class="sidebar-nav">
-        <a href="dashboard.html" class="ativo"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>Dashboard</span></a>
+        <a href="dashboard.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>Dashboard</span></a>
         <a href="demandas.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg><span>Demandas</span></a>
-        <a href="acoes.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg><span>Ações</span></a>
+        <a href="acoes.html" class="ativo"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg><span>Ações</span></a>
         <a href="notificacoes.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><span>Notificações</span></a>
         <a href="progresso.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg><span>Progresso</span></a>
         <a href="admin-usuarios.html" id="nav-usuarios" hidden><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span>Usuários</span></a>
@@ -57,78 +57,71 @@
       <main class="app-main">
         <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
 
-        <div class="pagina-cabecalho">
-          <h1 class="pagina-titulo">Dashboard</h1>
-          <p class="pagina-subtitulo">Visão geral das demandas e ações</p>
-        </div>
-
-        <div class="kpi-grid">
-          <section class="card">
-            <p class="kpi-rotulo">Demandas por status</p>
-            <div class="kpi-donut-area">
-              <p class="kpi-numero" id="kpi-total-demandas">—</p>
-              <div class="donut" id="donut-demandas"></div>
+        <section class="card">
+          <div class="lista-cabecalho">
+            <div>
+              <h1 class="pagina-titulo">Ações</h1>
+              <p class="pagina-subtitulo">Todas as ações que você acompanha, em um só lugar.</p>
             </div>
-            <ul class="donut-legenda" id="legenda-demandas"></ul>
-          </section>
-
-          <section class="card kpi-card">
-            <div class="kpi-topo">
-              <div>
-                <p class="kpi-rotulo">Minhas ações</p>
-                <p class="kpi-numero" id="kpi-minhas-acoes">—</p>
-                <p class="texto-secundario">Pendentes</p>
-              </div>
-              <span class="kpi-icone kpi-icone-neutro" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M9 12h6"></path><path d="M9 16h6"></path></svg></span>
-            </div>
-            <a class="kpi-link" href="acoes.html">Ver minhas ações →</a>
-          </section>
-
-          <section class="card kpi-card">
-            <div class="kpi-topo">
-              <div>
-                <p class="kpi-rotulo">Ações atrasadas</p>
-                <p class="kpi-numero" id="kpi-atrasadas">—</p>
-                <p class="texto-secundario">Ações</p>
-              </div>
-              <span class="kpi-icone kpi-icone-erro" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
-            </div>
-            <a class="kpi-link" href="acoes.html?situacao=atrasadas">Ver atrasadas →</a>
-          </section>
-
-          <section class="card kpi-card">
-            <div class="kpi-topo">
-              <div>
-                <p class="kpi-rotulo">% concluídas no prazo</p>
-                <p class="kpi-numero" id="kpi-no-prazo">—</p>
-                <p class="texto-secundario">Concluídas no prazo</p>
-              </div>
-              <span class="kpi-icone kpi-icone-sucesso" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></span>
-            </div>
-            <a class="kpi-link" href="acoes.html?status=concluida">Ver histórico →</a>
-          </section>
-        </div>
-
-        <section class="card" style="margin-top: var(--espaco-4);">
-          <div class="linha-titulo">
-            <h2>Minhas pendências</h2>
-            <a id="continue-link" href="#" hidden></a>
           </div>
-          <div id="lista-pendencias">
+
+          <div class="barra-ferramentas">
+            <input class="campo-input" id="filtro-busca" type="text" placeholder="Buscar ação...">
+            <select class="campo-input" id="filtro-status" aria-label="Status">
+              <option value="">Status: todos</option>
+              <option value="pendente">Pendente</option>
+              <option value="concluida">Concluída</option>
+            </select>
+            <select class="campo-input" id="filtro-responsavel" aria-label="Responsável">
+              <option value="">Responsável: todos</option>
+            </select>
+            <select class="campo-input" id="filtro-situacao" aria-label="Situação">
+              <option value="">Situação: todas</option>
+              <option value="atrasadas">Atrasadas</option>
+              <option value="bloqueadas">Bloqueadas</option>
+            </select>
+          </div>
+
+          <div id="lista-acoes">
             <p class="texto-secundario">Carregando...</p>
           </div>
-        </section>
 
-        <section class="card" style="margin-top: var(--espaco-4);">
-          <div class="linha-titulo">
-            <h2>Atividades recentes</h2>
-            <a href="notificacoes.html">Ver todas</a>
-          </div>
-          <div id="atividades">
-            <p class="texto-secundario">Carregando...</p>
+          <div class="paginacao" id="paginacao" hidden>
+            <span class="info" id="paginacao-info"></span>
+            <div class="controles">
+              <button class="botao botao-secundario" id="pag-anterior" type="button">Anterior</button>
+              <button class="botao botao-secundario" id="pag-proxima" type="button">Próxima</button>
+            </div>
           </div>
         </section>
       </main>
+    </div>
+  </div>
+
+  <!-- Modal: Detalhes da ação (marca como visualizado ao abrir) -->
+  <div id="modal-acao-detalhe" class="modal" role="dialog" aria-modal="true" aria-labelledby="det-titulo">
+    <div class="modal-conteudo">
+      <h2 class="modal-titulo" id="det-titulo">Detalhes da ação</h2>
+
+      <div class="det-cabecalho">
+        <span class="badge" id="det-status"></span>
+        <span id="det-chave" class="badge badge-chave" hidden>Ação chave</span>
+      </div>
+
+      <p class="texto-secundario" id="det-metas"></p>
+
+      <p class="kpi-rotulo">Descrição</p>
+      <p id="det-descricao">—</p>
+
+      <h3>Quem visualizou esta tarefa</h3>
+      <div id="det-visualizacoes">
+        <p class="texto-secundario">Carregando...</p>
+      </div>
+
+      <div class="modal-acoes">
+        <a class="botao botao-secundario" id="det-abrir" href="#">Abrir demanda</a>
+        <button type="button" class="botao botao-primario" id="botao-det-fechar">Fechar</button>
+      </div>
     </div>
   </div>
 
@@ -137,6 +130,7 @@
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/ui.js"></script>
-  <script src="js/dashboard.js"></script>
+  <script src="js/validators.js"></script>
+  <script src="js/acoes.js"></script>
 </body>
 </html>
