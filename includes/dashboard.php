@@ -45,6 +45,28 @@ function contar_minhas_acoes_pendentes($usuario_id)
     return (int) $linhas[0]["total"];
 }
 
+// Minhas pendencias (retencao): acoes pendentes do usuario, com a demanda e o prazo.
+// Ordena pelo prazo (mais cedo primeiro; sem prazo por ultimo). Exclui demanda arquivada/cancelada.
+function listar_minhas_pendencias($usuario_id, $limite)
+{
+    $limite = (int) $limite;
+    return executar_select(
+        "SELECT a.id AS acao_id, a.titulo AS acao_titulo, a.prazo,
+                d.id AS demanda_id, d.titulo AS demanda_titulo,
+                (SELECT COUNT(*) FROM acao_prerequisitos ap
+                 JOIN acoes p ON p.id = ap.prerequisito_acao_id
+                 WHERE ap.acao_id = a.id AND p.status <> 'concluida') AS prereq_pendentes
+         FROM acoes a
+         JOIN demandas d ON d.id = a.demanda_id
+         WHERE a.responsavel_id = ? AND a.status = 'pendente'
+           AND d.status NOT IN ('arquivada', 'cancelada')
+         ORDER BY (a.prazo IS NULL), a.prazo ASC, a.id ASC
+         LIMIT " . $limite,
+        "i",
+        [$usuario_id]
+    );
+}
+
 // Acoes atrasadas (prazo vencido e nao concluida/cancelada).
 function contar_acoes_atrasadas($usuario_id, $perfil)
 {

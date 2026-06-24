@@ -31,6 +31,22 @@ function listar_visitas_demanda($demanda_id)
     );
 }
 
+// Ultima demanda que o usuario abriu (retencao: "continue de onde parou").
+// Exclui arquivada/cancelada (nao faz sentido retomar).
+function ultima_demanda_visitada($usuario_id)
+{
+    $linhas = executar_select(
+        "SELECT d.id, d.titulo
+         FROM demanda_visitas v
+         JOIN demandas d ON d.id = v.demanda_id
+         WHERE v.usuario_id = ? AND d.status NOT IN ('arquivada', 'cancelada')
+         ORDER BY v.ultima_visita DESC LIMIT 1",
+        "i",
+        [$usuario_id]
+    );
+    return empty($linhas) ? null : $linhas[0];
+}
+
 // Marca que o usuario viu o detalhe de uma acao (guarda a 1a visualizacao).
 function marcar_acao_visualizada($acao_id, $usuario_id)
 {

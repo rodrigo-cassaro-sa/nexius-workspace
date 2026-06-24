@@ -28,8 +28,88 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("botao-sair").addEventListener("click", sairDoSistema);
 
   carregarResumo();
+  carregarRetencao();
   carregarAtividades();
 });
+
+// ---- Retencao: minhas pendencias + "continue de onde parou" ----
+
+async function carregarRetencao() {
+  const alvo = document.getElementById("lista-pendencias");
+  try {
+    const resposta = await getApi("/api/dashboard/retencao.php");
+    if (!resposta.ok) {
+      alvo.textContent = "Nao foi possivel carregar as pendencias.";
+      return;
+    }
+    renderContinuar(resposta.data.ultima_demanda);
+    renderPendencias(alvo, resposta.data.pendencias);
+  } catch (erro) {
+    alvo.textContent = "Nao foi possivel carregar as pendencias.";
+  }
+}
+
+function renderContinuar(demanda) {
+  const link = document.getElementById("continue-link");
+  if (!demanda) {
+    link.hidden = true;
+    return;
+  }
+  link.href = "demanda.html?id=" + demanda.id;
+  link.textContent = "Continuar: " + demanda.titulo + " →";
+  link.hidden = false;
+}
+
+function renderPendencias(alvo, lista) {
+  alvo.innerHTML = "";
+
+  if (!lista || lista.length === 0) {
+    const p = document.createElement("p");
+    p.className = "texto-secundario";
+    p.textContent = "Você está em dia. Sem ações pendentes.";
+    alvo.appendChild(p);
+    return;
+  }
+
+  const hoje = new Date().toISOString().substring(0, 10);
+
+  lista.forEach(function (a) {
+    const linha = document.createElement("a");
+    linha.className = "atividade";
+    linha.href = "demanda.html?id=" + a.demanda_id;
+
+    const texto = document.createElement("div");
+    texto.className = "atividade-texto";
+    const titulo = document.createElement("strong");
+    titulo.className = "atividade-titulo";
+    titulo.textContent = a.acao_titulo;
+    const desc = document.createElement("span");
+    desc.className = "atividade-desc";
+    desc.textContent = a.demanda_titulo;
+    texto.appendChild(titulo);
+    texto.appendChild(desc);
+
+    const meta = document.createElement("span");
+    const prazo = a.prazo ? a.prazo.substring(0, 10) : null;
+    if (parseInt(a.prereq_pendentes, 10) > 0) {
+      meta.className = "badge badge-aviso";
+      meta.textContent = "Bloqueada";
+    } else if (prazo && prazo < hoje) {
+      meta.className = "badge badge-erro";
+      meta.textContent = "Atrasada · " + prazo;
+    } else if (prazo) {
+      meta.className = "atividade-data";
+      meta.textContent = "Prazo " + prazo;
+    } else {
+      meta.className = "atividade-data";
+      meta.textContent = "Sem prazo";
+    }
+
+    linha.appendChild(texto);
+    linha.appendChild(meta);
+    alvo.appendChild(linha);
+  });
+}
 
 async function carregarAtividades() {
   const alvo = document.getElementById("atividades");
