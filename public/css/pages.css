@@ -663,3 +663,205 @@
   border-color: var(--cor-primaria);
   color: var(--cor-primaria);
 }
+
+/* Tela Ações: alternador de visao (Lista / Calendário) */
+.visao-toggle {
+  display: inline-flex;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.visao-botao {
+  background: var(--cor-superficie);
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+}
+
+.visao-botao + .visao-botao {
+  border-left: 1px solid var(--cor-borda);
+}
+
+.visao-botao.ativo {
+  background: var(--cor-primaria);
+  color: #ffffff;
+}
+
+/* Calendário de ações */
+.cal-barra {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  margin-bottom: var(--espaco-3);
+}
+
+.cal-titulo {
+  font-size: 16px;
+  min-width: 180px;
+  text-align: center;
+}
+
+.cal-barra .cal-hoje {
+  margin-left: auto;
+}
+
+.cal-semana {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--espaco-1);
+  margin-bottom: var(--espaco-1);
+}
+
+.cal-semana span {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--cor-texto-secundario);
+  padding: 4px 0;
+}
+
+.cal-grade {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(104px, auto);
+  gap: var(--espaco-1);
+}
+
+.cal-dia {
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  background: var(--cor-superficie);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cal-dia-fora {
+  background: var(--cor-fundo);
+  opacity: 0.6;
+}
+
+.cal-dia-hoje {
+  border-color: var(--cor-primaria);
+  box-shadow: inset 0 0 0 1px var(--cor-primaria);
+}
+
+.cal-num {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cor-texto-secundario);
+  align-self: flex-end;
+}
+
+.cal-dia-hoje .cal-num {
+  color: var(--cor-primaria);
+}
+
+/* Chip de evento (ação) dentro do dia */
+.cal-evento {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-left: 3px solid var(--cor-primaria);
+  border-radius: 3px;
+  background: rgba(78, 57, 47, 0.1);
+  color: var(--cor-texto);
+  padding: 3px 6px;
+  font-size: 12px;
+  line-height: 1.3;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal-evento:hover {
+  filter: brightness(0.97);
+}
+
+.cal-evento-atrasada {
+  border-left-color: #c13a3a;
+  background: rgba(193, 58, 58, 0.12);
+}
+
+.cal-evento-bloqueada {
+  border-left-color: #b5852a;
+  background: rgba(181, 133, 42, 0.14);
+}
+
+.cal-evento-concluida {
+  border-left-color: #2e7d52;
+  background: rgba(46, 125, 82, 0.12);
+}
+
+.cal-evento-chave {
+  font-weight: 600;
+}
+
+/* Legenda de cores do calendário */
+.cal-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-3);
+  margin-top: var(--espaco-3);
+}
+
+.cal-leg-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--cor-texto-secundario);
+}
+
+.cal-ponto {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.cal-ponto-atrasada { background: #c13a3a; }
+.cal-ponto-bloqueada { background: #b5852a; }
+.cal-ponto-pendente { background: var(--cor-primaria); }
+.cal-ponto-concluida { background: #2e7d52; }
+
+/* Mobile: grade mais compacta, chips truncados (mantém as 7 colunas da semana) */
+@media (max-width: 640px) {
+  .cal-grade {
+    grid-auto-rows: minmax(72px, auto);
+    gap: 2px;
+  }
+
+  .cal-semana {
+    gap: 2px;
+  }
+
+  .cal-semana span {
+    font-size: 10px;
+  }
+
+  .cal-dia {
+    padding: 2px;
+  }
+
+  .cal-evento {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+
+  .cal-titulo {
+    min-width: 0;
+    flex: 1;
+  }
+}

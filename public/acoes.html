@@ -63,6 +63,10 @@
               <h1 class="pagina-titulo">Ações</h1>
               <p class="pagina-subtitulo">Todas as ações que você acompanha, em um só lugar.</p>
             </div>
+            <div class="visao-toggle" role="tablist" aria-label="Modo de visualização">
+              <button class="visao-botao ativo" id="visao-lista" type="button" role="tab" aria-selected="true">Lista</button>
+              <button class="visao-botao" id="visao-calendario" type="button" role="tab" aria-selected="false">Calendário</button>
+            </div>
           </div>
 
           <div class="barra-ferramentas">
@@ -82,15 +86,43 @@
             </select>
           </div>
 
-          <div id="lista-acoes">
-            <p class="texto-secundario">Carregando...</p>
+          <!-- Visao 1: Lista -->
+          <div id="painel-lista">
+            <div id="lista-acoes">
+              <p class="texto-secundario">Carregando...</p>
+            </div>
+
+            <div class="paginacao" id="paginacao" hidden>
+              <span class="info" id="paginacao-info"></span>
+              <div class="controles">
+                <button class="botao botao-secundario" id="pag-anterior" type="button">Anterior</button>
+                <button class="botao botao-secundario" id="pag-proxima" type="button">Próxima</button>
+              </div>
+            </div>
           </div>
 
-          <div class="paginacao" id="paginacao" hidden>
-            <span class="info" id="paginacao-info"></span>
-            <div class="controles">
-              <button class="botao botao-secundario" id="pag-anterior" type="button">Anterior</button>
-              <button class="botao botao-secundario" id="pag-proxima" type="button">Próxima</button>
+          <!-- Visao 2: Calendario (ações posicionadas pelo prazo) -->
+          <div id="painel-calendario" hidden>
+            <div class="cal-barra">
+              <button class="botao botao-secundario" id="cal-anterior" type="button" aria-label="Mês anterior">‹</button>
+              <strong class="cal-titulo" id="cal-titulo">—</strong>
+              <button class="botao botao-secundario" id="cal-proximo" type="button" aria-label="Próximo mês">›</button>
+              <button class="botao botao-secundario cal-hoje" id="cal-hoje" type="button">Hoje</button>
+            </div>
+
+            <div class="cal-semana" aria-hidden="true">
+              <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+            </div>
+
+            <div class="cal-grade" id="cal-grade">
+              <p class="texto-secundario">Carregando...</p>
+            </div>
+
+            <div class="cal-legenda">
+              <span class="cal-leg-item"><span class="cal-ponto cal-ponto-atrasada"></span>Atrasada</span>
+              <span class="cal-leg-item"><span class="cal-ponto cal-ponto-bloqueada"></span>Bloqueada</span>
+              <span class="cal-leg-item"><span class="cal-ponto cal-ponto-pendente"></span>Pendente</span>
+              <span class="cal-leg-item"><span class="cal-ponto cal-ponto-concluida"></span>Concluída</span>
             </div>
           </div>
         </section>

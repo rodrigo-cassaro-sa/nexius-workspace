@@ -243,12 +243,21 @@ derivada de pré-requisito). Filtros: busca por título, status, responsável, s
 (atrasadas/bloqueadas). Paginação. Popup de detalhe: descrição, responsável, prazo, status,
 chave, "quem visualizou" (marca a visualização ao abrir) e atalho para a demanda.
 
+### Visões (Lista / Calendário)
+A mesma tela tem um alternador **Lista** | **Calendário**. A visão **Calendário** posiciona as
+ações pelo **prazo** numa grade mensal (navegação mês anterior/próximo + "Hoje"), respeitando os
+mesmos filtros e o mesmo escopo da lista. Cores por situação (atrasada, bloqueada, pendente,
+concluída); clicar numa ação abre o mesmo popup de detalhe. Só ações **com prazo** aparecem no
+calendário (ação sem prazo não tem dia para ocupar e segue visível apenas na Lista). Sem tabela
+nova: usa `acoes` num intervalo de datas (endpoint `api/acoes/calendario.php`).
+
 ### Estados
-Carregando (skeleton), vazio ("Nenhuma ação encontrada"), erro, sucesso, sem permissão
-(o escopo limita o conteúdo).
+Carregando (skeleton/“Carregando…”), vazio ("Nenhuma ação encontrada" na Lista; no Calendário, o
+mês sem ações mostra a grade vazia), erro, sucesso, sem permissão (o escopo limita o conteúdo).
 
 ### Responsivo
-Tabela vira cards no mobile (mesmo padrão da lista de demandas).
+Tabela vira cards no mobile (mesmo padrão da lista de demandas). O calendário mantém as 7 colunas
+da semana com células e chips compactos no mobile (sem rolagem horizontal).
 
 ---
 

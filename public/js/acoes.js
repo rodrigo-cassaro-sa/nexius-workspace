@@ -5,6 +5,11 @@
 let paginaAtual = 1;
 let totalPaginas = 1;
 let usuarioId = 0;
+let visao = "lista";                       // "lista" | "calendario"
+let mesAtual = primeiroDiaDoMes(new Date()); // primeiro dia do mes visivel no calendario
+
+const MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
 document.addEventListener("DOMContentLoaded", async function () {
   const usuario = await exigirSessaoNoFront();
@@ -27,16 +32,32 @@ document.addEventListener("DOMContentLoaded", async function () {
   aplicarPreFiltro("filtro-status", params.get("status"));
   aplicarPreFiltro("filtro-situacao", params.get("situacao"));
 
-  document.getElementById("filtro-busca").addEventListener("input", debounce(recarregar, 350));
-  document.getElementById("filtro-status").addEventListener("change", recarregar);
-  document.getElementById("filtro-responsavel").addEventListener("change", recarregar);
-  document.getElementById("filtro-situacao").addEventListener("change", recarregar);
+  document.getElementById("filtro-busca").addEventListener("input", debounce(recarregarAtiva, 350));
+  document.getElementById("filtro-status").addEventListener("change", recarregarAtiva);
+  document.getElementById("filtro-responsavel").addEventListener("change", recarregarAtiva);
+  document.getElementById("filtro-situacao").addEventListener("change", recarregarAtiva);
   document.getElementById("pag-anterior").addEventListener("click", function () { irPara(paginaAtual - 1); });
   document.getElementById("pag-proxima").addEventListener("click", function () { irPara(paginaAtual + 1); });
   document.getElementById("botao-det-fechar").addEventListener("click", function () { fecharModal("modal-acao-detalhe"); });
 
+  // Alternador de visao (Lista / Calendário) e navegacao por mes.
+  document.getElementById("visao-lista").addEventListener("click", function () { alternarVisao("lista"); });
+  document.getElementById("visao-calendario").addEventListener("click", function () { alternarVisao("calendario"); });
+  document.getElementById("cal-anterior").addEventListener("click", function () { mudarMes(-1); });
+  document.getElementById("cal-proximo").addEventListener("click", function () { mudarMes(1); });
+  document.getElementById("cal-hoje").addEventListener("click", function () {
+    mesAtual = primeiroDiaDoMes(new Date());
+    carregarCalendario();
+  });
+
   carregarResponsaveis();
-  carregarAcoes();
+
+  // Permite abrir direto no calendário via URL (ex.: acoes.html?visao=calendario).
+  if (params.get("visao") === "calendario") {
+    alternarVisao("calendario");
+  } else {
+    carregarAcoes();
+  }
 });
 
 function aplicarPreFiltro(id, valor) {
@@ -56,6 +77,48 @@ function debounce(fn, espera) {
 function recarregar() {
   paginaAtual = 1;
   carregarAcoes();
+}
+
+// Recarrega a visao ativa (lista ou calendário) ao mudar um filtro.
+function recarregarAtiva() {
+  if (visao === "calendario") {
+    carregarCalendario();
+  } else {
+    recarregar();
+  }
+}
+
+// Filtros comuns as duas visoes (lista e calendário), em querystring.
+function paramsFiltros() {
+  const busca = document.getElementById("filtro-busca").value.trim();
+  const status = document.getElementById("filtro-status").value;
+  const responsavel = document.getElementById("filtro-responsavel").value;
+  const situacao = document.getElementById("filtro-situacao").value;
+  return "busca=" + encodeURIComponent(busca)
+    + "&status=" + encodeURIComponent(status)
+    + "&responsavel=" + encodeURIComponent(responsavel)
+    + "&situacao=" + encodeURIComponent(situacao);
+}
+
+function alternarVisao(nova) {
+  visao = nova;
+  const ehCal = nova === "calendario";
+
+  document.getElementById("painel-lista").hidden = ehCal;
+  document.getElementById("painel-calendario").hidden = !ehCal;
+
+  const btnLista = document.getElementById("visao-lista");
+  const btnCal = document.getElementById("visao-calendario");
+  btnLista.classList.toggle("ativo", !ehCal);
+  btnCal.classList.toggle("ativo", ehCal);
+  btnLista.setAttribute("aria-selected", String(!ehCal));
+  btnCal.setAttribute("aria-selected", String(ehCal));
+
+  if (ehCal) {
+    carregarCalendario();
+  } else {
+    carregarAcoes();
+  }
 }
 
 function irPara(pagina) {
@@ -85,17 +148,7 @@ async function carregarAcoes() {
   mostrarCarregando("lista-acoes", 4);
   document.getElementById("paginacao").hidden = true;
 
-  const busca = document.getElementById("filtro-busca").value.trim();
-  const status = document.getElementById("filtro-status").value;
-  const responsavel = document.getElementById("filtro-responsavel").value;
-  const situacao = document.getElementById("filtro-situacao").value;
-
-  const url = "/api/acoes/listar-todas.php"
-    + "?busca=" + encodeURIComponent(busca)
-    + "&status=" + encodeURIComponent(status)
-    + "&responsavel=" + encodeURIComponent(responsavel)
-    + "&situacao=" + encodeURIComponent(situacao)
-    + "&pagina=" + paginaAtual;
+  const url = "/api/acoes/listar-todas.php?" + paramsFiltros() + "&pagina=" + paginaAtual;
 
   try {
     const resposta = await getApi(url);
@@ -329,4 +382,114 @@ function corDoNome(nome) {
   }
   const cores = ["#4E392F", "#2B5C8A", "#2E7D52", "#8B6F4A", "#B5852A", "#606062"];
   return cores[Math.abs(hash) % cores.length];
+}
+
+// ---- Visao de calendário (ações posicionadas pelo prazo) ----
+
+function primeiroDiaDoMes(d) {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
+// Data local em YYYY-MM-DD (evita o deslocamento de fuso do toISOString).
+function ymd(d) {
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dia = String(d.getDate()).padStart(2, "0");
+  return d.getFullYear() + "-" + m + "-" + dia;
+}
+
+function mudarMes(delta) {
+  mesAtual = new Date(mesAtual.getFullYear(), mesAtual.getMonth() + delta, 1);
+  carregarCalendario();
+}
+
+// Classe de cor do evento: atrasada (pendente vencida), bloqueada, pendente ou concluída.
+function classeEventoCalendario(a, dataChave, hoje) {
+  const derivado = statusDerivado(a); // pendente | bloqueada | concluida
+  if (derivado === "pendente" && dataChave < hoje) {
+    return "atrasada";
+  }
+  return derivado;
+}
+
+async function carregarCalendario() {
+  const grade = document.getElementById("cal-grade");
+  grade.innerHTML = "";
+  const carregando = document.createElement("p");
+  carregando.className = "texto-secundario";
+  carregando.textContent = "Carregando...";
+  grade.appendChild(carregando);
+
+  document.getElementById("cal-titulo").textContent =
+    MESES[mesAtual.getMonth()] + " de " + mesAtual.getFullYear();
+
+  // A grade comeca no domingo igual/anterior ao dia 1 e cobre semanas completas.
+  const primeiro = primeiroDiaDoMes(mesAtual);
+  const inicioGrade = new Date(primeiro);
+  inicioGrade.setDate(1 - primeiro.getDay());
+
+  const diasNoMes = new Date(mesAtual.getFullYear(), mesAtual.getMonth() + 1, 0).getDate();
+  const totalCelulas = Math.ceil((primeiro.getDay() + diasNoMes) / 7) * 7;
+
+  const fimGrade = new Date(inicioGrade);
+  fimGrade.setDate(inicioGrade.getDate() + totalCelulas - 1);
+
+  const url = "/api/acoes/calendario.php?" + paramsFiltros()
+    + "&inicio=" + ymd(inicioGrade) + "&fim=" + ymd(fimGrade);
+
+  try {
+    const resposta = await getApi(url);
+    if (!resposta.ok) {
+      grade.innerHTML = "";
+      grade.textContent = "Nao foi possivel carregar o calendário.";
+      return;
+    }
+    renderizarCalendario(grade, resposta.data.acoes, inicioGrade, totalCelulas);
+  } catch (erro) {
+    grade.innerHTML = "";
+    grade.textContent = "Nao foi possivel carregar o calendário.";
+  }
+}
+
+function renderizarCalendario(grade, acoes, inicioGrade, totalCelulas) {
+  // Agrupa as ações por dia do prazo (YYYY-MM-DD).
+  const porDia = {};
+  (acoes || []).forEach(function (a) {
+    const chave = String(a.prazo).substring(0, 10);
+    if (!porDia[chave]) porDia[chave] = [];
+    porDia[chave].push(a);
+  });
+
+  grade.innerHTML = "";
+  const hoje = ymd(new Date());
+  const mesVisivel = mesAtual.getMonth();
+
+  for (let i = 0; i < totalCelulas; i++) {
+    const dia = new Date(inicioGrade);
+    dia.setDate(inicioGrade.getDate() + i);
+    const chave = ymd(dia);
+
+    const celula = document.createElement("div");
+    celula.className = "cal-dia";
+    if (dia.getMonth() !== mesVisivel) celula.classList.add("cal-dia-fora");
+    if (chave === hoje) celula.classList.add("cal-dia-hoje");
+
+    const num = document.createElement("span");
+    num.className = "cal-num";
+    num.textContent = dia.getDate();
+    celula.appendChild(num);
+
+    const eventos = porDia[chave] || [];
+    eventos.forEach(function (a) {
+      const ev = document.createElement("button");
+      ev.type = "button";
+      ev.className = "cal-evento cal-evento-" + classeEventoCalendario(a, chave, hoje)
+        + (parseInt(a.chave, 10) === 1 ? " cal-evento-chave" : "");
+      ev.title = a.titulo + " — " + a.demanda_titulo;
+      ev.textContent = a.titulo;
+      ev.addEventListener("click", function () { abrirDetalhe(a); });
+      celula.appendChild(ev);
+    });
+
+    grade.appendChild(celula);
+  }
 }

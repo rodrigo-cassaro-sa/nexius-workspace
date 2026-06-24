@@ -156,6 +156,32 @@ function listar_acoes($usuario_id, $perfil, $filtros, $pagina, $por_pagina)
     return ["acoes" => executar_select($sql, $tipos_lista, $params_lista), "total" => $total];
 }
 
+// Lista as acoes com prazo dentro de um intervalo (visao de calendario).
+// Reaproveita o mesmo escopo/filtros de montar_where_acoes. Sem paginacao: o intervalo
+// (no maximo ~6 semanas, validado na API) ja limita o volume. So acoes COM prazo aparecem.
+function listar_acoes_calendario($usuario_id, $perfil, $filtros, $inicio, $fim)
+{
+    list($where, $tipos, $params) = montar_where_acoes($usuario_id, $perfil, $filtros);
+
+    $where .= " AND a.prazo IS NOT NULL AND a.prazo >= ? AND a.prazo <= ?";
+    $tipos .= "ss";
+    $params[] = $inicio;
+    $params[] = $fim;
+
+    $sql = "SELECT a.id, a.titulo, a.descricao, a.status, a.prazo, a.chave,
+                   a.responsavel_id, ur.nome AS responsavel_nome,
+                   d.id AS demanda_id, d.titulo AS demanda_titulo,
+                   (SELECT COUNT(*) FROM acao_prerequisitos ap
+                    JOIN acoes p ON p.id = ap.prerequisito_acao_id
+                    WHERE ap.acao_id = a.id AND p.status <> 'concluida') AS prereq_pendentes
+            FROM acoes a
+            JOIN demandas d ON d.id = a.demanda_id
+            LEFT JOIN usuarios ur ON ur.id = a.responsavel_id"
+            . $where . " ORDER BY a.prazo ASC, a.id ASC";
+
+    return executar_select($sql, $tipos, $params);
+}
+
 // Busca uma acao (inclui demanda_id e chave para as regras).
 function buscar_acao($id)
 {
