@@ -97,7 +97,7 @@ function conquista($chave, $titulo, $descricao, $desbloqueada, $progresso)
     ];
 }
 
-// Conquistas (poucas e verificaveis), derivadas dos numeros.
+// Conquistas do MES (renovam todo mes, junto com o placar). Derivadas dos numeros do mes.
 function gamificacao_conquistas($numeros)
 {
     $t = $numeros["total_concluidas"];
@@ -106,17 +106,18 @@ function gamificacao_conquistas($numeros)
     $at = $numeros["atrasadas"];
 
     return [
-        conquista("primeira", "Primeira conclusão", "Conclua sua primeira ação.", $t >= 1, min($t, 1) . "/1"),
-        conquista("dez_prazo", "Dez no prazo", "Conclua 10 ações dentro do prazo.", $np >= 10, min($np, 10) . "/10"),
-        conquista("entrega_chave", "Entrega chave", "Conclua uma ação chave.", $ch >= 1, min($ch, 1) . "/1"),
-        conquista("maratona", "Maratonista", "Conclua 50 ações.", $t >= 50, min($t, 50) . "/50"),
-        conquista("sem_atrasos", "Sem atrasos", "5+ conclusões e nenhuma atrasada.", ($t >= 5 && $at === 0), (($at === 0 ? min($t, 5) : 0)) . "/5")
+        conquista("primeira", "Primeira do mês", "Conclua uma ação neste mês.", $t >= 1, min($t, 1) . "/1"),
+        conquista("dez_prazo", "Dez no prazo", "Conclua 10 ações no prazo neste mês.", $np >= 10, min($np, 10) . "/10"),
+        conquista("entrega_chave", "Entrega chave", "Conclua uma ação chave neste mês.", $ch >= 1, min($ch, 1) . "/1"),
+        conquista("maratona", "Maratonista", "Conclua 20 ações neste mês.", $t >= 20, min($t, 20) . "/20"),
+        conquista("sem_atrasos", "Sem atrasos", "5+ conclusões e nenhuma atrasada neste mês.", ($t >= 5 && $at === 0), (($at === 0 ? min($t, 5) : 0)) . "/5")
     ];
 }
 
 // Resumo completo de gamificacao do usuario.
-// Placar MENSAL (justo para novatos e veteranos): pontos/nivel/numeros contam o mes
-// corrente. Conquistas sao VITALICIAS (trofeus permanentes, do historico).
+// TUDO MENSAL (renova todo mes -> justo para novatos e veteranos): pontos, nivel,
+// numeros e conquistas contam apenas o mes corrente. O total acumulado fica so como
+// referencia (nao influencia nivel nem conquistas).
 function resumo_gamificacao($usuario_id)
 {
     $mes = gamificacao_numeros($usuario_id, true);
@@ -140,6 +141,6 @@ function resumo_gamificacao($usuario_id)
         "numeros" => $mes,
         "pontos_total" => gamificacao_pontos($total),
         "total_concluidas_geral" => $total["total_concluidas"],
-        "conquistas" => gamificacao_conquistas($total)
+        "conquistas" => gamificacao_conquistas($mes)
     ];
 }

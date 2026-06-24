@@ -190,8 +190,8 @@ Convite por e-mail → definição de senha → primeira tela orientando como cr
 Gamificação **v1 incluída** (decisão de produto — `docs/decisoes-pendentes.md` D14).
 Progresso **pessoal, sem ranking**: pontos **derivados das ações reais** (ação concluída
 no prazo/atraso e ação chave), **níveis** (Bronze → Platina) e **conquistas**, exibidos na
-tela **"Progresso"**. O **placar (pontos/nível/números) é MENSAL** (renova todo mês — justo
-para novatos e veteranos); as **conquistas são vitalícias** (histórico permanente). O **backend calcula** (sem tabela nova; agregado em runtime das
+tela **"Progresso"**. **Tudo é MENSAL** (pontos, nível, números **e conquistas** renovam todo
+mês — justo para novatos e veteranos). O **total acumulado** aparece só como referência. O **backend calcula** (sem tabela nova; agregado em runtime das
 ações); o **frontend só exibe**. Regras detalhadas em `docs/gamificacao/10-plano-gamificacao.md`.
 
 ## 18. Retenção de usuário
