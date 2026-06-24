@@ -8,9 +8,14 @@
 // Pontos por acao concluida do usuario (responsavel):
 //   +10 no prazo | +3 em atraso | +10 extra se for a acao chave.
 
-// Numeros do usuario, agregados das acoes concluidas das quais ele e responsavel.
-function gamificacao_numeros($usuario_id)
+// Numeros do usuario (acoes concluidas das quais ele e responsavel).
+// $apenas_mes = true limita ao mes corrente (placar mensal, que renova todo mes).
+function gamificacao_numeros($usuario_id, $apenas_mes)
 {
+    $filtro_mes = $apenas_mes
+        ? " AND YEAR(concluida_em) = YEAR(CURDATE()) AND MONTH(concluida_em) = MONTH(CURDATE())"
+        : "";
+
     $linhas = executar_select(
         "SELECT
             COUNT(*) AS total_concluidas,
@@ -18,7 +23,7 @@ function gamificacao_numeros($usuario_id)
             SUM(CASE WHEN prazo IS NOT NULL AND DATE(concluida_em) > prazo THEN 1 ELSE 0 END) AS atrasadas,
             SUM(CASE WHEN chave = 1 THEN 1 ELSE 0 END) AS chave_concluidas
          FROM acoes
-         WHERE responsavel_id = ? AND status = 'concluida'",
+         WHERE responsavel_id = ? AND status = 'concluida'" . $filtro_mes,
         "i",
         [$usuario_id]
     );
@@ -43,11 +48,12 @@ function gamificacao_pontos($numeros)
 // Nivel por faixa de pontos. Sem ranking; apenas leitura pessoal de progresso.
 function nivel_por_pontos($pontos)
 {
+    // Faixas calibradas para o placar MENSAL (pontos renovam todo mes).
     $faixas = [
         ["nome" => "Bronze", "min" => 0],
-        ["nome" => "Prata", "min" => 100],
-        ["nome" => "Ouro", "min" => 300],
-        ["nome" => "Platina", "min" => 700]
+        ["nome" => "Prata", "min" => 50],
+        ["nome" => "Ouro", "min" => 150],
+        ["nome" => "Platina", "min" => 300]
     ];
 
     $atual = $faixas[0];
@@ -109,19 +115,31 @@ function gamificacao_conquistas($numeros)
 }
 
 // Resumo completo de gamificacao do usuario.
+// Placar MENSAL (justo para novatos e veteranos): pontos/nivel/numeros contam o mes
+// corrente. Conquistas sao VITALICIAS (trofeus permanentes, do historico).
 function resumo_gamificacao($usuario_id)
 {
-    $numeros = gamificacao_numeros($usuario_id);
-    $pontos = gamificacao_pontos($numeros);
+    $mes = gamificacao_numeros($usuario_id, true);
+    $total = gamificacao_numeros($usuario_id, false);
 
-    $numeros["pct_no_prazo"] = $numeros["total_concluidas"] > 0
-        ? (int) round(($numeros["no_prazo"] / $numeros["total_concluidas"]) * 100)
+    $pontos = gamificacao_pontos($mes);
+    $mes["pct_no_prazo"] = $mes["total_concluidas"] > 0
+        ? (int) round(($mes["no_prazo"] / $mes["total_concluidas"]) * 100)
         : 0;
 
+    $meses = [
+        1 => "Janeiro", 2 => "Fevereiro", 3 => "Março", 4 => "Abril",
+        5 => "Maio", 6 => "Junho", 7 => "Julho", 8 => "Agosto",
+        9 => "Setembro", 10 => "Outubro", 11 => "Novembro", 12 => "Dezembro"
+    ];
+
     return [
+        "periodo" => $meses[(int) date("n")] . " de " . date("Y"),
         "pontos" => $pontos,
         "nivel" => nivel_por_pontos($pontos),
-        "numeros" => $numeros,
-        "conquistas" => gamificacao_conquistas($numeros)
+        "numeros" => $mes,
+        "pontos_total" => gamificacao_pontos($total),
+        "total_concluidas_geral" => $total["total_concluidas"],
+        "conquistas" => gamificacao_conquistas($total)
     ];
 }

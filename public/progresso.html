@@ -58,7 +58,7 @@
 
         <div class="pagina-cabecalho">
           <h1 class="pagina-titulo">Progresso</h1>
-          <p class="pagina-subtitulo">Seu desempenho no acompanhamento das ações.</p>
+          <p class="pagina-subtitulo">Seu desempenho no mês corrente. O placar renova todo mês; suas conquistas são permanentes.</p>
         </div>
 
         <div id="carregando" class="card">
@@ -69,36 +69,38 @@
           <section class="card nivel-card">
             <div class="nivel-topo">
               <div>
-                <p class="kpi-rotulo">Pontos</p>
+                <p class="kpi-rotulo">Pontos do mês · <span id="g-periodo">—</span></p>
                 <p class="kpi-numero" id="g-pontos">0</p>
               </div>
               <span class="badge" id="g-nivel">—</span>
             </div>
             <div class="nivel-barra"><span class="nivel-barra-preenchida" id="g-barra"></span></div>
             <p class="texto-secundario" id="g-proximo">—</p>
+            <p class="texto-secundario">Total acumulado (histórico): <strong id="g-total-pts">0</strong> pts · <span id="g-total-acoes">0</span> ações concluídas.</p>
           </section>
 
           <div class="kpi-grid" style="margin-top: var(--espaco-4);">
             <section class="card">
-              <p class="kpi-rotulo">Ações concluídas</p>
+              <p class="kpi-rotulo">Concluídas no mês</p>
               <p class="kpi-numero" id="g-total">0</p>
             </section>
             <section class="card">
-              <p class="kpi-rotulo">% no prazo</p>
+              <p class="kpi-rotulo">% no prazo (mês)</p>
               <p class="kpi-numero" id="g-pct">0%</p>
             </section>
             <section class="card">
-              <p class="kpi-rotulo">Entregas chave</p>
+              <p class="kpi-rotulo">Entregas chave (mês)</p>
               <p class="kpi-numero" id="g-chave">0</p>
             </section>
             <section class="card">
-              <p class="kpi-rotulo">Atrasadas</p>
+              <p class="kpi-rotulo">Atrasadas (mês)</p>
               <p class="kpi-numero" id="g-atrasadas">0</p>
             </section>
           </div>
 
           <section class="card" style="margin-top: var(--espaco-4);">
             <h2>Conquistas</h2>
+            <p class="texto-secundario">Troféus permanentes (histórico) — não zeram no mês.</p>
             <div class="conquistas-grid" id="g-conquistas"></div>
           </section>
         </div>

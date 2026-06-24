@@ -38,6 +38,7 @@ async function carregarProgresso() {
 }
 
 function preencherProgresso(d) {
+  document.getElementById("g-periodo").textContent = d.periodo;
   document.getElementById("g-pontos").textContent = d.pontos;
 
   const nivel = document.getElementById("g-nivel");
@@ -46,8 +47,11 @@ function preencherProgresso(d) {
 
   document.getElementById("g-barra").style.width = d.nivel.progresso_pct + "%";
   document.getElementById("g-proximo").textContent = d.nivel.proximo_nome
-    ? ("Faltam " + d.nivel.faltam + " pts para " + d.nivel.proximo_nome)
-    : "Nível máximo alcançado.";
+    ? ("Faltam " + d.nivel.faltam + " pts para " + d.nivel.proximo_nome + " neste mês")
+    : "Nível máximo do mês alcançado.";
+
+  document.getElementById("g-total-pts").textContent = d.pontos_total;
+  document.getElementById("g-total-acoes").textContent = d.total_concluidas_geral;
 
   document.getElementById("g-total").textContent = d.numeros.total_concluidas;
   document.getElementById("g-pct").textContent = d.numeros.pct_no_prazo + "%";
