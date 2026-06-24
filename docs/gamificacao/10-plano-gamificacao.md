@@ -1,10 +1,11 @@
 # Plano de Gamificação
 
-> **Veredito (escopo): gamificação está FORA do MVP.** Não há evidência nos
-> documentos para construir pontos, níveis, conquistas, ranking, missões,
-> streak ou badges de jogo nesta fase. Este plano **não autoriza implementação**:
-> ele registra a decisão e desenha uma proposta para uma **fase futura**, sujeita
-> a decisão de produto (ver `docs/decisoes-pendentes.md`).
+> **Veredito (atualizado): gamificação v1 APROVADA por decisão de produto (D14).**
+> Originalmente estava **fora do MVP** (evidências abaixo, mantidas como histórico),
+> mas foi **incluída no escopo** pelo dono do produto. A v1 é **pessoal, sem ranking**,
+> com pontos **derivados das ações reais** (sem tabela nova) — já **implementada**
+> (`includes/gamificacao.php`, `api/gamificacao/progresso.php`, `public/progresso.html`,
+> `public/js/gamificacao.js`). Ver `docs/decisoes-pendentes.md` (D14).
 >
 > Evidências (todas convergentes):
 > - `docs/produto/00-briefing-projeto.md` — "O sistema precisa de gamificação? **Não no MVP.**" e em "fora do MVP": "Gamificação (pontos, níveis, ranking)".

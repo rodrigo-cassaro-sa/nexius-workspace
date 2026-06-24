@@ -187,7 +187,11 @@ Convite por e-mail → definição de senha → primeira tela orientando como cr
 
 ## 17. Gamificação
 
-Não no MVP.
+Gamificação **v1 incluída** (decisão de produto — `docs/decisoes-pendentes.md` D14).
+Progresso **pessoal, sem ranking**: pontos **derivados das ações reais** (ação concluída
+no prazo/atraso e ação chave), **níveis** (Bronze → Platina) e **conquistas**, exibidos na
+tela **"Progresso"**. O **backend calcula** (sem tabela nova; agregado em runtime das
+ações); o **frontend só exibe**. Regras detalhadas em `docs/gamificacao/10-plano-gamificacao.md`.
 
 ## 18. Retenção de usuário
 
@@ -249,7 +253,7 @@ Nenhuma no MVP, exceto o envio de e-mail por **SMTP**, tratado pelo backend com 
 ## 23. O que não deve ser feito agora
 
 - Sem pagamentos.
-- Sem gamificação.
+- Gamificação além da v1 pessoal (ex.: ranking competitivo) — fora do escopo por ora (ver §17).
 - Sem funcionamento offline.
 - Sem relatórios (fica para a fase seguinte).
 - Sem notificações push e WhatsApp.
