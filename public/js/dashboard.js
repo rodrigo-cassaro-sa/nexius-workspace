@@ -233,8 +233,41 @@ function preencherResumo(d) {
   document.getElementById("kpi-atrasadas").textContent = d.acoes_atrasadas;
   document.getElementById("kpi-no-prazo").textContent =
     d.percentual_no_prazo === null ? "—" : d.percentual_no_prazo + "%";
+  document.getElementById("kpi-recusadas").textContent = d.acoes_recusadas;
 
   montarDonutDemandas(d.demandas_por_status);
+  montarAcoesPorTipo(d.acoes_por_tipo);
+}
+
+// Contador de tarefas por tipo (analise, desenvolvimento, entrega, incidente, reuniao).
+function montarAcoesPorTipo(porTipo) {
+  const alvo = document.getElementById("acoes-por-tipo");
+  alvo.innerHTML = "";
+
+  const itens = [
+    { chave: "analise", rotulo: "Análise" },
+    { chave: "desenvolvimento", rotulo: "Desenvolvimento" },
+    { chave: "entrega", rotulo: "Entrega" },
+    { chave: "incidente", rotulo: "Incidente" },
+    { chave: "reuniao", rotulo: "Reunião" }
+  ];
+
+  itens.forEach(function (it) {
+    const item = document.createElement("div");
+    item.className = "tipo-item";
+
+    const num = document.createElement("p");
+    num.className = "tipo-numero";
+    num.textContent = (porTipo && porTipo[it.chave] != null) ? porTipo[it.chave] : 0;
+
+    const rot = document.createElement("p");
+    rot.className = "tipo-rotulo texto-secundario";
+    rot.textContent = it.rotulo;
+
+    item.appendChild(num);
+    item.appendChild(rot);
+    alvo.appendChild(item);
+  });
 }
 
 function montarDonutDemandas(porStatus) {

@@ -195,7 +195,7 @@ Todos os perfis, com escopo conforme permissão.
 
 ### Dados exibidos
 
-Resumo de demandas por status; lista "minhas ações" (com prazo e situação); ações atrasadas; ações bloqueadas por pré-requisito; indicador de % de ações concluídas no prazo.
+Resumo de demandas por status; lista "minhas ações" (com prazo e situação); ações atrasadas; ações bloqueadas por pré-requisito; indicador de % de ações concluídas no prazo; **total de tarefas recusadas** e **contador de tarefas por tipo** (análise/desenvolvimento/entrega/incidente/reunião). Todos respeitam o escopo: Colaborador vê apenas as suas.
 
 ### Ações disponíveis
 

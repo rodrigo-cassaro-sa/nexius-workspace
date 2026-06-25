@@ -112,3 +112,47 @@ function percentual_acoes_no_prazo($usuario_id, $perfil)
 
     return (int) round(($no_prazo / $total) * 100);
 }
+
+// Total de acoes recusadas (status 'recusada'). Escopo: Colaborador so as suas.
+function contar_acoes_recusadas($usuario_id, $perfil)
+{
+    $sql = "SELECT COUNT(*) AS total FROM acoes WHERE status = 'recusada'";
+    $tipos = "";
+    $params = [];
+
+    if ($perfil === "colaborador") {
+        $sql .= " AND responsavel_id = ?";
+        $tipos = "i";
+        $params = [$usuario_id];
+    }
+
+    $linhas = executar_select($sql, $tipos, $params);
+    return (int) $linhas[0]["total"];
+}
+
+// Contagem de acoes por tipo (exclui canceladas). Escopo: Colaborador so as suas.
+// Sempre retorna todos os tipos (0 quando nao houver).
+function contar_acoes_por_tipo($usuario_id, $perfil)
+{
+    $sql = "SELECT tipo, COUNT(*) AS total FROM acoes WHERE status <> 'cancelada'";
+    $tipos = "";
+    $params = [];
+
+    if ($perfil === "colaborador") {
+        $sql .= " AND responsavel_id = ?";
+        $tipos = "i";
+        $params = [$usuario_id];
+    }
+
+    $sql .= " GROUP BY tipo";
+
+    $linhas = executar_select($sql, $tipos, $params);
+
+    $resultado = ["analise" => 0, "desenvolvimento" => 0, "entrega" => 0, "incidente" => 0, "reuniao" => 0];
+    foreach ($linhas as $linha) {
+        if (isset($resultado[$linha["tipo"]])) {
+            $resultado[$linha["tipo"]] = (int) $linha["total"];
+        }
+    }
+    return $resultado;
+}

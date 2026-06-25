@@ -108,7 +108,26 @@
             </div>
             <a class="kpi-link" href="acoes.html?status=concluida">Ver histórico →</a>
           </section>
+
+          <section class="card kpi-card">
+            <div class="kpi-topo">
+              <div>
+                <p class="kpi-rotulo">Tarefas recusadas</p>
+                <p class="kpi-numero" id="kpi-recusadas">—</p>
+                <p class="texto-secundario">Entregas recusadas</p>
+              </div>
+              <span class="kpi-icone kpi-icone-erro" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg></span>
+            </div>
+            <a class="kpi-link" href="acoes.html?status=recusada">Ver recusadas →</a>
+          </section>
         </div>
+
+        <section class="card" style="margin-top: var(--espaco-4);">
+          <p class="kpi-rotulo">Tarefas por tipo</p>
+          <div id="acoes-por-tipo" class="tipos-grid">
+            <p class="texto-secundario">Carregando...</p>
+          </div>
+        </section>
 
         <section class="card" style="margin-top: var(--espaco-4);">
           <div class="linha-titulo">

@@ -23,5 +23,7 @@ json_sucesso([
     "total_demandas" => $total,
     "minhas_acoes_pendentes" => contar_minhas_acoes_pendentes($usuario_id),
     "acoes_atrasadas" => contar_acoes_atrasadas($usuario_id, $perfil),
-    "percentual_no_prazo" => percentual_acoes_no_prazo($usuario_id, $perfil)
+    "percentual_no_prazo" => percentual_acoes_no_prazo($usuario_id, $perfil),
+    "acoes_recusadas" => contar_acoes_recusadas($usuario_id, $perfil),
+    "acoes_por_tipo" => contar_acoes_por_tipo($usuario_id, $perfil)
 ]);

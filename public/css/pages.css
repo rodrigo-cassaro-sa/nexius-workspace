@@ -687,6 +687,31 @@
   margin: var(--espaco-2) 0 0;
 }
 
+/* Contador de tarefas por tipo (dashboard) */
+.tipos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--espaco-3);
+  margin-top: var(--espaco-3);
+}
+
+.tipo-item {
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  padding: var(--espaco-3);
+  text-align: center;
+}
+
+.tipo-numero {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.tipo-rotulo {
+  margin: 2px 0 0;
+}
+
 /* Evidencias (anexos) de uma acao */
 .acao-anexos {
   display: flex;
