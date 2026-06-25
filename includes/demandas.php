@@ -204,9 +204,12 @@ function colaborador_envolvido_na_demanda($demanda_id, $usuario_id)
             OR EXISTS (SELECT 1 FROM comentarios c
                        JOIN acoes a2 ON a2.id = c.acao_id
                        WHERE a2.demanda_id = d.id AND c.autor_id = ?)
+            OR EXISTS (SELECT 1 FROM acao_participantes ap
+                       JOIN acoes a3 ON a3.id = ap.acao_id
+                       WHERE a3.demanda_id = d.id AND ap.usuario_id = ?)
          ) LIMIT 1",
-        "iii",
-        [$demanda_id, $usuario_id, $usuario_id]
+        "iiii",
+        [$demanda_id, $usuario_id, $usuario_id, $usuario_id]
     );
 
     return !empty($linhas);

@@ -42,7 +42,14 @@ function definir_acao_chave($acao_id, $demanda_id)
 // Tipos de tarefa validos (D19). Lista fechada (espelha o CHECK do banco).
 function acoes_tipos_validos()
 {
-    return ["analise", "desenvolvimento", "entrega", "incidente"];
+    return ["analise", "desenvolvimento", "entrega", "incidente", "reuniao"];
+}
+
+// Tipos cuja CONCLUSAO exige pelo menos um arquivo anexado (evidencia):
+// analise (arquivo de analise) e reuniao (ata da reuniao).
+function acao_tipo_exige_anexo($tipo)
+{
+    return in_array($tipo, ["analise", "reuniao"], true);
 }
 
 // Cria uma acao. $tipo em acoes_tipos_validos(). Retorna o id ou false.
@@ -96,8 +103,11 @@ function montar_where_acoes($usuario_id, $perfil, $filtros)
             EXISTS (SELECT 1 FROM acoes ae WHERE ae.demanda_id = d.id AND ae.responsavel_id = ?)
             OR EXISTS (SELECT 1 FROM comentarios c JOIN acoes a2 ON a2.id = c.acao_id
                        WHERE a2.demanda_id = d.id AND c.autor_id = ?)
+            OR EXISTS (SELECT 1 FROM acao_participantes ap JOIN acoes a3 ON a3.id = ap.acao_id
+                       WHERE a3.demanda_id = d.id AND ap.usuario_id = ?)
         )";
-        $tipos .= "ii";
+        $tipos .= "iii";
+        $params[] = $usuario_id;
         $params[] = $usuario_id;
         $params[] = $usuario_id;
     }
@@ -242,6 +252,42 @@ function definir_prerequisitos($acao_id, $demanda_id, $ids)
         mysqli_stmt_bind_param($ins, "ii", $acao_id, $pid);
         mysqli_stmt_execute($ins);
     }
+}
+
+// Define os participantes de uma acao (substitui os anteriores). So usuarios ativos.
+// Usado pelo tipo "reuniao" (pessoas envolvidas).
+function definir_participantes_acao($acao_id, $ids)
+{
+    $conn = conectar_banco();
+
+    $stmt = mysqli_prepare($conn, "DELETE FROM acao_participantes WHERE acao_id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $acao_id);
+    mysqli_stmt_execute($stmt);
+
+    foreach ($ids as $uid) {
+        $uid = (int) $uid;
+        if ($uid <= 0 || !usuario_ativo_existe($uid)) {
+            continue;
+        }
+        $ins = mysqli_prepare($conn, "INSERT IGNORE INTO acao_participantes (acao_id, usuario_id) VALUES (?, ?)");
+        mysqli_stmt_bind_param($ins, "ii", $acao_id, $uid);
+        mysqli_stmt_execute($ins);
+    }
+}
+
+// Lista os participantes de todas as acoes de uma demanda (o front agrupa por acao_id).
+function listar_participantes_da_demanda($demanda_id)
+{
+    return executar_select(
+        "SELECT ap.acao_id, ap.usuario_id, u.nome
+         FROM acao_participantes ap
+         JOIN acoes a ON a.id = ap.acao_id
+         JOIN usuarios u ON u.id = ap.usuario_id
+         WHERE a.demanda_id = ?
+         ORDER BY ap.acao_id ASC, u.nome ASC",
+        "i",
+        [$demanda_id]
+    );
 }
 
 // Conclui uma acao.

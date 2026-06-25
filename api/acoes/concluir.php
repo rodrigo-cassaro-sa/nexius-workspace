@@ -51,9 +51,10 @@ if (acao_prereqs_pendentes($id) > 0) {
     json_erro("Conclua os pre-requisitos antes de concluir esta acao.", 409);
 }
 
-// Tarefa de analise so e concluida com pelo menos um arquivo anexado (evidencia).
-if ($acao["tipo"] === "analise" && !acao_tem_anexo($id)) {
-    json_erro("Anexe o arquivo de analise antes de concluir esta tarefa.", 409);
+// Analise (arquivo de analise) e Reuniao (ata) so concluem com um anexo (evidencia).
+if (acao_tipo_exige_anexo($acao["tipo"]) && !acao_tem_anexo($id)) {
+    $oque = $acao["tipo"] === "reuniao" ? "a ata da reuniao" : "o arquivo de analise";
+    json_erro("Anexe " . $oque . " antes de concluir esta tarefa.", 409);
 }
 
 $conn = conectar_banco();

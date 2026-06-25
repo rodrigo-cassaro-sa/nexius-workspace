@@ -134,7 +134,22 @@ CREATE TABLE IF NOT EXISTS acoes (
   CONSTRAINT fk_acoes_demanda FOREIGN KEY (demanda_id) REFERENCES demandas(id),
   CONSTRAINT fk_acoes_responsavel FOREIGN KEY (responsavel_id) REFERENCES usuarios(id),
   CONSTRAINT chk_acoes_status CHECK (status IN ('pendente','bloqueada','concluida','cancelada','recusada')),
-  CONSTRAINT chk_acoes_tipo CHECK (tipo IN ('analise','desenvolvimento','entrega','incidente'))
+  CONSTRAINT chk_acoes_tipo CHECK (tipo IN ('analise','desenvolvimento','entrega','incidente','reuniao'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- acao_participantes (pessoas envolvidas numa acao; usado pelo tipo "reuniao")
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS acao_participantes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  acao_id INT NOT NULL,
+  usuario_id INT NOT NULL,
+  criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_acao_participante (acao_id, usuario_id),
+  KEY idx_ap_acao (acao_id),
+  KEY idx_ap_usuario (usuario_id),
+  CONSTRAINT fk_ap_acao FOREIGN KEY (acao_id) REFERENCES acoes(id),
+  CONSTRAINT fk_ap_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------

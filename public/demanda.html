@@ -202,7 +202,13 @@
             <option value="analise">Análise — exige anexar um arquivo para concluir</option>
             <option value="entrega">Entrega — pode ser recusada (com motivo)</option>
             <option value="incidente">Incidente — acontecimento ou relato</option>
+            <option value="reuniao">Reunião — vários envolvidos; exige anexar a ata para concluir</option>
           </select>
+        </div>
+        <div class="campo" id="a-participantes-area" hidden>
+          <label class="campo-label" for="a-participantes">Pessoas envolvidas (reunião)</label>
+          <select class="campo-input" id="a-participantes" multiple size="4"></select>
+          <p class="texto-secundario">Segure Ctrl (ou Cmd no Mac) para selecionar várias pessoas.</p>
         </div>
         <div class="campo">
           <label class="campo-label" for="a-descricao">Descrição</label>
@@ -274,10 +280,10 @@
       <p>Esta conclusão fica registrada com o seu nome, data e hora como lastro de execução, e não pode ser desfeita.</p>
 
       <div class="campo" id="assinar-anexo" hidden>
-        <label class="campo-label" for="assinar-arquivos">Arquivo de análise (obrigatório) *</label>
+        <label class="campo-label" for="assinar-arquivos" id="assinar-anexo-label">Arquivo de evidência (obrigatório) *</label>
         <input class="campo-arquivo" id="assinar-arquivos" type="file" multiple
                accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip">
-        <p class="texto-secundario">Tarefas de análise só são concluídas com um arquivo de evidência anexado.</p>
+        <p class="texto-secundario" id="assinar-anexo-ajuda">Esta tarefa só é concluída com um arquivo anexado.</p>
       </div>
 
       <label class="assinar-check">

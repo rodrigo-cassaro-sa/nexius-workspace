@@ -10,6 +10,7 @@ let acoesAtuais = [];
 let comentariosAtuais = [];
 let comentariosAnexos = [];
 let acoesAnexos = [];
+let acoesParticipantes = [];
 let acaoParaAssinar = null;
 let acaoRecusando = 0;
 
@@ -179,12 +180,13 @@ async function carregarAcoes() {
   mostrarCarregando("lista-acoes", 3);
 
   try {
-    // Carrega acoes, comentarios e anexos (de comentario e de acao) juntos.
-    const [respAcoes, respComent, respAnexos, respAnexosAcao] = await Promise.all([
+    // Carrega acoes, comentarios, anexos (de comentario e de acao) e participantes juntos.
+    const [respAcoes, respComent, respAnexos, respAnexosAcao, respPart] = await Promise.all([
       getApi("/api/acoes/listar.php?demanda_id=" + demandaId),
       getApi("/api/comentarios/listar-demanda.php?demanda_id=" + demandaId),
       getApi("/api/anexos/listar-comentarios.php?demanda_id=" + demandaId),
-      getApi("/api/anexos/listar-acoes.php?demanda_id=" + demandaId)
+      getApi("/api/anexos/listar-acoes.php?demanda_id=" + demandaId),
+      getApi("/api/acoes/participantes.php?demanda_id=" + demandaId)
     ]);
 
     if (!respAcoes.ok) {
@@ -196,6 +198,7 @@ async function carregarAcoes() {
     comentariosAtuais = (respComent && respComent.ok) ? respComent.data.comentarios : [];
     comentariosAnexos = (respAnexos && respAnexos.ok) ? respAnexos.data.anexos : [];
     acoesAnexos = (respAnexosAcao && respAnexosAcao.ok) ? respAnexosAcao.data.anexos : [];
+    acoesParticipantes = (respPart && respPart.ok) ? respPart.data.participantes : [];
     atualizarPrazoChave();
     atualizarStatusCabecalho();
 
@@ -285,6 +288,12 @@ function renderizarAcoes(alvo, acoes) {
     meta.appendChild(resp);
     meta.appendChild(prazo);
     info.appendChild(meta);
+
+    // Pessoas envolvidas (reuniao).
+    const participantes = montarParticipantesDaAcao(a.id);
+    if (participantes) {
+      info.appendChild(participantes);
+    }
 
     // Motivo da recusa (tarefas de entrega recusadas).
     if (a.status === "recusada" && a.motivo_recusa) {
@@ -400,7 +409,18 @@ function abrirAssinatura(a) {
   const areaAnexo = document.getElementById("assinar-anexo");
   const inputAnexo = document.getElementById("assinar-arquivos");
   inputAnexo.value = "";
-  areaAnexo.hidden = (a.tipo !== "analise");
+  areaAnexo.hidden = !tipoExigeAnexo(a.tipo);
+
+  // Rotulo conforme o tipo: ata (reuniao) ou arquivo de analise.
+  if (tipoExigeAnexo(a.tipo)) {
+    const ehReuniao = a.tipo === "reuniao";
+    document.getElementById("assinar-anexo-label").textContent =
+      (ehReuniao ? "Ata da reunião" : "Arquivo de análise") + " (obrigatório) *";
+    document.getElementById("assinar-anexo-ajuda").textContent =
+      ehReuniao
+        ? "A reunião só é concluída com a ata anexada."
+        : "A análise só é concluída com um arquivo de evidência anexado.";
+  }
 
   abrirModal("modal-assinar");
 }
@@ -413,12 +433,13 @@ async function confirmarAssinatura() {
     return;
   }
 
-  const ehAnalise = acaoParaAssinar.tipo === "analise";
+  const ehAnalise = tipoExigeAnexo(acaoParaAssinar.tipo);
   const arquivos = document.getElementById("assinar-arquivos").files;
 
   if (ehAnalise) {
     if (!arquivos || arquivos.length === 0) {
-      mostrarErro("assinar-mensagem", "Anexe o arquivo de análise para concluir.");
+      const oque = acaoParaAssinar.tipo === "reuniao" ? "a ata da reunião" : "o arquivo de análise";
+      mostrarErro("assinar-mensagem", "Anexe " + oque + " para concluir.");
       return;
     }
     const erroAnexo = validarAnexosCliente(arquivos);
@@ -500,12 +521,31 @@ function rotuloTipoAcao(tipo) {
     analise: "Análise",
     desenvolvimento: "Desenvolvimento",
     entrega: "Entrega",
-    incidente: "Incidente"
+    incidente: "Incidente",
+    reuniao: "Reunião"
   };
   return mapa[tipo] || "Tarefa";
 }
 
+// Tipos cuja conclusao exige anexo (espelha o backend): analise e reuniao.
+function tipoExigeAnexo(tipo) {
+  return tipo === "analise" || tipo === "reuniao";
+}
+
 // Monta a lista de evidencias (anexos) de uma acao, ou null se nao houver.
+// Linha com as pessoas envolvidas (participantes) de uma acao, ou null se nao houver.
+function montarParticipantesDaAcao(acaoId) {
+  const daAcao = acoesParticipantes.filter(function (p) {
+    return parseInt(p.acao_id, 10) === parseInt(acaoId, 10);
+  });
+  if (daAcao.length === 0) return null;
+
+  const linha = document.createElement("p");
+  linha.className = "acao-participantes texto-secundario";
+  linha.textContent = "Envolvidos: " + daAcao.map(function (p) { return p.nome; }).join(", ");
+  return linha;
+}
+
 function montarAnexosDaAcao(acaoId) {
   const daAcao = acoesAnexos.filter(function (a) {
     return parseInt(a.acao_id, 10) === parseInt(acaoId, 10);
@@ -574,8 +614,36 @@ async function abrirNovaAcao() {
   document.getElementById("acao-mensagem").hidden = true;
   document.getElementById("a-demanda").value = demandaAtual.titulo;
   await carregarResponsaveis("a-responsavel", null);
+  await carregarParticipantesSelect();
   preencherPrerequisitos();
+  // Mostra os participantes so quando o tipo for "reuniao".
+  document.getElementById("a-tipo").onchange = atualizarAreaParticipantes;
+  atualizarAreaParticipantes();
   abrirModal("modal-acao");
+}
+
+// Exibe a area de participantes apenas para o tipo "reuniao".
+function atualizarAreaParticipantes() {
+  const ehReuniao = document.getElementById("a-tipo").value === "reuniao";
+  document.getElementById("a-participantes-area").hidden = !ehReuniao;
+}
+
+// Popula o select multiplo de participantes com os usuarios ativos.
+async function carregarParticipantesSelect() {
+  const select = document.getElementById("a-participantes");
+  select.innerHTML = "";
+  try {
+    const resposta = await getApi("/api/usuarios/listar.php");
+    if (!resposta.ok) return;
+    resposta.data.usuarios.forEach(function (u) {
+      const opt = document.createElement("option");
+      opt.value = u.id;
+      opt.textContent = u.nome;
+      select.appendChild(opt);
+    });
+  } catch (erro) {
+    // Sem participantes selecionaveis.
+  }
 }
 
 function preencherPrerequisitos() {
@@ -620,6 +688,15 @@ async function salvarAcao(evento) {
   const prereqValor = document.getElementById("a-prerequisito").value;
   const prerequisitos = prereqValor ? [parseInt(prereqValor, 10)] : [];
 
+  // Participantes so para reuniao (select multiplo).
+  let participantes = [];
+  if (tipo === "reuniao") {
+    const selPart = document.getElementById("a-participantes");
+    participantes = Array.prototype.slice.call(selPart.selectedOptions).map(function (o) {
+      return parseInt(o.value, 10);
+    });
+  }
+
   if (!tamanhoEntre(titulo, 2, 160)) {
     mostrarErro("acao-mensagem", "Informe um título (2 a 160 caracteres).");
     return;
@@ -643,7 +720,8 @@ async function salvarAcao(evento) {
       descricao: descricao,
       responsavel_id: responsavel,
       prazo: prazo,
-      prerequisitos: prerequisitos
+      prerequisitos: prerequisitos,
+      participantes: participantes
     });
 
     if (!resposta.ok) {

@@ -682,6 +682,11 @@
   word-break: break-word;
 }
 
+/* Pessoas envolvidas (participantes da reuniao) */
+.acao-participantes {
+  margin: var(--espaco-2) 0 0;
+}
+
 /* Evidencias (anexos) de uma acao */
 .acao-anexos {
   display: flex;

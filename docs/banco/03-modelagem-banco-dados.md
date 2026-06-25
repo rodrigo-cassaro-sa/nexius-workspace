@@ -48,9 +48,12 @@ Motivo: redefinição de senha segura, com expiração curta e uso único.
 Motivo: entidade central do produto.
 
 ### acoes
-`id` · `demanda_id` (FK) · `titulo` · `tipo` (analise/desenvolvimento/entrega/incidente — D19) · `descricao` · `responsavel_id` (FK) · `status` (pendente/bloqueada/concluida/cancelada/**recusada**) · `motivo_recusa` (só entrega recusada) · `prazo` · `chave` · `concluida_em` · timestamps.
+`id` · `demanda_id` (FK) · `titulo` · `tipo` (analise/desenvolvimento/entrega/incidente/**reuniao** — D19, reuniao na Migration 012) · `descricao` · `responsavel_id` (FK) · `status` (pendente/bloqueada/concluida/cancelada/**recusada**) · `motivo_recusa` (só entrega recusada) · `prazo` · `chave` · `concluida_em` · timestamps.
 
-Regras por tipo (D19, Migration 010): **análise** só conclui com anexo de evidência (`anexos.acao_id`); **desenvolvimento** conclui normal; **entrega** pode ser recusada (status `recusada` + `motivo_recusa`, por Gestor/Admin); **incidente** é registro/relato.
+Regras por tipo: **análise** só conclui com anexo de evidência (`anexos.acao_id`); **desenvolvimento** conclui normal; **entrega** pode ser recusada (status `recusada` + `motivo_recusa`, por Gestor/Admin); **incidente** é registro/relato; **reunião** (Migration 012) tem **participantes** (`acao_participantes`) e só conclui com a **ata** anexada (`anexos.acao_id`).
+
+### acao_participantes
+`id` · `acao_id` (FK acoes) · `usuario_id` (FK usuarios) · `criado_em` · único `(acao_id, usuario_id)`. Pessoas envolvidas numa ação (tipo **reunião** — Migration 012). Participantes contam como "envolvidos" para o escopo do colaborador (ver `colaborador_envolvido_na_demanda`).
 Motivo: plano de ação; `chave` conclui a demanda; `prazo` alimenta a métrica de % no prazo.
 
 ### acao_prerequisitos

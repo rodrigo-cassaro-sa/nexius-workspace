@@ -28,6 +28,7 @@ $descricao = trim($body["descricao"] ?? "");
 $responsavel_id = isset($body["responsavel_id"]) && $body["responsavel_id"] !== "" ? (int) $body["responsavel_id"] : null;
 $prazo = trim($body["prazo"] ?? "");
 $prerequisitos = isset($body["prerequisitos"]) && is_array($body["prerequisitos"]) ? $body["prerequisitos"] : [];
+$participantes = isset($body["participantes"]) && is_array($body["participantes"]) ? $body["participantes"] : [];
 
 $erros = [];
 if (!validar_tamanho($titulo, 2, 160)) {
@@ -77,6 +78,11 @@ if (!empty($prerequisitos)) {
     definir_prerequisitos($id, $demanda_id, $prerequisitos);
 }
 
+// Participantes (pessoas envolvidas) - usado pelo tipo "reuniao".
+if (!empty($participantes)) {
+    definir_participantes_acao($id, $participantes);
+}
+
 registrar_log("acao_criada", "acao_id=" . $id . " demanda_id=" . $demanda_id);
 
 // SLA: a primeira acao criada "responde" a demanda (lastro do prazo de resposta).
@@ -91,6 +97,25 @@ if ($responsavel_id !== null) {
         obter_usuario_logado_id(),
         "atribuicao",
         "Você foi atribuído a uma ação",
+        $titulo,
+        "demanda.html?id=" . $demanda_id
+    );
+}
+
+// Notifica os participantes (reuniao) envolvidos, exceto o responsavel ja avisado.
+$alvos_participantes = [];
+foreach ($participantes as $pid) {
+    $pid = (int) $pid;
+    if ($pid > 0 && $pid !== (int) $responsavel_id) {
+        $alvos_participantes[] = $pid;
+    }
+}
+if (!empty($alvos_participantes)) {
+    notificar_varios(
+        $alvos_participantes,
+        obter_usuario_logado_id(),
+        "atribuicao",
+        "Você foi incluído em uma reunião",
         $titulo,
         "demanda.html?id=" . $demanda_id
     );
