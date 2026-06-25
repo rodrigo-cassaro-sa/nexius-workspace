@@ -253,20 +253,19 @@ function montarAcoesPorTipo(porTipo) {
   ];
 
   itens.forEach(function (it) {
-    const item = document.createElement("div");
-    item.className = "tipo-item";
+    const linha = document.createElement("div");
+    linha.className = "tipo-linha";
 
-    const num = document.createElement("p");
-    num.className = "tipo-numero";
-    num.textContent = (porTipo && porTipo[it.chave] != null) ? porTipo[it.chave] : 0;
-
-    const rot = document.createElement("p");
-    rot.className = "tipo-rotulo texto-secundario";
+    const rot = document.createElement("span");
     rot.textContent = it.rotulo;
 
-    item.appendChild(num);
-    item.appendChild(rot);
-    alvo.appendChild(item);
+    const num = document.createElement("span");
+    num.className = "tipo-conta";
+    num.textContent = (porTipo && porTipo[it.chave] != null) ? porTipo[it.chave] : 0;
+
+    linha.appendChild(rot);
+    linha.appendChild(num);
+    alvo.appendChild(linha);
   });
 }
 
