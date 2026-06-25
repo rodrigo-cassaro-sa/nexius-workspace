@@ -121,25 +121,30 @@ function preencherTabelaConvites(alvo, convites) {
   alvo.innerHTML = "";
 
   const tabela = document.createElement("table");
-  tabela.className = "tabela";
+  tabela.className = "tabela tabela-cards";
 
+  const thead = document.createElement("thead");
   const cabecalho = document.createElement("tr");
   ["E-mail", "Perfil", "Status", "Expira em", "Ações"].forEach(function (texto) {
     const th = document.createElement("th");
     th.textContent = texto;
     cabecalho.appendChild(th);
   });
-  tabela.appendChild(cabecalho);
+  thead.appendChild(cabecalho);
+  tabela.appendChild(thead);
 
+  const tbody = document.createElement("tbody");
   convites.forEach(function (convite) {
     const linha = document.createElement("tr");
-    [convite.email, convite.perfil, convite.status, convite.expira_em].forEach(function (texto) {
+    [["E-mail", convite.email], ["Perfil", convite.perfil], ["Status", convite.status], ["Expira em", convite.expira_em]].forEach(function (par) {
       const td = document.createElement("td");
-      td.textContent = texto;
+      td.setAttribute("data-rotulo", par[0]);
+      td.textContent = par[1];
       linha.appendChild(td);
     });
 
     const tdAcoes = document.createElement("td");
+    tdAcoes.setAttribute("data-rotulo", "Ações");
     if (convite.status === "pendente") {
       const copiar = document.createElement("button");
       copiar.className = "botao-link";
@@ -160,9 +165,10 @@ function preencherTabelaConvites(alvo, convites) {
     }
     linha.appendChild(tdAcoes);
 
-    tabela.appendChild(linha);
+    tbody.appendChild(linha);
   });
 
+  tabela.appendChild(tbody);
   alvo.appendChild(tabela);
 }
 
@@ -213,16 +219,19 @@ function renderUsuarios(alvo, usuarios) {
   alvo.innerHTML = "";
 
   const tabela = document.createElement("table");
-  tabela.className = "tabela";
+  tabela.className = "tabela tabela-cards";
 
+  const thead = document.createElement("thead");
   const cab = document.createElement("tr");
   ["Nome", "E-mail", "Perfil", "Status", "Ação"].forEach(function (t) {
     const th = document.createElement("th");
     th.textContent = t;
     cab.appendChild(th);
   });
-  tabela.appendChild(cab);
+  thead.appendChild(cab);
+  tabela.appendChild(thead);
 
+  const tbody = document.createElement("tbody");
   usuarios.forEach(function (u) {
     const ehVoce = parseInt(u.id, 10) === parseInt(usuarioLogadoId, 10);
     const ativo = parseInt(u.ativo, 10) === 1;
@@ -230,15 +239,18 @@ function renderUsuarios(alvo, usuarios) {
     const tr = document.createElement("tr");
 
     const tdNome = document.createElement("td");
+    tdNome.setAttribute("data-rotulo", "Nome");
     tdNome.textContent = u.nome + (ehVoce ? " (você)" : "");
     tr.appendChild(tdNome);
 
     const tdEmail = document.createElement("td");
+    tdEmail.setAttribute("data-rotulo", "E-mail");
     tdEmail.textContent = u.email;
     tr.appendChild(tdEmail);
 
     // Perfil (select que altera; bloqueado na propria linha).
     const tdPerfil = document.createElement("td");
+    tdPerfil.setAttribute("data-rotulo", "Perfil");
     const sel = document.createElement("select");
     sel.className = "campo-input";
     [["colaborador", "Colaborador"], ["gestor", "Gestor"], ["administrador", "Administrador"]].forEach(function (op) {
@@ -259,6 +271,7 @@ function renderUsuarios(alvo, usuarios) {
 
     // Status (badge).
     const tdStatus = document.createElement("td");
+    tdStatus.setAttribute("data-rotulo", "Status");
     const badge = document.createElement("span");
     badge.className = ativo ? "badge badge-sucesso" : "badge";
     badge.textContent = ativo ? "Ativo" : "Inativo";
@@ -267,6 +280,7 @@ function renderUsuarios(alvo, usuarios) {
 
     // Acao (inativar/reativar; bloqueado na propria linha).
     const tdAcao = document.createElement("td");
+    tdAcao.setAttribute("data-rotulo", "Ação");
     if (ehVoce) {
       tdAcao.textContent = "—";
     } else {
@@ -279,9 +293,10 @@ function renderUsuarios(alvo, usuarios) {
     }
     tr.appendChild(tdAcao);
 
-    tabela.appendChild(tr);
+    tbody.appendChild(tr);
   });
 
+  tabela.appendChild(tbody);
   alvo.appendChild(tabela);
 }
 

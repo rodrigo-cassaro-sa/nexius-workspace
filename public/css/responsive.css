@@ -181,4 +181,29 @@
   .usuario-textos {
     display: none;
   }
+
+  /* Topbar das telas internas (.app-topbar): no celular a busca vai para uma linha
+     propria (largura total) e os controles do usuario ficam acima, sem espremer. */
+  .app-topbar {
+    flex-wrap: wrap;
+    row-gap: var(--espaco-2);
+  }
+
+  .app-topbar .topbar-busca {
+    order: 3;
+    flex-basis: 100%;
+    max-width: none;
+  }
+
+  /* Alvo de toque confortavel nos botoes (guia visual secao 24). */
+  .botao {
+    min-height: 40px;
+  }
+
+  /* Painel do sino nao pode ultrapassar a largura da tela. */
+  .sino-painel {
+    width: auto;
+    min-width: 240px;
+    max-width: calc(100vw - var(--espaco-4));
+  }
 }
