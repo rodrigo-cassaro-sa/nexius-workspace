@@ -64,15 +64,6 @@
         </div>
 
         <div class="kpi-grid">
-          <section class="card">
-            <p class="kpi-rotulo">Demandas por status</p>
-            <div class="kpi-donut-area">
-              <p class="kpi-numero" id="kpi-total-demandas">—</p>
-              <div class="donut" id="donut-demandas"></div>
-            </div>
-            <ul class="donut-legenda" id="legenda-demandas"></ul>
-          </section>
-
           <section class="card kpi-card">
             <div class="kpi-topo">
               <div>
@@ -122,12 +113,23 @@
           </section>
         </div>
 
-        <section class="card" style="margin-top: var(--espaco-4);">
-          <p class="kpi-rotulo">Tarefas por tipo</p>
-          <div id="acoes-por-tipo" class="tipos-grid">
-            <p class="texto-secundario">Carregando...</p>
-          </div>
-        </section>
+        <div class="painel-duo">
+          <section class="card">
+            <p class="kpi-rotulo">Demandas por status</p>
+            <div class="kpi-donut-area">
+              <p class="kpi-numero" id="kpi-total-demandas">—</p>
+              <div class="donut" id="donut-demandas"></div>
+            </div>
+            <ul class="donut-legenda" id="legenda-demandas"></ul>
+          </section>
+
+          <section class="card">
+            <p class="kpi-rotulo">Tarefas por tipo</p>
+            <div id="acoes-por-tipo" class="tipos-grid">
+              <p class="texto-secundario">Carregando...</p>
+            </div>
+          </section>
+        </div>
 
         <section class="card" style="margin-top: var(--espaco-4);">
           <div class="linha-titulo">

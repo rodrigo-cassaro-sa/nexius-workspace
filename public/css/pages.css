@@ -172,6 +172,15 @@
   gap: var(--espaco-4);
 }
 
+/* Par de cards "quebra-por" (donut de status + tarefas por tipo) lado a lado. */
+.painel-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espaco-4);
+  margin-top: var(--espaco-4);
+  align-items: start;
+}
+
 .kpi-rotulo {
   margin: 0 0 var(--espaco-2);
   color: var(--cor-texto-secundario);
@@ -690,8 +699,8 @@
 /* Contador de tarefas por tipo (dashboard) */
 .tipos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: var(--espaco-3);
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: var(--espaco-2);
   margin-top: var(--espaco-3);
 }
 
