@@ -177,6 +177,15 @@ Migrations: `008_add_anexos.sql` (criação), `009_add_anexo_comentario.sql` (co
 
 **Anexos de comentário (D18) e de ação (D19):** a mesma tabela e a mesma pasta privada atendem anexos de comentários e evidências de ação. Quando `comentario_id` está preenchido, o anexo pertence ao comentário; quando `acao_id` está preenchido, é evidência da ação (ex.: arquivo de análise). No máximo um dos dois é preenchido; o `demanda_id` continua sempre gravado para manter o escopo de visibilidade/download. A listagem de anexos **da demanda** usa `comentario_id IS NULL AND acao_id IS NULL`; os de comentário/ação aparecem junto do próprio comentário/ação. Endpoints: `api/anexos/enviar-comentario.php` (autor do comentário), `api/anexos/enviar-acao.php` (responsável da ação ou Gestor/Admin), `api/anexos/listar-comentarios.php`, `api/anexos/listar-acoes.php` (GET, escopo da demanda) e o mesmo `api/anexos/baixar.php` (login + escopo).
 
+## 11-B. Chat 1:1 entre usuários (decisão de produto — D20, Fase 1)
+
+Não constava nos documentos; trazido por decisão de produto (ver D20 em `decisoes-pendentes.md`). Migration `011_add_chat.sql`. Duas tabelas novas:
+
+- **conversas** — `id` · `usuario_a_id` (FK usuarios) · `usuario_b_id` (FK usuarios) · `criado_em`. Par **canônico** (`usuario_a_id < usuario_b_id`, único) → uma conversa por par.
+- **mensagens** — `id` · `conversa_id` (FK conversas) · `autor_id` (FK usuarios) · `texto` · `demanda_id` (FK demandas, **referência opcional**) · `lida_em` (data de visualização; marcada quando o outro participante abre) · `criado_em` (data de envio).
+
+Regras/segurança: só participantes da conversa leem/escrevem (validado no backend); a "notificação de nova mensagem" é o **contador de não lidas** (`api/chat/nao-lidas.php`), sem 1 notificação por mensagem (anti-spam); referenciar uma demanda exige que o **remetente** possa vê-la. Endpoints em `api/chat/`. **Fases seguintes (não feitas):** anexos por mensagem (`anexos.mensagem_id`), busca e exportação.
+
 ## 12. Fora do MVP
 
 Não modelado agora (sem evidência ou explicitamente fora): pagamentos, gamificação/progresso, preferências/opt-out (e-mails são operacionais; tema fica no `localStorage`, não no banco), tabela de equipe, tabela de observadores, offline/sincronização, push/SMS/WhatsApp, webhooks, relatórios e qualquer tabela de permissões granular. (Uploads deixaram de estar fora do MVP por decisão de produto — ver §11-A e D17.)

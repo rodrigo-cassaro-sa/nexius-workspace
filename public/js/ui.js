@@ -115,6 +115,27 @@ async function atualizarContadorNotificacoes() {
   }
 }
 
+// Atualiza o contador de mensagens nao lidas do chat (em qualquer ".chat-contador").
+async function atualizarContadorMensagens() {
+  const elementos = document.querySelectorAll(".chat-contador");
+  if (elementos.length === 0) return;
+
+  try {
+    const resposta = await getApi("/api/chat/nao-lidas.php");
+    const n = (resposta && resposta.ok) ? resposta.data.total : 0;
+    elementos.forEach(function (el) {
+      if (n > 0) {
+        el.textContent = n;
+        el.hidden = false;
+      } else {
+        el.hidden = true;
+      }
+    });
+  } catch (erro) {
+    // Ignora: sem contador.
+  }
+}
+
 // Sino de notificacoes na topbar (se existir #sino-notificacoes na pagina).
 function configurarSino() {
   const sino = document.getElementById("sino-notificacoes");
@@ -219,6 +240,7 @@ function configurarBuscaTopo() {
 
 document.addEventListener("DOMContentLoaded", function () {
   atualizarContadorNotificacoes();
+  atualizarContadorMensagens();
   configurarSino();
   configurarAvatar();
   configurarBuscaTopo();

@@ -783,6 +783,26 @@ Manter contraste e alvos de toque confortáveis; preservar os badges de status c
 
 ---
 
+## Tela: Mensagens (Chat 1:1) — D20 (Fase 1)
+
+### Objetivo da tela
+Conversa direta entre dois usuários do sistema, com data de envio e de leitura, e referência opcional a uma demanda. Trazida por decisão de produto (não constava no inventário original; ver D20 em `decisoes-pendentes.md`).
+
+### Conteúdo
+Duas colunas (responsivo: empilha no mobile): lista de conversas (prévia da última mensagem + contador de não lidas) e "iniciar conversa" (seleção de usuário ativo); thread da conversa selecionada com as mensagens (próprias à direita), data/hora, "Visto", links clicáveis e referência à demanda, mais a caixa de envio. Item **Mensagens** no menu, com badge de não lidas.
+
+### Permissões
+Qualquer usuário autenticado; cada um só vê as conversas das quais participa (validado no backend). Anexos, busca e exportação ficam para fases seguintes.
+
+### Estados da tela
+- Carregando: "Carregando..." na lista e na thread.
+- Vazio: "Nenhuma conversa ainda." / "Selecione uma conversa para começar."
+- Erro: mensagem genérica de falha ao carregar/enviar.
+- Sucesso: conversas e mensagens exibidas; o envio limpa o campo.
+- Sem permissão: backend bloqueia acesso a conversa de terceiros (403).
+
+---
+
 ## Checklist de validação
 
 - [x] Este documento foi preenchido?
