@@ -12,3 +12,6 @@ includes/config.local.php
 Thumbs.db
 .vscode/
 .idea/
+
+# Rascunhos de logo (versoes de teste; as oficiais sao logo_claro.png / logo_escuro.png)
+public/assets/img/*-teste.png
