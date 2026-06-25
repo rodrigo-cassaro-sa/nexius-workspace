@@ -25,8 +25,14 @@ RUN { \
 WORKDIR /var/www/html
 COPY . /var/www/html
 
-# A pasta de logs precisa ser gravavel pelo Apache (www-data).
-RUN mkdir -p /var/www/html/logs \
-    && chown -R www-data:www-data /var/www/html/logs
+# Pastas de runtime gravaveis pelo Apache (www-data): logs e anexos das demandas.
+RUN mkdir -p /var/www/html/logs /var/www/html/storage/anexos \
+    && chown -R www-data:www-data /var/www/html/logs /var/www/html/storage
 
 EXPOSE 80
+
+# No start do container, reaplica dono/escrita das pastas de runtime antes do Apache.
+# Necessario porque um volume persistente montado em runtime (storage/anexos) e
+# remontado como root, anulando o chown feito no build. Sem isso o upload de anexos
+# falha com 500 ("Nao foi possivel armazenar os anexos") por falta de permissao.
+CMD ["sh", "-c", "mkdir -p /var/www/html/logs /var/www/html/storage/anexos && chown -R www-data:www-data /var/www/html/logs /var/www/html/storage && exec apache2-foreground"]
