@@ -73,7 +73,8 @@ function classeBadgeStatus(status) {
     arquivada: "badge",
     cancelada: "badge badge-erro",
     pendente: "badge",
-    bloqueada: "badge badge-aviso"
+    bloqueada: "badge badge-aviso",
+    recusada: "badge badge-erro"
   };
   return mapa[status] || "badge";
 }
@@ -87,7 +88,8 @@ function rotuloStatus(status) {
     arquivada: "Arquivada",
     cancelada: "Cancelada",
     pendente: "Pendente",
-    bloqueada: "Bloqueada"
+    bloqueada: "Bloqueada",
+    recusada: "Recusada"
   };
   return mapa[status] || status;
 }

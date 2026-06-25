@@ -41,6 +41,7 @@ $resultado = processar_anexos_upload(
     $_FILES["arquivos"] ?? [],
     (int) $acao["demanda_id"],
     $comentario_id,
+    null, // anexo de comentario (sem vinculo direto a acao)
     obter_usuario_logado_id()
 );
 

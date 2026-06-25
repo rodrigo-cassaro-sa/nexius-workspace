@@ -39,8 +39,14 @@ function definir_acao_chave($acao_id, $demanda_id)
     return mysqli_stmt_execute($stmt);
 }
 
-// Cria uma acao. Retorna o id ou false.
-function criar_acao($demanda_id, $titulo, $descricao, $responsavel_id, $prazo, $chave)
+// Tipos de tarefa validos (D19). Lista fechada (espelha o CHECK do banco).
+function acoes_tipos_validos()
+{
+    return ["analise", "desenvolvimento", "entrega", "incidente"];
+}
+
+// Cria uma acao. $tipo em acoes_tipos_validos(). Retorna o id ou false.
+function criar_acao($demanda_id, $titulo, $tipo, $descricao, $responsavel_id, $prazo, $chave)
 {
     $conn = conectar_banco();
 
@@ -48,11 +54,11 @@ function criar_acao($demanda_id, $titulo, $descricao, $responsavel_id, $prazo, $
         limpar_chave_da_demanda($demanda_id);
     }
 
-    $sql = "INSERT INTO acoes (demanda_id, titulo, descricao, responsavel_id, status, prazo, chave)
-            VALUES (?, ?, ?, ?, 'pendente', ?, ?)";
+    $sql = "INSERT INTO acoes (demanda_id, titulo, tipo, descricao, responsavel_id, status, prazo, chave)
+            VALUES (?, ?, ?, ?, ?, 'pendente', ?, ?)";
 
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "issisi", $demanda_id, $titulo, $descricao, $responsavel_id, $prazo, $chave);
+    mysqli_stmt_bind_param($stmt, "isssisi", $demanda_id, $titulo, $tipo, $descricao, $responsavel_id, $prazo, $chave);
     $ok = mysqli_stmt_execute($stmt);
 
     return $ok ? mysqli_insert_id($conn) : false;
@@ -62,8 +68,8 @@ function criar_acao($demanda_id, $titulo, $descricao, $responsavel_id, $prazo, $
 function listar_acoes_da_demanda($demanda_id)
 {
     return executar_select(
-        "SELECT a.id, a.titulo, a.descricao, a.responsavel_id, ur.nome AS responsavel_nome,
-                a.status, a.prazo, a.chave, a.concluida_em,
+        "SELECT a.id, a.titulo, a.tipo, a.descricao, a.responsavel_id, ur.nome AS responsavel_nome,
+                a.status, a.motivo_recusa, a.prazo, a.chave, a.concluida_em,
                 (SELECT COUNT(*) FROM acao_prerequisitos ap
                  JOIN acoes p ON p.id = ap.prerequisito_acao_id
                  WHERE ap.acao_id = a.id AND p.status <> 'concluida') AS prereq_pendentes,
@@ -139,7 +145,7 @@ function listar_acoes($usuario_id, $perfil, $filtros, $pagina, $por_pagina)
 
     $offset = ($pagina - 1) * $por_pagina;
 
-    $sql = "SELECT a.id, a.titulo, a.descricao, a.status, a.prazo, a.chave,
+    $sql = "SELECT a.id, a.titulo, a.tipo, a.descricao, a.status, a.prazo, a.chave,
                    a.responsavel_id, ur.nome AS responsavel_nome,
                    d.id AS demanda_id, d.titulo AS demanda_titulo,
                    (SELECT COUNT(*) FROM acao_prerequisitos ap
@@ -168,7 +174,7 @@ function listar_acoes_calendario($usuario_id, $perfil, $filtros, $inicio, $fim)
     $params[] = $inicio;
     $params[] = $fim;
 
-    $sql = "SELECT a.id, a.titulo, a.descricao, a.status, a.prazo, a.chave,
+    $sql = "SELECT a.id, a.titulo, a.tipo, a.descricao, a.status, a.prazo, a.chave,
                    a.responsavel_id, ur.nome AS responsavel_nome,
                    d.id AS demanda_id, d.titulo AS demanda_titulo,
                    (SELECT COUNT(*) FROM acao_prerequisitos ap
@@ -182,11 +188,11 @@ function listar_acoes_calendario($usuario_id, $perfil, $filtros, $inicio, $fim)
     return executar_select($sql, $tipos, $params);
 }
 
-// Busca uma acao (inclui demanda_id e chave para as regras).
+// Busca uma acao (inclui demanda_id, tipo e chave para as regras).
 function buscar_acao($id)
 {
     $linhas = executar_select(
-        "SELECT id, demanda_id, titulo, responsavel_id, status, chave FROM acoes WHERE id = ? LIMIT 1",
+        "SELECT id, demanda_id, titulo, tipo, responsavel_id, status, chave FROM acoes WHERE id = ? LIMIT 1",
         "i",
         [$id]
     );
@@ -244,6 +250,15 @@ function concluir_acao($id)
     $conn = conectar_banco();
     $stmt = mysqli_prepare($conn, "UPDATE acoes SET status = 'concluida', concluida_em = NOW() WHERE id = ?");
     mysqli_stmt_bind_param($stmt, "i", $id);
+    return mysqli_stmt_execute($stmt);
+}
+
+// Recusa uma acao de entrega: marca como 'recusada' e grava o motivo. So entrega pendente.
+function recusar_acao($id, $motivo)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE acoes SET status = 'recusada', motivo_recusa = ? WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "si", $motivo, $id);
     return mysqli_stmt_execute($stmt);
 }
 

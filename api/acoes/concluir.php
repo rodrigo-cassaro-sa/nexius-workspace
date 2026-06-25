@@ -6,6 +6,7 @@
 
 require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/acoes.php";
+require_once __DIR__ . "/../../includes/anexos.php";
 require_once __DIR__ . "/../../includes/demandas.php";
 require_once __DIR__ . "/../../includes/notificacoes.php";
 
@@ -48,6 +49,11 @@ if ($acao["status"] !== "pendente") {
 // Bloqueio por pre-requisito.
 if (acao_prereqs_pendentes($id) > 0) {
     json_erro("Conclua os pre-requisitos antes de concluir esta acao.", 409);
+}
+
+// Tarefa de analise so e concluida com pelo menos um arquivo anexado (evidencia).
+if ($acao["tipo"] === "analise" && !acao_tem_anexo($id)) {
+    json_erro("Anexe o arquivo de analise antes de concluir esta tarefa.", 409);
 }
 
 $conn = conectar_banco();

@@ -48,7 +48,9 @@ Motivo: redefinição de senha segura, com expiração curta e uso único.
 Motivo: entidade central do produto.
 
 ### acoes
-`id` · `demanda_id` (FK) · `titulo` · `descricao` · `responsavel_id` (FK) · `status` (pendente/bloqueada/concluida/cancelada) · `prazo` · `chave` · `concluida_em` · timestamps.
+`id` · `demanda_id` (FK) · `titulo` · `tipo` (analise/desenvolvimento/entrega/incidente — D19) · `descricao` · `responsavel_id` (FK) · `status` (pendente/bloqueada/concluida/cancelada/**recusada**) · `motivo_recusa` (só entrega recusada) · `prazo` · `chave` · `concluida_em` · timestamps.
+
+Regras por tipo (D19, Migration 010): **análise** só conclui com anexo de evidência (`anexos.acao_id`); **desenvolvimento** conclui normal; **entrega** pode ser recusada (status `recusada` + `motivo_recusa`, por Gestor/Admin); **incidente** é registro/relato.
 Motivo: plano de ação; `chave` conclui a demanda; `prazo` alimenta a métrica de % no prazo.
 
 ### acao_prerequisitos
@@ -162,7 +164,8 @@ Tabela `anexos` (trazida ao escopo por decisão de produto; ver D17 em `decisoes
 |---|---|---|
 | `id` | INT PK AI | |
 | `demanda_id` | INT NOT NULL | FK → `demandas(id)` (sempre preenchido, garante o escopo) |
-| `comentario_id` | INT NULL | FK → `comentarios(id)`. NULL = anexo da demanda; preenchido = anexo de um comentário de ação |
+| `comentario_id` | INT NULL | FK → `comentarios(id)`. Preenchido = anexo de um comentário de ação |
+| `acao_id` | INT NULL | FK → `acoes(id)`. Preenchido = evidência de uma ação (ex.: arquivo de análise — D19). Migration 010 |
 | `nome_original` | VARCHAR(255) | nome exibido ao usuário |
 | `nome_armazenado` | VARCHAR(120) UNIQUE | nome aleatório em disco (nunca o original) |
 | `mime` | VARCHAR(120) | MIME real conferido por `finfo` |
@@ -170,9 +173,9 @@ Tabela `anexos` (trazida ao escopo por decisão de produto; ver D17 em `decisoes
 | `criado_por` | INT NOT NULL | FK → `usuarios(id)` |
 | `criado_em` | DATETIME | default `CURRENT_TIMESTAMP` |
 
-Migrations: `008_add_anexos.sql` (criação) e `009_add_anexo_comentario.sql` (coluna `comentario_id`). Validação (tamanho/extensão allowlist/MIME), renomeação e bloqueio de execução ficam no backend (`includes/anexos.php`), conforme `boas-praticas-seguranca.md` §9.
+Migrations: `008_add_anexos.sql` (criação), `009_add_anexo_comentario.sql` (coluna `comentario_id`) e `010_add_acao_tipo_recusa.sql` (coluna `acao_id`). Validação (tamanho/extensão allowlist/MIME), renomeação e bloqueio de execução ficam no backend (`includes/anexos.php`), conforme `boas-praticas-seguranca.md` §9.
 
-**Anexos de comentário (D18):** a mesma tabela e a mesma pasta privada atendem os anexos de comentários de ação. Quando `comentario_id` está preenchido, o anexo pertence ao comentário; o `demanda_id` continua gravado (derivado da ação do comentário) para manter o escopo de visibilidade/download igual ao da demanda. A listagem de anexos da demanda usa `comentario_id IS NULL`; os de comentário aparecem junto do próprio comentário. Endpoints: `api/anexos/enviar-comentario.php` (POST, só o autor do comentário), `api/anexos/listar-comentarios.php` (GET, escopo da demanda) e o mesmo `api/anexos/baixar.php` (login + escopo).
+**Anexos de comentário (D18) e de ação (D19):** a mesma tabela e a mesma pasta privada atendem anexos de comentários e evidências de ação. Quando `comentario_id` está preenchido, o anexo pertence ao comentário; quando `acao_id` está preenchido, é evidência da ação (ex.: arquivo de análise). No máximo um dos dois é preenchido; o `demanda_id` continua sempre gravado para manter o escopo de visibilidade/download. A listagem de anexos **da demanda** usa `comentario_id IS NULL AND acao_id IS NULL`; os de comentário/ação aparecem junto do próprio comentário/ação. Endpoints: `api/anexos/enviar-comentario.php` (autor do comentário), `api/anexos/enviar-acao.php` (responsável da ação ou Gestor/Admin), `api/anexos/listar-comentarios.php`, `api/anexos/listar-acoes.php` (GET, escopo da demanda) e o mesmo `api/anexos/baixar.php` (login + escopo).
 
 ## 12. Fora do MVP
 

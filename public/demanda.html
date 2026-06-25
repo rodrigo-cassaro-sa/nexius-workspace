@@ -195,6 +195,15 @@
           <input class="campo-input" id="a-titulo" type="text" maxlength="160" required>
         </div>
         <div class="campo">
+          <label class="campo-label" for="a-tipo">Tipo da tarefa *</label>
+          <select class="campo-input" id="a-tipo" required>
+            <option value="desenvolvimento">Desenvolvimento — concluir quando pronta</option>
+            <option value="analise">Análise — exige anexar um arquivo para concluir</option>
+            <option value="entrega">Entrega — pode ser recusada (com motivo)</option>
+            <option value="incidente">Incidente — acontecimento ou relato</option>
+          </select>
+        </div>
+        <div class="campo">
           <label class="campo-label" for="a-descricao">Descrição</label>
           <textarea class="campo-input" id="a-descricao" rows="2"></textarea>
         </div>
@@ -263,6 +272,13 @@
       <p id="assinar-acao" class="texto-secundario"></p>
       <p>Esta conclusão fica registrada com o seu nome, data e hora como lastro de execução, e não pode ser desfeita.</p>
 
+      <div class="campo" id="assinar-anexo" hidden>
+        <label class="campo-label" for="assinar-arquivos">Arquivo de análise (obrigatório) *</label>
+        <input class="campo-arquivo" id="assinar-arquivos" type="file" multiple
+               accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip">
+        <p class="texto-secundario">Tarefas de análise só são concluídas com um arquivo de evidência anexado.</p>
+      </div>
+
       <label class="assinar-check">
         <input type="checkbox" id="assinar-confirma">
         <span>Confirmo e assino a conclusão desta ação.</span>
@@ -271,6 +287,26 @@
       <div class="modal-acoes">
         <button type="button" class="botao botao-secundario" id="botao-assinar-cancelar">Cancelar</button>
         <button type="button" class="botao botao-primario" id="botao-assinar-confirmar" disabled>Assinar e concluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: recusar entrega (exige motivo) -->
+  <div id="modal-recusar" class="modal" role="dialog" aria-modal="true" aria-labelledby="recusar-titulo">
+    <div class="modal-conteudo">
+      <h2 class="modal-titulo" id="recusar-titulo">Recusar entrega</h2>
+      <div id="recusar-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+      <p id="recusar-acao" class="texto-secundario"></p>
+      <div class="campo">
+        <label class="campo-label" for="recusar-motivo">Motivo da recusa *</label>
+        <textarea class="campo-input" id="recusar-motivo" rows="3" maxlength="2000"
+                  placeholder="Explique por que a entrega foi recusada..."></textarea>
+      </div>
+
+      <div class="modal-acoes">
+        <button type="button" class="botao botao-secundario" id="botao-recusar-cancelar">Cancelar</button>
+        <button type="button" class="botao botao-primario" id="botao-recusar-confirmar">Recusar entrega</button>
       </div>
     </div>
   </div>

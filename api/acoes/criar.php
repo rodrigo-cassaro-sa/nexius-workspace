@@ -23,6 +23,7 @@ if ($body === null) {
 
 $demanda_id = isset($body["demanda_id"]) ? (int) $body["demanda_id"] : 0;
 $titulo = trim($body["titulo"] ?? "");
+$tipo = trim($body["tipo"] ?? "");
 $descricao = trim($body["descricao"] ?? "");
 $responsavel_id = isset($body["responsavel_id"]) && $body["responsavel_id"] !== "" ? (int) $body["responsavel_id"] : null;
 $prazo = trim($body["prazo"] ?? "");
@@ -31,6 +32,9 @@ $prerequisitos = isset($body["prerequisitos"]) && is_array($body["prerequisitos"
 $erros = [];
 if (!validar_tamanho($titulo, 2, 160)) {
     $erros["titulo"] = "Informe um titulo (2 a 160 caracteres).";
+}
+if (!valor_em_lista($tipo, acoes_tipos_validos())) {
+    $erros["tipo"] = "Selecione o tipo da tarefa.";
 }
 if ($responsavel_id === null) {
     $erros["responsavel_id"] = "Selecione o responsavel pela acao.";
@@ -58,6 +62,7 @@ $chave = demanda_tem_chave($demanda_id) ? 0 : 1;
 $id = criar_acao(
     $demanda_id,
     $titulo,
+    $tipo,
     $descricao !== "" ? $descricao : null,
     $responsavel_id,
     $prazo !== "" ? $prazo : null,

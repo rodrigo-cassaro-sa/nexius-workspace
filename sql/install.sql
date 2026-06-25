@@ -112,13 +112,16 @@ CREATE TABLE IF NOT EXISTS demandas (
 -- ---------------------------------------------------------------------------
 -- acoes
 -- ---------------------------------------------------------------------------
+-- tipo: analise|desenvolvimento|entrega|incidente (D19). motivo_recusa so para entrega recusada.
 CREATE TABLE IF NOT EXISTS acoes (
   id INT AUTO_INCREMENT PRIMARY KEY,
   demanda_id INT NOT NULL,
   titulo VARCHAR(160) NOT NULL,
+  tipo VARCHAR(20) NOT NULL DEFAULT 'desenvolvimento',
   descricao TEXT NULL,
   responsavel_id INT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'pendente',
+  motivo_recusa TEXT NULL,
   prazo DATE NULL,
   chave TINYINT(1) NOT NULL DEFAULT 0,
   concluida_em DATETIME NULL,
@@ -130,7 +133,8 @@ CREATE TABLE IF NOT EXISTS acoes (
   KEY idx_acoes_prazo (prazo),
   CONSTRAINT fk_acoes_demanda FOREIGN KEY (demanda_id) REFERENCES demandas(id),
   CONSTRAINT fk_acoes_responsavel FOREIGN KEY (responsavel_id) REFERENCES usuarios(id),
-  CONSTRAINT chk_acoes_status CHECK (status IN ('pendente','bloqueada','concluida','cancelada'))
+  CONSTRAINT chk_acoes_status CHECK (status IN ('pendente','bloqueada','concluida','cancelada','recusada')),
+  CONSTRAINT chk_acoes_tipo CHECK (tipo IN ('analise','desenvolvimento','entrega','incidente'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
@@ -152,12 +156,14 @@ CREATE TABLE IF NOT EXISTS acao_prerequisitos (
 -- ---------------------------------------------------------------------------
 -- anexos (uploads de demandas; arquivo em pasta privada, so metadados no banco)
 -- ---------------------------------------------------------------------------
--- comentario_id NULL = anexo da demanda; != NULL = anexo de um comentario de acao.
+-- Vinculo do anexo: demanda (sempre), e opcionalmente comentario_id OU acao_id.
+-- comentario_id != NULL = anexo de um comentario; acao_id != NULL = evidencia de uma acao (analise).
 -- A FK para comentarios e adicionada por ALTER mais abaixo (comentarios e criada depois).
 CREATE TABLE IF NOT EXISTS anexos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   demanda_id INT NOT NULL,
   comentario_id INT NULL,
+  acao_id INT NULL,
   nome_original VARCHAR(255) NOT NULL,
   nome_armazenado VARCHAR(120) NOT NULL,
   mime VARCHAR(120) NOT NULL,
@@ -167,8 +173,10 @@ CREATE TABLE IF NOT EXISTS anexos (
   UNIQUE KEY uq_anexos_armazenado (nome_armazenado),
   KEY idx_anexos_demanda (demanda_id),
   KEY idx_anexos_comentario (comentario_id),
+  KEY idx_anexos_acao (acao_id),
   KEY idx_anexos_criado_por (criado_por),
   CONSTRAINT fk_anexos_demanda FOREIGN KEY (demanda_id) REFERENCES demandas(id),
+  CONSTRAINT fk_anexos_acao FOREIGN KEY (acao_id) REFERENCES acoes(id),
   CONSTRAINT fk_anexos_criado_por FOREIGN KEY (criado_por) REFERENCES usuarios(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

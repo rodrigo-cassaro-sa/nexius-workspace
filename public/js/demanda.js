@@ -9,7 +9,9 @@ let demandaAtual = null;
 let acoesAtuais = [];
 let comentariosAtuais = [];
 let comentariosAnexos = [];
-let acaoParaAssinar = 0;
+let acoesAnexos = [];
+let acaoParaAssinar = null;
+let acaoRecusando = 0;
 
 document.addEventListener("DOMContentLoaded", async function () {
   const usuario = await exigirSessaoNoFront();
@@ -30,6 +32,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
   document.getElementById("botao-assinar-cancelar").addEventListener("click", function () { fecharModal("modal-assinar"); });
   document.getElementById("botao-assinar-confirmar").addEventListener("click", confirmarAssinatura);
+  document.getElementById("botao-recusar-cancelar").addEventListener("click", function () { fecharModal("modal-recusar"); });
+  document.getElementById("botao-recusar-confirmar").addEventListener("click", confirmarRecusa);
   if (perfilUsuario === "administrador") {
     document.getElementById("nav-usuarios").hidden = false;
   }
@@ -175,11 +179,12 @@ async function carregarAcoes() {
   mostrarCarregando("lista-acoes", 3);
 
   try {
-    // Carrega acoes, comentarios e anexos de comentario juntos.
-    const [respAcoes, respComent, respAnexos] = await Promise.all([
+    // Carrega acoes, comentarios e anexos (de comentario e de acao) juntos.
+    const [respAcoes, respComent, respAnexos, respAnexosAcao] = await Promise.all([
       getApi("/api/acoes/listar.php?demanda_id=" + demandaId),
       getApi("/api/comentarios/listar-demanda.php?demanda_id=" + demandaId),
-      getApi("/api/anexos/listar-comentarios.php?demanda_id=" + demandaId)
+      getApi("/api/anexos/listar-comentarios.php?demanda_id=" + demandaId),
+      getApi("/api/anexos/listar-acoes.php?demanda_id=" + demandaId)
     ]);
 
     if (!respAcoes.ok) {
@@ -190,6 +195,7 @@ async function carregarAcoes() {
     acoesAtuais = respAcoes.data.acoes;
     comentariosAtuais = (respComent && respComent.ok) ? respComent.data.comentarios : [];
     comentariosAnexos = (respAnexos && respAnexos.ok) ? respAnexos.data.anexos : [];
+    acoesAnexos = (respAnexosAcao && respAnexosAcao.ok) ? respAnexosAcao.data.anexos : [];
     atualizarPrazoChave();
     atualizarStatusCabecalho();
 
@@ -258,6 +264,10 @@ function renderizarAcoes(alvo, acoes) {
     nome.className = "acao-nome";
     nome.textContent = (indice + 1) + ". " + a.titulo;
     linha.appendChild(nome);
+    const bt = document.createElement("span");
+    bt.className = "badge badge-tipo";
+    bt.textContent = rotuloTipoAcao(a.tipo);
+    linha.appendChild(bt);
     if (parseInt(a.chave, 10) === 1) {
       const bc = document.createElement("span");
       bc.className = "badge badge-chave";
@@ -275,6 +285,20 @@ function renderizarAcoes(alvo, acoes) {
     meta.appendChild(resp);
     meta.appendChild(prazo);
     info.appendChild(meta);
+
+    // Motivo da recusa (tarefas de entrega recusadas).
+    if (a.status === "recusada" && a.motivo_recusa) {
+      const nota = document.createElement("p");
+      nota.className = "acao-recusa";
+      nota.textContent = "Recusada: " + a.motivo_recusa;
+      info.appendChild(nota);
+    }
+
+    // Evidencias (anexos da acao, ex.: arquivo de analise).
+    const evidencias = montarAnexosDaAcao(a.id);
+    if (evidencias) {
+      info.appendChild(evidencias);
+    }
 
     // Rodape: "Ver detalhes" (abre popup e marca visualizado) + contador de vistos.
     const rodape = document.createElement("div");
@@ -340,6 +364,20 @@ function renderizarAcoes(alvo, acoes) {
       statusArea.appendChild(botao);
     }
 
+    // Recusar: so tarefa de ENTREGA pendente, e so Gestor/Admin (D19).
+    const podeRecusar = a.tipo === "entrega"
+      && a.status === "pendente"
+      && (perfilUsuario === "administrador" || perfilUsuario === "gestor");
+
+    if (podeRecusar) {
+      const btnRec = document.createElement("button");
+      btnRec.className = "botao botao-secundario";
+      btnRec.type = "button";
+      btnRec.textContent = "Recusar";
+      btnRec.addEventListener("click", function () { abrirRecusa(a); });
+      statusArea.appendChild(btnRec);
+    }
+
     cab.appendChild(statusArea);
     item.appendChild(cab);
 
@@ -351,28 +389,60 @@ function renderizarAcoes(alvo, acoes) {
 }
 
 // Conclusao com assinatura (declaracao + 1 clique): abre o modal de confirmacao.
+// Para tarefa de analise, exibe o campo de arquivo de evidencia (obrigatorio).
 function abrirAssinatura(a) {
-  acaoParaAssinar = a.id;
+  acaoParaAssinar = a;
   document.getElementById("assinar-acao").textContent = "Ação: " + a.titulo;
   document.getElementById("assinar-confirma").checked = false;
   document.getElementById("botao-assinar-confirmar").disabled = true;
   document.getElementById("assinar-mensagem").hidden = true;
+
+  const areaAnexo = document.getElementById("assinar-anexo");
+  const inputAnexo = document.getElementById("assinar-arquivos");
+  inputAnexo.value = "";
+  areaAnexo.hidden = (a.tipo !== "analise");
+
   abrirModal("modal-assinar");
 }
 
 async function confirmarAssinatura() {
-  if (acaoParaAssinar <= 0) return;
+  if (!acaoParaAssinar) return;
 
   if (!document.getElementById("assinar-confirma").checked) {
     mostrarErro("assinar-mensagem", "Marque a confirmação para assinar.");
     return;
   }
 
+  const ehAnalise = acaoParaAssinar.tipo === "analise";
+  const arquivos = document.getElementById("assinar-arquivos").files;
+
+  if (ehAnalise) {
+    if (!arquivos || arquivos.length === 0) {
+      mostrarErro("assinar-mensagem", "Anexe o arquivo de análise para concluir.");
+      return;
+    }
+    const erroAnexo = validarAnexosCliente(arquivos);
+    if (erroAnexo) {
+      mostrarErro("assinar-mensagem", erroAnexo);
+      return;
+    }
+  }
+
   const botao = document.getElementById("botao-assinar-confirmar");
   definirCarregando(botao, true);
 
   try {
-    const resposta = await postApi("/api/acoes/concluir.php", { id: acaoParaAssinar, assinado: true });
+    // Analise: envia a evidencia ANTES de concluir (o backend exige o anexo).
+    if (ehAnalise) {
+      const erroEnvio = await enviarAnexosAcao(acaoParaAssinar.id, arquivos);
+      if (erroEnvio) {
+        mostrarErro("assinar-mensagem", erroEnvio);
+        definirCarregando(botao, false);
+        return;
+      }
+    }
+
+    const resposta = await postApi("/api/acoes/concluir.php", { id: acaoParaAssinar.id, assinado: true });
     if (!resposta.ok) {
       mostrarErro("assinar-mensagem", resposta.error);
       definirCarregando(botao, false);
@@ -384,6 +454,104 @@ async function confirmarAssinatura() {
   } catch (erro) {
     mostrarErro("assinar-mensagem", "Nao foi possivel concluir a ação.");
     definirCarregando(botao, false);
+  }
+}
+
+// Recusa de entrega (Gestor/Admin): abre o modal pedindo o motivo.
+function abrirRecusa(a) {
+  acaoRecusando = a.id;
+  document.getElementById("recusar-acao").textContent = "Entrega: " + a.titulo;
+  document.getElementById("recusar-motivo").value = "";
+  document.getElementById("recusar-mensagem").hidden = true;
+  abrirModal("modal-recusar");
+}
+
+async function confirmarRecusa() {
+  if (acaoRecusando <= 0) return;
+
+  const motivo = document.getElementById("recusar-motivo").value.trim();
+  if (motivo.length < 3) {
+    mostrarErro("recusar-mensagem", "Explique o motivo da recusa.");
+    return;
+  }
+
+  const botao = document.getElementById("botao-recusar-confirmar");
+  definirCarregando(botao, true);
+
+  try {
+    const resposta = await postApi("/api/acoes/recusar.php", { id: acaoRecusando, motivo: motivo });
+    if (!resposta.ok) {
+      mostrarErro("recusar-mensagem", resposta.error);
+      definirCarregando(botao, false);
+      return;
+    }
+    fecharModal("modal-recusar");
+    definirCarregando(botao, false);
+    await carregarTudo();
+  } catch (erro) {
+    mostrarErro("recusar-mensagem", "Nao foi possivel recusar a entrega.");
+    definirCarregando(botao, false);
+  }
+}
+
+// Rotulo amigavel do tipo da tarefa.
+function rotuloTipoAcao(tipo) {
+  const mapa = {
+    analise: "Análise",
+    desenvolvimento: "Desenvolvimento",
+    entrega: "Entrega",
+    incidente: "Incidente"
+  };
+  return mapa[tipo] || "Tarefa";
+}
+
+// Monta a lista de evidencias (anexos) de uma acao, ou null se nao houver.
+function montarAnexosDaAcao(acaoId) {
+  const daAcao = acoesAnexos.filter(function (a) {
+    return parseInt(a.acao_id, 10) === parseInt(acaoId, 10);
+  });
+  if (daAcao.length === 0) return null;
+
+  const lista = document.createElement("div");
+  lista.className = "acao-anexos";
+  daAcao.forEach(function (a) {
+    const link = document.createElement("a");
+    link.className = "acao-anexo";
+    link.href = "/api/anexos/baixar.php?id=" + a.id;
+    link.textContent = a.nome_original + " (" + formatarTamanho(a.tamanho) + ")";
+    lista.appendChild(link);
+  });
+  return lista;
+}
+
+// Envia evidencia (multipart) de uma acao. Retorna "" se ok, ou uma mensagem de erro.
+// Aqui o anexo e obrigatorio (analise): a falha impede a conclusao.
+async function enviarAnexosAcao(acaoId, arquivos) {
+  const fd = new FormData();
+  fd.append("acao_id", acaoId);
+  for (let i = 0; i < arquivos.length; i++) {
+    fd.append("arquivos[]", arquivos[i]);
+  }
+  try {
+    const resposta = await fetch("/api/anexos/enviar-acao.php", {
+      method: "POST",
+      credentials: "include",
+      cache: "no-store",
+      body: fd
+    });
+    const dados = await resposta.json();
+    if (!dados.ok) {
+      return dados.error || "Não foi possível anexar o arquivo de análise.";
+    }
+    if (!dados.data.salvos || dados.data.salvos.length === 0) {
+      const motivo = (dados.data.rejeitados && dados.data.rejeitados.length > 0)
+        ? (": " + dados.data.rejeitados.map(function (r) { return r.nome + " (" + r.erro + ")"; }).join("; "))
+        : ".";
+      return "Nenhum arquivo foi anexado" + motivo;
+    }
+    return "";
+  } catch (erro) {
+    return "Não foi possível anexar o arquivo de análise.";
   }
 }
 
@@ -444,6 +612,7 @@ async function salvarAcao(evento) {
 
   const botao = document.getElementById("botao-acao-salvar");
   const titulo = document.getElementById("a-titulo").value.trim();
+  const tipo = document.getElementById("a-tipo").value;
   const descricao = document.getElementById("a-descricao").value.trim();
   const responsavel = document.getElementById("a-responsavel").value;
   const prazo = document.getElementById("a-prazo").value;
@@ -470,6 +639,7 @@ async function salvarAcao(evento) {
     const resposta = await postApi("/api/acoes/criar.php", {
       demanda_id: demandaId,
       titulo: titulo,
+      tipo: tipo,
       descricao: descricao,
       responsavel_id: responsavel,
       prazo: prazo,

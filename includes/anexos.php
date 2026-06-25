@@ -101,29 +101,30 @@ function anexo_nome_armazenado($nome_original)
     return $ext !== "" ? ($base . "." . $ext) : $base;
 }
 
-// Insere o registro do anexo. $comentario_id e null para anexo de demanda.
-// Retorna o id ou false.
-function inserir_anexo($demanda_id, $comentario_id, $nome_original, $nome_armazenado, $mime, $tamanho, $criado_por)
+// Insere o registro do anexo. $comentario_id/$acao_id sao null para anexo de demanda
+// (no maximo um deles e preenchido). Retorna o id ou false.
+function inserir_anexo($demanda_id, $comentario_id, $acao_id, $nome_original, $nome_armazenado, $mime, $tamanho, $criado_por)
 {
     $conn = conectar_banco();
     $stmt = mysqli_prepare(
         $conn,
-        "INSERT INTO anexos (demanda_id, comentario_id, nome_original, nome_armazenado, mime, tamanho, criado_por)
-         VALUES (?, ?, ?, ?, ?, ?, ?)"
+        "INSERT INTO anexos (demanda_id, comentario_id, acao_id, nome_original, nome_armazenado, mime, tamanho, criado_por)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     );
-    // comentario_id pode ser null: o mysqli envia NULL quando a variavel ligada e null.
-    mysqli_stmt_bind_param($stmt, "iisssii", $demanda_id, $comentario_id, $nome_original, $nome_armazenado, $mime, $tamanho, $criado_por);
+    // comentario_id/acao_id podem ser null: o mysqli envia NULL quando a variavel ligada e null.
+    mysqli_stmt_bind_param($stmt, "iiisssii", $demanda_id, $comentario_id, $acao_id, $nome_original, $nome_armazenado, $mime, $tamanho, $criado_por);
     $ok = mysqli_stmt_execute($stmt);
 
     return $ok ? mysqli_insert_id($conn) : false;
 }
 
-// Processa o lote de arquivos enviados (mesma logica para demanda e comentario):
+// Processa o lote de arquivos enviados (mesma logica para demanda, comentario e acao):
 // confere limite, garante a pasta privada, e para cada arquivo valida, renomeia, move e registra.
-// $files = $_FILES["arquivos"]; $comentario_id e null para anexo de demanda.
+// $files = $_FILES["arquivos"]; $comentario_id/$acao_id sao null para anexo de demanda
+// (no maximo um deles e preenchido).
 // Retorna ["ok"=>true, "status"=>200, "salvos"=>[], "rejeitados"=>[]] ou
 //         ["ok"=>false, "status"=>4xx/5xx, "erro"=>"..."] quando nem da para comecar.
-function processar_anexos_upload($files, $demanda_id, $comentario_id, $usuario_id)
+function processar_anexos_upload($files, $demanda_id, $comentario_id, $acao_id, $usuario_id)
 {
     if (!isset($files["name"]) || !is_array($files["name"])) {
         return ["ok" => false, "status" => 400, "erro" => "Nenhum arquivo enviado."];
@@ -134,9 +135,13 @@ function processar_anexos_upload($files, $demanda_id, $comentario_id, $usuario_i
         return ["ok" => false, "status" => 400, "erro" => "Envie no maximo " . ANEXOS_MAX_POR_ENVIO . " arquivos por vez."];
     }
 
+    $ref = "demanda_id=" . $demanda_id
+        . ($comentario_id ? " comentario_id=" . $comentario_id : "")
+        . ($acao_id ? " acao_id=" . $acao_id : "");
+
     if (!anexos_garantir_pasta()) {
         // Detalhe tecnico fica no log; usuario recebe mensagem generica.
-        registrar_log("anexo_erro_pasta", "demanda_id=" . $demanda_id . ($comentario_id ? " comentario_id=" . $comentario_id : ""));
+        registrar_log("anexo_erro_pasta", $ref);
         return ["ok" => false, "status" => 500, "erro" => "Nao foi possivel armazenar os anexos."];
     }
 
@@ -183,7 +188,7 @@ function processar_anexos_upload($files, $demanda_id, $comentario_id, $usuario_i
         }
 
         $nome_original = mb_substr((string) $arquivo["name"], 0, 255);
-        $id = inserir_anexo($demanda_id, $comentario_id, $nome_original, $nome_armazenado, $mime, (int) $arquivo["size"], $usuario_id);
+        $id = inserir_anexo($demanda_id, $comentario_id, $acao_id, $nome_original, $nome_armazenado, $mime, (int) $arquivo["size"], $usuario_id);
 
         if (!$id) {
             @unlink($destino); // nao deixa arquivo orfao se o registro falhar
@@ -191,15 +196,15 @@ function processar_anexos_upload($files, $demanda_id, $comentario_id, $usuario_i
             continue;
         }
 
-        registrar_log("anexo_enviado", "demanda_id=" . $demanda_id . ($comentario_id ? " comentario_id=" . $comentario_id : "") . " anexo_id=" . $id);
+        registrar_log("anexo_enviado", $ref . " anexo_id=" . $id);
         $salvos[] = ["id" => $id, "nome" => $nome_original];
     }
 
     return ["ok" => true, "status" => 200, "salvos" => $salvos, "rejeitados" => $rejeitados];
 }
 
-// Lista os anexos de nivel da demanda (apenas comentario_id NULL; os de comentario
-// aparecem junto do proprio comentario, ver listar_anexos_dos_comentarios_da_demanda).
+// Lista os anexos de nivel da demanda (sem vinculo a comentario nem a acao; estes
+// aparecem junto do proprio comentario/acao, ver as funcoes especificas abaixo).
 function listar_anexos_da_demanda($demanda_id)
 {
     return executar_select(
@@ -207,11 +212,35 @@ function listar_anexos_da_demanda($demanda_id)
                 u.nome AS criado_por_nome
          FROM anexos a
          LEFT JOIN usuarios u ON u.id = a.criado_por
-         WHERE a.demanda_id = ? AND a.comentario_id IS NULL
+         WHERE a.demanda_id = ? AND a.comentario_id IS NULL AND a.acao_id IS NULL
          ORDER BY a.criado_em ASC, a.id ASC",
         "i",
         [$demanda_id]
     );
+}
+
+// Lista os anexos (evidencias) de todas as acoes de uma demanda. O front agrupa por acao_id.
+function listar_anexos_das_acoes_da_demanda($demanda_id)
+{
+    return executar_select(
+        "SELECT a.id, a.acao_id, a.nome_original, a.mime, a.tamanho, a.criado_em
+         FROM anexos a
+         WHERE a.demanda_id = ? AND a.acao_id IS NOT NULL
+         ORDER BY a.id ASC",
+        "i",
+        [$demanda_id]
+    );
+}
+
+// A acao tem ao menos um anexo (evidencia)? Usado para liberar a conclusao de tarefas de analise.
+function acao_tem_anexo($acao_id)
+{
+    $linhas = executar_select(
+        "SELECT COUNT(*) AS total FROM anexos WHERE acao_id = ?",
+        "i",
+        [$acao_id]
+    );
+    return (int) $linhas[0]["total"] > 0;
 }
 
 // Lista os anexos de todos os comentarios de uma demanda (uma consulta so;

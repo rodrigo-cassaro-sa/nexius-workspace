@@ -28,7 +28,8 @@ if (!$demanda) {
 $resultado = processar_anexos_upload(
     $_FILES["arquivos"] ?? [],
     $demanda_id,
-    null, // anexo de demanda (sem comentario)
+    null, // sem comentario
+    null, // sem acao (anexo de nivel da demanda)
     obter_usuario_logado_id()
 );
 
