@@ -71,7 +71,9 @@ Por tela: carregando (skeleton), vazio, erro, sucesso, sem permissão. Validaç�
 
 ## 10. Fora do escopo
 
-Pagamentos, gamificação, offline/PWA, relatórios, push/SMS/WhatsApp, exclusão física, edição/exclusão de comentário por terceiros, registro aberto, e qualquer tela/endpoint/tabela sem evidência nos documentos.
+Pagamentos, offline/PWA, relatórios, push/SMS/WhatsApp, exclusão física, edição/exclusão de comentário por terceiros, registro aberto, e qualquer tela/endpoint/tabela sem evidência nos documentos.
+
+> **Atualização (decisões de produto, ver `docs/decisoes-pendentes.md`).** Itens que estavam fora do MVP e **entraram por decisão**: gamificação v1 pessoal (D14), tela de Ações/calendário (D16), uploads/anexos (D17/D18/D19), tipos de tarefa incl. reunião (D19) e chat 1:1 (D20). Permanecem fora: pagamentos, offline/PWA, relatórios, push/SMS/WhatsApp e digest por e-mail (D15, em aberto).
 
 ---
 

@@ -54,7 +54,7 @@ e pelo checklist de deploy. **Migrations 008–012 devem estar aplicadas em prod
 ## 4. Problemas médios
 
 1. **E-mail em sandbox (Resend).** Integração funciona, mas usa remetente `onboarding@resend.dev`, que só entrega ao dono da conta. Recuperação de senha e notificações por e-mail só chegam a terceiros após **verificar um domínio** na Resend e ajustar `SMTP_REMETENTE`. (Pendência registrada; sem código.)
-2. **Documentação de escopo desatualizada.** `01-descricao-produto.md` (§10/§17) e `08-plano-funcionalidades-mvp.md` (§10) ainda listam como "fora do MVP" itens que **entraram por decisão** (gamificação, chat, uploads). Cada um está rastreável em `decisoes-pendentes.md` (D14–D20), mas os documentos-fonte de escopo deveriam citar essas decisões para não parecerem contraditórios. (Doc-sync; seguro de corrigir depois.)
+2. ~~**Documentação de escopo desatualizada.**~~ **Corrigido nesta revisão (ver §6):** `01-descricao-produto.md` (§10/§11) e `08-plano-funcionalidades-mvp.md` (§10) agora referenciam as decisões D14–D20 e separam o que permanece fora do MVP.
 3. **`EMAIL_SUPORTE` placeholder** (`suporte@exemplo.com`) — exibido na Ajuda; definir o oficial.
 4. **Assets de logo grandes** (`logo_claro.png` ~2 MB, `logo_escuro.png` ~875 KB) — pesam no carregamento; otimizar ou exportar SVG.
 
@@ -69,6 +69,8 @@ e pelo checklist de deploy. **Migrations 008–012 devem estar aplicadas em prod
 ## 6. Correções realizadas (nesta revisão)
 
 - **`.gitignore`**: passa a ignorar `public/assets/img/*-teste.png` (rascunhos de logo que sujavam o `git status` a cada commit; arquivos não são apagados, apenas deixam de ser rastreados).
+- **Doc-sync de escopo:** `01-descricao-produto.md` (§10/§11) e `08-plano-funcionalidades-mvp.md` (§10) atualizados para referenciar D14–D20 (itens trazidos ao escopo por decisão) e separar o que permanece fora (pagamentos, offline/PWA, relatórios, push/SMS/WhatsApp, digest D15).
+- **Logos** corrigidas/otimizadas (inversão claro/escuro desfeita; arquivos mais leves).
 - Este relatório (`docs/validacao/14-revisao-final-qualidade.md`).
 
 Nenhuma correção de código foi necessária: a auditoria de segurança, consistência de JSON e arquivos mortos passou.
@@ -78,7 +80,6 @@ Nenhuma correção de código foi necessária: a auditoria de segurança, consis
 - **D15** — digest/push (aberto; precisa de decisão de produto).
 - **E-mail** — verificar domínio definitivo na Resend para sair do sandbox.
 - **E-mail de suporte** — definir endereço oficial.
-- **Doc-sync de escopo** — atualizar §10/§17 da descrição e §10 do plano para referenciar D14–D20.
 
 ## 8. Checklist final
 

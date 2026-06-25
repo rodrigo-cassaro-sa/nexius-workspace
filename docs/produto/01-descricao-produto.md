@@ -98,14 +98,17 @@ O escopo é sempre aplicado no backend, nas consultas e na verificação de aces
 - Notificações internas no sistema.
 - Notificações por e-mail em eventos importantes (envio pelo backend).
 
+> **Ampliações por decisão de produto (após o MVP base).** Foram trazidas ao escopo e implementadas, cada uma registrada em `docs/decisoes-pendentes.md`: gamificação v1 pessoal (**D14**); tela de Ações com calendário (**D16**); anexos em demandas, comentários e ações (**D17/D18/D19**); tipos de tarefa, incluindo "reunião" com participantes (**D19**); e chat 1:1 entre usuários (**D20**).
+
 ## 11. Funcionalidades futuras
 
 - Relatórios (fase seguinte ao MVP: demandas por status, produtividade por responsável, ações concluídas no período).
 - Pagamentos / assinatura.
-- Gamificação (pontos, níveis, ranking).
+- Gamificação **competitiva** (ranking entre usuários). A **v1 pessoal** (níveis/conquistas, sem ranking) já foi incluída — ver §17 e D14.
 - Funcionamento offline / sincronização.
-- Notificações push e WhatsApp.
+- Notificações push e WhatsApp; resumo periódico por e-mail (digest) — ver **D15** (em aberto).
 - Integrações externas (além do envio de e-mail).
+- Chat: anexos por mensagem, busca e exportação (Fase 2 da **D20**; a Fase 1 já está no MVP).
 
 ## 12. Jornada principal do usuário
 
