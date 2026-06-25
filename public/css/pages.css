@@ -439,6 +439,7 @@
   display: block;
   height: 100%;
   background: var(--cor-primaria);
+  transition: width var(--transicao-padrao) ease;
 }
 
 .conquistas-grid {
@@ -562,6 +563,12 @@
   border-radius: var(--raio-medio);
   padding: var(--espaco-3) var(--espaco-4);
   margin-bottom: var(--espaco-4);
+  transition: border-color var(--transicao-rapida), box-shadow var(--transicao-rapida);
+}
+
+.acao-item:hover {
+  border-color: var(--cor-secundaria);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
 }
 
 .acao-item:last-child {

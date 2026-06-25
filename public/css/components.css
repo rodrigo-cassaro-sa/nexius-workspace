@@ -12,12 +12,28 @@
   border: 1px solid transparent;
   border-radius: var(--raio-pequeno);
   cursor: pointer;
-  transition: background var(--transicao-padrao), transform var(--transicao-padrao);
+  transition: background var(--transicao-padrao), transform var(--transicao-padrao),
+    box-shadow var(--transicao-padrao);
+}
+
+/* Microinteracao discreta: elevacao leve no hover, "pressionado" no active (guia visual 11/23). */
+.botao:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.botao:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .botao-primario {
   background: var(--cor-primaria);
   color: #ffffff;
+}
+
+.botao-primario:hover:not(:disabled) {
+  background: var(--cor-primaria-escura);
 }
 
 .botao-secundario {
@@ -26,9 +42,30 @@
   color: var(--cor-texto);
 }
 
+.botao-secundario:hover:not(:disabled) {
+  background: var(--cor-fundo);
+}
+
 .botao:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Foco visivel por teclado em controles interativos (acessibilidade - guia visual 24). */
+.botao:focus-visible,
+.botao-link:focus-visible,
+.clicavel:focus-visible,
+.aba:focus-visible,
+.sidebar-nav a:focus-visible,
+.sino-botao:focus-visible {
+  outline: 2px solid var(--cor-primaria);
+  outline-offset: 2px;
+  border-radius: var(--raio-pequeno);
+}
+
+/* No fundo escuro da sidebar, o contorno branco contrasta melhor. */
+.sidebar-nav a:focus-visible {
+  outline-color: #ffffff;
 }
 
 .botao-bloco {
@@ -446,6 +483,7 @@
 .progresso-preenchido {
   height: 100%;
   background: var(--cor-primaria);
+  transition: width var(--transicao-padrao) ease;
 }
 
 .progresso-texto {
@@ -959,4 +997,53 @@
   margin-top: var(--espaco-4);
   padding-top: var(--espaco-4);
   border-top: 1px solid var(--cor-borda);
+}
+
+/* ------------------------------------------------------------------ */
+/* Animacoes e microinteracoes (ver docs/design/12-plano-animacoes-microinteracoes.md) */
+/* CSS puro, movimento discreto. Tudo reduzido sob prefers-reduced-motion (no fim). */
+
+/* Suaviza o hover ja existente dos itens de lista clicaveis (antes era instantaneo). */
+.notificacao,
+.sino-item,
+.clicavel {
+  transition: background var(--transicao-rapida), color var(--transicao-rapida),
+    border-color var(--transicao-rapida);
+}
+
+.atividade-titulo {
+  transition: color var(--transicao-rapida);
+}
+
+/* Entrada suave das mensagens de feedback (sucesso/erro/aviso/info) ao serem exibidas. */
+@keyframes feedback-entra {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.alerta {
+  animation: feedback-entra var(--transicao-padrao) ease;
+}
+
+/* Entrada do painel do sino (dropdown) ao abrir. */
+@keyframes dropdown-entra {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.sino-painel {
+  animation: dropdown-entra var(--transicao-rapida) ease;
+}
+
+/* Acessibilidade: respeitar quem prefere menos movimento (guia visual 24).
+   Zera animacoes/transicoes em todo o app, inclusive spinner, skeleton e modal. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
