@@ -152,9 +152,12 @@ CREATE TABLE IF NOT EXISTS acao_prerequisitos (
 -- ---------------------------------------------------------------------------
 -- anexos (uploads de demandas; arquivo em pasta privada, so metadados no banco)
 -- ---------------------------------------------------------------------------
+-- comentario_id NULL = anexo da demanda; != NULL = anexo de um comentario de acao.
+-- A FK para comentarios e adicionada por ALTER mais abaixo (comentarios e criada depois).
 CREATE TABLE IF NOT EXISTS anexos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   demanda_id INT NOT NULL,
+  comentario_id INT NULL,
   nome_original VARCHAR(255) NOT NULL,
   nome_armazenado VARCHAR(120) NOT NULL,
   mime VARCHAR(120) NOT NULL,
@@ -163,6 +166,7 @@ CREATE TABLE IF NOT EXISTS anexos (
   criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_anexos_armazenado (nome_armazenado),
   KEY idx_anexos_demanda (demanda_id),
+  KEY idx_anexos_comentario (comentario_id),
   KEY idx_anexos_criado_por (criado_por),
   CONSTRAINT fk_anexos_demanda FOREIGN KEY (demanda_id) REFERENCES demandas(id),
   CONSTRAINT fk_anexos_criado_por FOREIGN KEY (criado_por) REFERENCES usuarios(id)
@@ -184,6 +188,10 @@ CREATE TABLE IF NOT EXISTS comentarios (
   CONSTRAINT fk_comentarios_acao FOREIGN KEY (acao_id) REFERENCES acoes(id),
   CONSTRAINT fk_comentarios_autor FOREIGN KEY (autor_id) REFERENCES usuarios(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- FK de anexos -> comentarios (criada aqui porque comentarios so existe a partir deste ponto).
+ALTER TABLE anexos
+  ADD CONSTRAINT fk_anexos_comentario FOREIGN KEY (comentario_id) REFERENCES comentarios(id);
 
 -- ---------------------------------------------------------------------------
 -- demanda_visitas (lastro: quem abriu a demanda e quando)

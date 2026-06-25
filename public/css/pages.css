@@ -617,14 +617,36 @@
 .coment-form {
   display: flex;
   align-items: flex-start;
+  flex-wrap: wrap;
   gap: var(--espaco-2);
   margin-top: var(--espaco-2);
 }
 
 .coment-form textarea {
   flex: 1;
+  min-width: 180px;
   min-height: 38px;
   resize: vertical;
+}
+
+/* Input de arquivo dentro do formulario de comentario (compacto) */
+.coment-arquivo {
+  flex: 0 1 auto;
+  max-width: 100%;
+  font-size: 13px;
+}
+
+/* Anexos exibidos dentro de um comentario (download) */
+.comentario-anexos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: var(--espaco-2) 0;
+}
+
+.comentario-anexo {
+  font-size: 13px;
+  word-break: break-word;
 }
 
 /* Lista de anexos da demanda (somente leitura + download) */

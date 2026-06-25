@@ -25,75 +25,18 @@ if (!$demanda) {
     json_erro("Demanda nao encontrada.", 404);
 }
 
-if (!isset($_FILES["arquivos"]) || !is_array($_FILES["arquivos"]["name"])) {
-    json_erro("Nenhum arquivo enviado.", 400);
+$resultado = processar_anexos_upload(
+    $_FILES["arquivos"] ?? [],
+    $demanda_id,
+    null, // anexo de demanda (sem comentario)
+    obter_usuario_logado_id()
+);
+
+if (!$resultado["ok"]) {
+    json_erro($resultado["erro"], $resultado["status"]);
 }
 
-$total = count($_FILES["arquivos"]["name"]);
-if ($total > ANEXOS_MAX_POR_ENVIO) {
-    json_erro("Envie no maximo " . ANEXOS_MAX_POR_ENVIO . " arquivos por vez.", 400);
-}
-
-if (!anexos_garantir_pasta()) {
-    // Detalhe tecnico fica no log; usuario recebe mensagem generica.
-    registrar_log("anexo_erro_pasta", "demanda_id=" . $demanda_id);
-    json_erro("Nao foi possivel armazenar os anexos.", 500);
-}
-
-$usuario_id = obter_usuario_logado_id();
-$salvos = [];
-$rejeitados = [];
-
-for ($i = 0; $i < $total; $i++) {
-    $arquivo = [
-        "name" => $_FILES["arquivos"]["name"][$i],
-        "type" => $_FILES["arquivos"]["type"][$i],
-        "tmp_name" => $_FILES["arquivos"]["tmp_name"][$i],
-        "error" => $_FILES["arquivos"]["error"][$i],
-        "size" => $_FILES["arquivos"]["size"][$i]
-    ];
-
-    // Campo de arquivo vazio (nenhum selecionado naquele slot): ignora em silencio.
-    if ($arquivo["error"] === UPLOAD_ERR_NO_FILE) {
-        continue;
-    }
-
-    $erro = anexo_validar($arquivo);
-    if ($erro !== "") {
-        $rejeitados[] = ["nome" => (string) $arquivo["name"], "erro" => $erro];
-        continue;
-    }
-
-    $nome_armazenado = anexo_nome_armazenado($arquivo["name"]);
-    $destino = rtrim(ANEXOS_DIR, "/\\") . DIRECTORY_SEPARATOR . $nome_armazenado;
-
-    if (!move_uploaded_file($arquivo["tmp_name"], $destino)) {
-        $rejeitados[] = ["nome" => (string) $arquivo["name"], "erro" => "Falha ao salvar."];
-        continue;
-    }
-
-    // MIME real (conferido na validacao); guarda para servir o download com seguranca.
-    $mime = "application/octet-stream";
-    if (function_exists("finfo_open")) {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $detectado = finfo_file($finfo, $destino);
-        finfo_close($finfo);
-        if ($detectado) {
-            $mime = $detectado;
-        }
-    }
-
-    $nome_original = mb_substr((string) $arquivo["name"], 0, 255);
-    $id = inserir_anexo($demanda_id, $nome_original, $nome_armazenado, $mime, (int) $arquivo["size"], $usuario_id);
-
-    if (!$id) {
-        @unlink($destino); // nao deixa arquivo orfao se o registro falhar
-        $rejeitados[] = ["nome" => $nome_original, "erro" => "Falha ao registrar."];
-        continue;
-    }
-
-    registrar_log("anexo_enviado", "demanda_id=" . $demanda_id . " anexo_id=" . $id);
-    $salvos[] = ["id" => $id, "nome" => $nome_original];
-}
-
-json_sucesso(["salvos" => $salvos, "rejeitados" => $rejeitados], "Anexos processados.");
+json_sucesso(
+    ["salvos" => $resultado["salvos"], "rejeitados" => $resultado["rejeitados"]],
+    "Anexos processados."
+);

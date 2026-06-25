@@ -101,22 +101,105 @@ function anexo_nome_armazenado($nome_original)
     return $ext !== "" ? ($base . "." . $ext) : $base;
 }
 
-// Insere o registro do anexo. Retorna o id ou false.
-function inserir_anexo($demanda_id, $nome_original, $nome_armazenado, $mime, $tamanho, $criado_por)
+// Insere o registro do anexo. $comentario_id e null para anexo de demanda.
+// Retorna o id ou false.
+function inserir_anexo($demanda_id, $comentario_id, $nome_original, $nome_armazenado, $mime, $tamanho, $criado_por)
 {
     $conn = conectar_banco();
     $stmt = mysqli_prepare(
         $conn,
-        "INSERT INTO anexos (demanda_id, nome_original, nome_armazenado, mime, tamanho, criado_por)
-         VALUES (?, ?, ?, ?, ?, ?)"
+        "INSERT INTO anexos (demanda_id, comentario_id, nome_original, nome_armazenado, mime, tamanho, criado_por)
+         VALUES (?, ?, ?, ?, ?, ?, ?)"
     );
-    mysqli_stmt_bind_param($stmt, "isssii", $demanda_id, $nome_original, $nome_armazenado, $mime, $tamanho, $criado_por);
+    // comentario_id pode ser null: o mysqli envia NULL quando a variavel ligada e null.
+    mysqli_stmt_bind_param($stmt, "iisssii", $demanda_id, $comentario_id, $nome_original, $nome_armazenado, $mime, $tamanho, $criado_por);
     $ok = mysqli_stmt_execute($stmt);
 
     return $ok ? mysqli_insert_id($conn) : false;
 }
 
-// Lista os anexos de uma demanda (metadados + nome de quem enviou).
+// Processa o lote de arquivos enviados (mesma logica para demanda e comentario):
+// confere limite, garante a pasta privada, e para cada arquivo valida, renomeia, move e registra.
+// $files = $_FILES["arquivos"]; $comentario_id e null para anexo de demanda.
+// Retorna ["ok"=>true, "status"=>200, "salvos"=>[], "rejeitados"=>[]] ou
+//         ["ok"=>false, "status"=>4xx/5xx, "erro"=>"..."] quando nem da para comecar.
+function processar_anexos_upload($files, $demanda_id, $comentario_id, $usuario_id)
+{
+    if (!isset($files["name"]) || !is_array($files["name"])) {
+        return ["ok" => false, "status" => 400, "erro" => "Nenhum arquivo enviado."];
+    }
+
+    $total = count($files["name"]);
+    if ($total > ANEXOS_MAX_POR_ENVIO) {
+        return ["ok" => false, "status" => 400, "erro" => "Envie no maximo " . ANEXOS_MAX_POR_ENVIO . " arquivos por vez."];
+    }
+
+    if (!anexos_garantir_pasta()) {
+        // Detalhe tecnico fica no log; usuario recebe mensagem generica.
+        registrar_log("anexo_erro_pasta", "demanda_id=" . $demanda_id . ($comentario_id ? " comentario_id=" . $comentario_id : ""));
+        return ["ok" => false, "status" => 500, "erro" => "Nao foi possivel armazenar os anexos."];
+    }
+
+    $salvos = [];
+    $rejeitados = [];
+
+    for ($i = 0; $i < $total; $i++) {
+        $arquivo = [
+            "name" => $files["name"][$i],
+            "type" => $files["type"][$i],
+            "tmp_name" => $files["tmp_name"][$i],
+            "error" => $files["error"][$i],
+            "size" => $files["size"][$i]
+        ];
+
+        // Campo de arquivo vazio (nenhum selecionado naquele slot): ignora em silencio.
+        if ($arquivo["error"] === UPLOAD_ERR_NO_FILE) {
+            continue;
+        }
+
+        $erro = anexo_validar($arquivo);
+        if ($erro !== "") {
+            $rejeitados[] = ["nome" => (string) $arquivo["name"], "erro" => $erro];
+            continue;
+        }
+
+        $nome_armazenado = anexo_nome_armazenado($arquivo["name"]);
+        $destino = rtrim(ANEXOS_DIR, "/\\") . DIRECTORY_SEPARATOR . $nome_armazenado;
+
+        if (!move_uploaded_file($arquivo["tmp_name"], $destino)) {
+            $rejeitados[] = ["nome" => (string) $arquivo["name"], "erro" => "Falha ao salvar."];
+            continue;
+        }
+
+        // MIME real (conferido na validacao); guarda para servir o download com seguranca.
+        $mime = "application/octet-stream";
+        if (function_exists("finfo_open")) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $detectado = finfo_file($finfo, $destino);
+            finfo_close($finfo);
+            if ($detectado) {
+                $mime = $detectado;
+            }
+        }
+
+        $nome_original = mb_substr((string) $arquivo["name"], 0, 255);
+        $id = inserir_anexo($demanda_id, $comentario_id, $nome_original, $nome_armazenado, $mime, (int) $arquivo["size"], $usuario_id);
+
+        if (!$id) {
+            @unlink($destino); // nao deixa arquivo orfao se o registro falhar
+            $rejeitados[] = ["nome" => $nome_original, "erro" => "Falha ao registrar."];
+            continue;
+        }
+
+        registrar_log("anexo_enviado", "demanda_id=" . $demanda_id . ($comentario_id ? " comentario_id=" . $comentario_id : "") . " anexo_id=" . $id);
+        $salvos[] = ["id" => $id, "nome" => $nome_original];
+    }
+
+    return ["ok" => true, "status" => 200, "salvos" => $salvos, "rejeitados" => $rejeitados];
+}
+
+// Lista os anexos de nivel da demanda (apenas comentario_id NULL; os de comentario
+// aparecem junto do proprio comentario, ver listar_anexos_dos_comentarios_da_demanda).
 function listar_anexos_da_demanda($demanda_id)
 {
     return executar_select(
@@ -124,8 +207,22 @@ function listar_anexos_da_demanda($demanda_id)
                 u.nome AS criado_por_nome
          FROM anexos a
          LEFT JOIN usuarios u ON u.id = a.criado_por
-         WHERE a.demanda_id = ?
+         WHERE a.demanda_id = ? AND a.comentario_id IS NULL
          ORDER BY a.criado_em ASC, a.id ASC",
+        "i",
+        [$demanda_id]
+    );
+}
+
+// Lista os anexos de todos os comentarios de uma demanda (uma consulta so;
+// o front agrupa por comentario_id). Escopo conferido pelo demanda_id no endpoint.
+function listar_anexos_dos_comentarios_da_demanda($demanda_id)
+{
+    return executar_select(
+        "SELECT a.id, a.comentario_id, a.nome_original, a.mime, a.tamanho, a.criado_em
+         FROM anexos a
+         WHERE a.demanda_id = ? AND a.comentario_id IS NOT NULL
+         ORDER BY a.id ASC",
         "i",
         [$demanda_id]
     );

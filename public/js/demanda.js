@@ -8,6 +8,7 @@ let usuarioId = 0;
 let demandaAtual = null;
 let acoesAtuais = [];
 let comentariosAtuais = [];
+let comentariosAnexos = [];
 let acaoParaAssinar = 0;
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -174,10 +175,11 @@ async function carregarAcoes() {
   mostrarCarregando("lista-acoes", 3);
 
   try {
-    // Carrega acoes e comentarios juntos: os comentarios sao agrupados por acao.
-    const [respAcoes, respComent] = await Promise.all([
+    // Carrega acoes, comentarios e anexos de comentario juntos.
+    const [respAcoes, respComent, respAnexos] = await Promise.all([
       getApi("/api/acoes/listar.php?demanda_id=" + demandaId),
-      getApi("/api/comentarios/listar-demanda.php?demanda_id=" + demandaId)
+      getApi("/api/comentarios/listar-demanda.php?demanda_id=" + demandaId),
+      getApi("/api/anexos/listar-comentarios.php?demanda_id=" + demandaId)
     ]);
 
     if (!respAcoes.ok) {
@@ -187,6 +189,7 @@ async function carregarAcoes() {
 
     acoesAtuais = respAcoes.data.acoes;
     comentariosAtuais = (respComent && respComent.ok) ? respComent.data.comentarios : [];
+    comentariosAnexos = (respAnexos && respAnexos.ok) ? respAnexos.data.anexos : [];
     atualizarPrazoChave();
     atualizarStatusCabecalho();
 
@@ -809,6 +812,11 @@ function montarComentario(c) {
   texto.textContent = c.texto;
   corpo.appendChild(texto);
 
+  const anexos = montarAnexosDoComentario(c.id);
+  if (anexos) {
+    corpo.appendChild(anexos);
+  }
+
   if (parseInt(c.autor_id, 10) === usuarioId) {
     const editar = document.createElement("button");
     editar.className = "botao-link";
@@ -822,7 +830,7 @@ function montarComentario(c) {
   return item;
 }
 
-// Formulario compacto de novo comentario para uma acao especifica.
+// Formulario compacto de novo comentario para uma acao especifica (com anexos opcionais).
 function montarFormComentario(acaoId) {
   const form = document.createElement("form");
   form.className = "coment-form";
@@ -832,12 +840,20 @@ function montarFormComentario(acaoId) {
   area.rows = 1;
   area.placeholder = "Escreva um comentário...";
 
+  const arquivos = document.createElement("input");
+  arquivos.className = "campo-arquivo coment-arquivo";
+  arquivos.type = "file";
+  arquivos.multiple = true;
+  arquivos.accept = ANEXOS_ACCEPT;
+  arquivos.title = "Anexar arquivos (opcional)";
+
   const botao = document.createElement("button");
   botao.className = "botao botao-secundario";
   botao.type = "submit";
   botao.textContent = "Comentar";
 
   form.appendChild(area);
+  form.appendChild(arquivos);
   form.appendChild(botao);
 
   form.addEventListener("submit", async function (evento) {
@@ -847,6 +863,14 @@ function montarFormComentario(acaoId) {
       mostrarErro("coment-mensagem", "Escreva um comentário.");
       return;
     }
+
+    // Pre-valida os anexos no cliente (o backend revalida). Nao cria o comentario se houver invalido.
+    const erroAnexo = validarAnexosCliente(arquivos.files);
+    if (erroAnexo) {
+      mostrarErro("coment-mensagem", erroAnexo);
+      return;
+    }
+
     definirCarregando(botao, true);
     try {
       const resposta = await postApi("/api/comentarios/criar.php", { acao_id: acaoId, texto: texto });
@@ -855,8 +879,18 @@ function montarFormComentario(acaoId) {
         definirCarregando(botao, false);
         return;
       }
+
+      // Comentario criado: envia os anexos selecionados (se houver).
+      let aviso = "";
+      if (arquivos.files && arquivos.files.length > 0) {
+        aviso = await enviarAnexosComentario(resposta.data.id, arquivos.files);
+      }
+
       document.getElementById("coment-mensagem").hidden = true;
       await carregarAcoes();
+      if (aviso) {
+        mostrarErro("coment-mensagem", aviso);
+      }
     } catch (erro) {
       mostrarErro("coment-mensagem", "Nao foi possivel enviar o comentário.");
       definirCarregando(botao, false);
@@ -864,6 +898,82 @@ function montarFormComentario(acaoId) {
   });
 
   return form;
+}
+
+// Anexos aceitos no comentario (espelham o backend; backend e a barreira real).
+const ANEXOS_EXTENSOES = ["pdf", "png", "jpg", "jpeg", "gif", "webp", "doc", "docx",
+  "xls", "xlsx", "ppt", "pptx", "txt", "csv", "zip"];
+const ANEXOS_ACCEPT = "." + ANEXOS_EXTENSOES.join(",.");
+const ANEXO_TAMANHO_MAX = 10 * 1024 * 1024;
+const ANEXOS_MAX = 10;
+
+// Pre-validacao no cliente. Retorna "" se ok ou uma mensagem de erro.
+function validarAnexosCliente(arquivos) {
+  if (!arquivos || arquivos.length === 0) return "";
+  if (arquivos.length > ANEXOS_MAX) return "Selecione no máximo " + ANEXOS_MAX + " arquivos.";
+  for (let i = 0; i < arquivos.length; i++) {
+    const f = arquivos[i];
+    const ext = (f.name.split(".").pop() || "").toLowerCase();
+    if (ANEXOS_EXTENSOES.indexOf(ext) === -1) {
+      return "Tipo de arquivo não permitido: " + f.name;
+    }
+    if (f.size > ANEXO_TAMANHO_MAX) {
+      return "Arquivo acima de 10 MB: " + f.name;
+    }
+  }
+  return "";
+}
+
+// Envia os anexos (multipart) de um comentario recem-criado. Nao usa postApi (que e JSON).
+// Retorna "" se tudo certo, ou uma mensagem de aviso (o comentario ja foi criado).
+async function enviarAnexosComentario(comentarioId, arquivos) {
+  const fd = new FormData();
+  fd.append("comentario_id", comentarioId);
+  for (let i = 0; i < arquivos.length; i++) {
+    fd.append("arquivos[]", arquivos[i]);
+  }
+
+  try {
+    const resposta = await fetch("/api/anexos/enviar-comentario.php", {
+      method: "POST",
+      credentials: "include",
+      cache: "no-store",
+      body: fd
+    });
+    const dados = await resposta.json();
+
+    if (!dados.ok) {
+      return "Comentário enviado, mas os anexos não puderam ser anexados.";
+    }
+    if (dados.data.rejeitados && dados.data.rejeitados.length > 0) {
+      const lista = dados.data.rejeitados.map(function (r) { return r.nome + " (" + r.erro + ")"; }).join("; ");
+      return "Comentário enviado. Anexos não aceitos: " + lista;
+    }
+    return "";
+  } catch (erro) {
+    return "Comentário enviado, mas os anexos não puderam ser anexados.";
+  }
+}
+
+// Monta a lista de anexos de um comentario (ou null se nao houver).
+function montarAnexosDoComentario(comentarioId) {
+  const doComentario = comentariosAnexos.filter(function (a) {
+    return parseInt(a.comentario_id, 10) === parseInt(comentarioId, 10);
+  });
+  if (doComentario.length === 0) return null;
+
+  const lista = document.createElement("div");
+  lista.className = "comentario-anexos";
+
+  doComentario.forEach(function (a) {
+    const link = document.createElement("a");
+    link.className = "comentario-anexo";
+    link.href = "/api/anexos/baixar.php?id=" + a.id;
+    link.textContent = a.nome_original + " (" + formatarTamanho(a.tamanho) + ")";
+    lista.appendChild(link);
+  });
+
+  return lista;
 }
 
 function iniciarEdicao(corpo, comentario) {

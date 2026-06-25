@@ -161,7 +161,8 @@ Tabela `anexos` (trazida ao escopo por decisão de produto; ver D17 em `decisoes
 | Campo | Tipo | Observação |
 |---|---|---|
 | `id` | INT PK AI | |
-| `demanda_id` | INT NOT NULL | FK → `demandas(id)` |
+| `demanda_id` | INT NOT NULL | FK → `demandas(id)` (sempre preenchido, garante o escopo) |
+| `comentario_id` | INT NULL | FK → `comentarios(id)`. NULL = anexo da demanda; preenchido = anexo de um comentário de ação |
 | `nome_original` | VARCHAR(255) | nome exibido ao usuário |
 | `nome_armazenado` | VARCHAR(120) UNIQUE | nome aleatório em disco (nunca o original) |
 | `mime` | VARCHAR(120) | MIME real conferido por `finfo` |
@@ -169,7 +170,9 @@ Tabela `anexos` (trazida ao escopo por decisão de produto; ver D17 em `decisoes
 | `criado_por` | INT NOT NULL | FK → `usuarios(id)` |
 | `criado_em` | DATETIME | default `CURRENT_TIMESTAMP` |
 
-Migration: `008_add_anexos.sql`. Validação (tamanho/extensão allowlist/MIME), renomeação e bloqueio de execução ficam no backend (`includes/anexos.php`), conforme `boas-praticas-seguranca.md` §9.
+Migrations: `008_add_anexos.sql` (criação) e `009_add_anexo_comentario.sql` (coluna `comentario_id`). Validação (tamanho/extensão allowlist/MIME), renomeação e bloqueio de execução ficam no backend (`includes/anexos.php`), conforme `boas-praticas-seguranca.md` §9.
+
+**Anexos de comentário (D18):** a mesma tabela e a mesma pasta privada atendem os anexos de comentários de ação. Quando `comentario_id` está preenchido, o anexo pertence ao comentário; o `demanda_id` continua gravado (derivado da ação do comentário) para manter o escopo de visibilidade/download igual ao da demanda. A listagem de anexos da demanda usa `comentario_id IS NULL`; os de comentário aparecem junto do próprio comentário. Endpoints: `api/anexos/enviar-comentario.php` (POST, só o autor do comentário), `api/anexos/listar-comentarios.php` (GET, escopo da demanda) e o mesmo `api/anexos/baixar.php` (login + escopo).
 
 ## 12. Fora do MVP
 
