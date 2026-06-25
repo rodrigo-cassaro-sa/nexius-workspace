@@ -41,6 +41,15 @@
   letter-spacing: 8px;
 }
 
+/* Logo (imagem) da marca no painel de auth - logo branca sobre fundo marrom. */
+.marca-img {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+  margin: 0 auto;
+}
+
 .auth-conteudo {
   flex: 1;
   display: flex;

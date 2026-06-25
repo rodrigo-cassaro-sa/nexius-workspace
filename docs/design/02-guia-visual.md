@@ -240,7 +240,7 @@ As cores funcionais (sucesso, erro, aviso, info) podem ser mantidas, ajustando o
 
 ## 27. Decisões pendentes
 
-- [ANEXAR LOGO] logo definitiva (placeholder em texto por enquanto).
+- Logo definitiva: **resolvida.** `public/assets/img/logo_escuro.png` (branca/transparente, para fundos escuros/marrom — sidebar e login) e `logo_claro.png` (escura, para fundos claros). Substituiu o placeholder em texto.
 
 Resolvidas: modo escuro entra no MVP (seção 25); ícones **Lucide** via CDN (seção 20).
 
