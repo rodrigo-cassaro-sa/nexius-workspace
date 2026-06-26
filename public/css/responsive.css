@@ -202,24 +202,29 @@
     display: none;
   }
 
-  /* Topbar das telas internas em UMA linha no mobile (otimiza o espaco vertical):
-     hamburguer + busca (que encolhe e preenche o meio) + sino/avatar/Sair. */
+  /* Topbar no mobile: controles (hamburguer + sino/avatar/Sair) na 1a linha;
+     a busca vai para a linha de baixo em largura total (sem ficar apertada). */
   .app-topbar {
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: var(--espaco-2);
     padding-left: var(--espaco-3);
     padding-right: var(--espaco-3);
   }
 
-  .app-topbar .topbar-busca {
-    flex: 1 1 auto;
-    min-width: 0;
-    max-width: none;
+  /* Sobrescreve a regra antiga (.topbar-usuario width:100%) para os controles
+     ficarem juntos na 1a linha, alinhados a direita. */
+  .app-topbar .topbar-usuario {
+    width: auto;
+    flex: 0 0 auto;
+    margin-left: auto;
+    gap: var(--espaco-2);
   }
 
-  .app-topbar .topbar-usuario {
-    flex-shrink: 0;
-    gap: var(--espaco-2);
+  .app-topbar .topbar-busca {
+    order: 3;
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: none;
   }
 
   /* Alvo de toque confortavel nos botoes (guia visual secao 24). */
