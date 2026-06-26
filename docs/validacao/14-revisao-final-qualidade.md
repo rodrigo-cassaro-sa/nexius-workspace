@@ -107,7 +107,7 @@ Nenhuma correção de código foi necessária: a auditoria de segurança, consis
 - [x] Tabelas coerentes / [x] chaves e índices / [x] dados do MVP cobertos.
 
 **Operacional (verificar no ambiente)**
-- [ ] Migrations 008–012 aplicadas em produção.
+- [x] Migrations 008–012 aplicadas em produção. (confirmado)
 - [ ] Volume persistente + permissão de `storage/anexos`.
 - [ ] Domínio de e-mail verificado (Resend) e `SMTP_REMETENTE`/`APP_URL` corretos.
 - [ ] Passe visual de QA no mobile real.
