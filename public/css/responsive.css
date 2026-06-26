@@ -202,17 +202,24 @@
     display: none;
   }
 
-  /* Topbar das telas internas (.app-topbar): no celular a busca vai para uma linha
-     propria (largura total) e os controles do usuario ficam acima, sem espremer. */
+  /* Topbar das telas internas em UMA linha no mobile (otimiza o espaco vertical):
+     hamburguer + busca (que encolhe e preenche o meio) + sino/avatar/Sair. */
   .app-topbar {
-    flex-wrap: wrap;
-    row-gap: var(--espaco-2);
+    flex-wrap: nowrap;
+    gap: var(--espaco-2);
+    padding-left: var(--espaco-3);
+    padding-right: var(--espaco-3);
   }
 
   .app-topbar .topbar-busca {
-    order: 3;
-    flex-basis: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
     max-width: none;
+  }
+
+  .app-topbar .topbar-usuario {
+    flex-shrink: 0;
+    gap: var(--espaco-2);
   }
 
   /* Alvo de toque confortavel nos botoes (guia visual secao 24). */
