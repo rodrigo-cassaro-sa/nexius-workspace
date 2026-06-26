@@ -88,26 +88,46 @@
   }
 }
 
-/* App shell: sidebar vira faixa superior e KPI em 1 coluna no mobile. */
+/* Mobile/tablet (<=1024): a sidebar vira painel deslizante (off-canvas) aberto pelo
+   hamburguer da topbar (guia visual secao 9). O conteudo ocupa a largura toda. */
 @media (max-width: 1024px) {
-  .app-shell {
-    flex-direction: column;
+  .menu-hamburguer {
+    display: inline-flex;
   }
 
   .sidebar {
-    width: 100%;
-    flex-direction: row;
-    align-items: center;
-    overflow-x: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 250px;
+    max-width: 80vw;
+    transform: translateX(-100%);
+    transition: transform var(--transicao-padrao);
+    z-index: 60;
+    overflow-y: auto;
   }
 
-  .sidebar-marca {
-    border-bottom: none;
-    white-space: nowrap;
+  .sidebar.aberta {
+    transform: translateX(0);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.35);
   }
 
-  .sidebar-nav {
-    flex-direction: row;
+  /* Fundo escurecido atras da gaveta. */
+  .menu-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transicao-padrao);
+    z-index: 55;
+  }
+
+  .menu-overlay.ativo {
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 

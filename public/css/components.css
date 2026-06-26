@@ -190,6 +190,22 @@
   height: auto;
 }
 
+/* Menu mobile: botao hamburguer na topbar (criado via JS). Escondido no desktop;
+   exibido no <=1024 (ver responsive.css). A sidebar vira gaveta deslizante. */
+.menu-hamburguer {
+  display: none;
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: #ffffff;
+  align-items: center;
+}
+
+.menu-overlay {
+  display: none;
+}
+
 .sidebar-nav {
   display: flex;
   flex-direction: column;

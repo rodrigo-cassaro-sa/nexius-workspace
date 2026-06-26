@@ -238,12 +238,55 @@ function configurarBuscaTopo() {
   });
 }
 
+// Menu mobile: cria o botao hamburguer na topbar e abre/fecha a sidebar como
+// painel deslizante (guia visual secao 9). Compartilhado por todas as telas internas.
+function configurarMenuMobile() {
+  const sidebar = document.querySelector(".sidebar");
+  const topbar = document.querySelector(".app-topbar");
+  if (!sidebar || !topbar) return;
+
+  const botao = document.createElement("button");
+  botao.type = "button";
+  botao.className = "menu-hamburguer";
+  botao.setAttribute("aria-label", "Abrir menu");
+  botao.setAttribute("aria-expanded", "false");
+  botao.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+  topbar.insertBefore(botao, topbar.firstChild);
+
+  const overlay = document.createElement("div");
+  overlay.className = "menu-overlay";
+  document.body.appendChild(overlay);
+
+  function abrir() {
+    sidebar.classList.add("aberta");
+    overlay.classList.add("ativo");
+    botao.setAttribute("aria-expanded", "true");
+  }
+  function fechar() {
+    sidebar.classList.remove("aberta");
+    overlay.classList.remove("ativo");
+    botao.setAttribute("aria-expanded", "false");
+  }
+
+  botao.addEventListener("click", function () {
+    sidebar.classList.contains("aberta") ? fechar() : abrir();
+  });
+  overlay.addEventListener("click", fechar);
+  sidebar.querySelectorAll(".sidebar-nav a").forEach(function (a) {
+    a.addEventListener("click", fechar);
+  });
+  document.addEventListener("keydown", function (evento) {
+    if (evento.key === "Escape") fechar();
+  });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   atualizarContadorNotificacoes();
   atualizarContadorMensagens();
   configurarSino();
   configurarAvatar();
   configurarBuscaTopo();
+  configurarMenuMobile();
 });
 
 // Liga os botoes de mostrar/ocultar senha. Funciona em qualquer tela com
