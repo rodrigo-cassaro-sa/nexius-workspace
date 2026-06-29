@@ -696,6 +696,31 @@
   margin: var(--espaco-2) 0 0;
 }
 
+/* Decisoes das reunioes (no detalhe da demanda) */
+.decisao-item {
+  padding: var(--espaco-3) 0;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.decisao-item:last-child {
+  border-bottom: none;
+}
+
+.decisao-titulo {
+  margin: 0;
+  font-weight: 600;
+}
+
+.decisao-texto {
+  margin: 4px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.decisao-ata {
+  font-size: 13px;
+}
+
 /* Contador de tarefas por tipo (dashboard) - lista compacta (rotulo + numero),
    no mesmo estilo da legenda do donut ao lado. Evita texto transbordando. */
 .tipos-grid {

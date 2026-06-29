@@ -76,7 +76,9 @@ Permitir **incluir (ou remover) pessoas depois**, na própria ação.
 
 ---
 
-## Item 4 — D19: documentar as decisões/regras da reunião na demanda
+## Item 4 — D19: documentar as decisões/regras da reunião na demanda ✅ IMPLEMENTADO
+
+> Feito: **Migration 013** (`acoes.decisoes`). Ao concluir uma reunião, além da ata (anexo) é obrigatório registrar o texto de **decisões/regras tomadas**; o detalhe da demanda ganhou a seção **"Decisões das reuniões"** (texto + link para baixar a ata). `concluir.php` valida/grava; `listar_acoes_da_demanda` traz `decisoes`; render em `demanda.js`.
 
 ### Objetivo
 Registrar as **decisões/regras tomadas** numa reunião (além da **ata** em anexo) e **exibi-las na demanda**, para ficarem recuperáveis — fechando a ideia que estava em aberto na D19.

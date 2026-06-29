@@ -122,6 +122,7 @@ CREATE TABLE IF NOT EXISTS acoes (
   responsavel_id INT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'pendente',
   motivo_recusa TEXT NULL,
+  decisoes TEXT NULL,
   prazo DATE NULL,
   chave TINYINT(1) NOT NULL DEFAULT 0,
   concluida_em DATETIME NULL,

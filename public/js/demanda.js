@@ -204,6 +204,7 @@ async function carregarAcoes() {
     acoesParticipantes = (respPart && respPart.ok) ? respPart.data.participantes : [];
     atualizarPrazoChave();
     atualizarStatusCabecalho();
+    renderizarDecisoesReunioes();
 
     if (acoesAtuais.length === 0) {
       mostrarVazio("lista-acoes", "Nenhuma ação ainda. Crie a primeira ação do plano.");
@@ -441,6 +442,11 @@ function abrirAssinatura(a) {
         : "A análise só é concluída com um arquivo de evidência anexado.";
   }
 
+  // Reuniao: campo obrigatorio de decisoes/regras tomadas.
+  const areaDec = document.getElementById("assinar-decisoes-area");
+  areaDec.hidden = (a.tipo !== "reuniao");
+  document.getElementById("assinar-decisoes").value = "";
+
   abrirModal("modal-assinar");
 }
 
@@ -468,6 +474,17 @@ async function confirmarAssinatura() {
     }
   }
 
+  // Reuniao: decisoes/regras obrigatorias.
+  const ehReuniao = acaoParaAssinar.tipo === "reuniao";
+  let decisoes = "";
+  if (ehReuniao) {
+    decisoes = document.getElementById("assinar-decisoes").value.trim();
+    if (decisoes === "") {
+      mostrarErro("assinar-mensagem", "Registre as decisões/regras tomadas na reunião.");
+      return;
+    }
+  }
+
   const botao = document.getElementById("botao-assinar-confirmar");
   definirCarregando(botao, true);
 
@@ -482,7 +499,10 @@ async function confirmarAssinatura() {
       }
     }
 
-    const resposta = await postApi("/api/acoes/concluir.php", { id: acaoParaAssinar.id, assinado: true });
+    const corpo = { id: acaoParaAssinar.id, assinado: true };
+    if (ehReuniao) corpo.decisoes = decisoes;
+
+    const resposta = await postApi("/api/acoes/concluir.php", corpo);
     if (!resposta.ok) {
       mostrarErro("assinar-mensagem", resposta.error);
       definirCarregando(botao, false);
@@ -552,6 +572,54 @@ function tipoExigeAnexo(tipo) {
 }
 
 // Monta a lista de evidencias (anexos) de uma acao, ou null se nao houver.
+// Renderiza a secao "Decisoes das reunioes" da demanda (reunioes concluidas com texto).
+function renderizarDecisoesReunioes() {
+  const card = document.getElementById("card-decisoes");
+  const alvo = document.getElementById("lista-decisoes");
+  if (!card || !alvo) return;
+
+  const reunioes = acoesAtuais.filter(function (a) {
+    return a.tipo === "reuniao" && a.status === "concluida" && a.decisoes;
+  });
+
+  alvo.innerHTML = "";
+  if (reunioes.length === 0) {
+    card.hidden = true;
+    return;
+  }
+
+  reunioes.forEach(function (a) {
+    const bloco = document.createElement("div");
+    bloco.className = "decisao-item";
+
+    const titulo = document.createElement("p");
+    titulo.className = "decisao-titulo";
+    titulo.textContent = a.titulo;
+    bloco.appendChild(titulo);
+
+    const texto = document.createElement("p");
+    texto.className = "decisao-texto";
+    texto.textContent = a.decisoes;
+    bloco.appendChild(texto);
+
+    // Link para a ata (anexo da acao), se houver.
+    const atas = acoesAnexos.filter(function (x) {
+      return parseInt(x.acao_id, 10) === parseInt(a.id, 10);
+    });
+    if (atas.length > 0) {
+      const link = document.createElement("a");
+      link.className = "decisao-ata";
+      link.href = "/api/anexos/baixar.php?id=" + atas[0].id;
+      link.textContent = "Baixar ata: " + atas[0].nome_original;
+      bloco.appendChild(link);
+    }
+
+    alvo.appendChild(bloco);
+  });
+
+  card.hidden = false;
+}
+
 // Linha com as pessoas envolvidas (participantes) de uma acao, ou null se nao houver.
 function montarParticipantesDaAcao(acaoId) {
   const daAcao = acoesParticipantes.filter(function (p) {

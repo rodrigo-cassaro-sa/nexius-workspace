@@ -167,6 +167,11 @@
                 <p class="texto-secundario">Carregando...</p>
               </div>
             </section>
+            <section class="card" id="card-decisoes" style="margin-top: var(--espaco-4);" hidden>
+              <h2>Decisões das reuniões</h2>
+              <p class="texto-secundario">Registro das decisões/regras tomadas nas reuniões concluídas desta demanda.</p>
+              <div id="lista-decisoes"></div>
+            </section>
             <section class="card" style="margin-top: var(--espaco-4);">
               <h2>Quem visualizou esta demanda</h2>
               <p class="texto-secundario">Lastro de execução: quem abriu a demanda e quando (última visita).</p>
@@ -284,6 +289,12 @@
         <input class="campo-arquivo" id="assinar-arquivos" type="file" multiple
                accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip">
         <p class="texto-secundario" id="assinar-anexo-ajuda">Esta tarefa só é concluída com um arquivo anexado.</p>
+      </div>
+
+      <div class="campo" id="assinar-decisoes-area" hidden>
+        <label class="campo-label" for="assinar-decisoes">Decisões / regras tomadas (obrigatório) *</label>
+        <textarea class="campo-input" id="assinar-decisoes" rows="3" maxlength="2000"
+                  placeholder="Resuma as decisões e regras definidas na reunião..."></textarea>
       </div>
 
       <label class="assinar-check">

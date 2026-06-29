@@ -57,10 +57,19 @@ if (acao_tipo_exige_anexo($acao["tipo"]) && !acao_tem_anexo($id)) {
     json_erro("Anexe " . $oque . " antes de concluir esta tarefa.", 409);
 }
 
+// Reuniao: registrar as decisoes/regras tomadas (obrigatorio, exibido na demanda).
+$decisoes = null;
+if ($acao["tipo"] === "reuniao") {
+    $decisoes = trim($body["decisoes"] ?? "");
+    if (!validar_tamanho($decisoes, 3, 2000)) {
+        json_response(["ok" => false, "error" => "Registre as decisoes/regras tomadas na reuniao.", "errors" => ["decisoes" => "Obrigatorio (3 a 2000 caracteres)."]], 400);
+    }
+}
+
 $conn = conectar_banco();
 mysqli_begin_transaction($conn);
 
-$ok = concluir_acao($id);
+$ok = concluir_acao($id, $decisoes);
 
 // Acao chave conclui a demanda; acao nao-chave coloca a demanda "em andamento" (se aberta).
 if ($ok && (int) $acao["chave"] === 1) {

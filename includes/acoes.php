@@ -76,7 +76,7 @@ function listar_acoes_da_demanda($demanda_id)
 {
     return executar_select(
         "SELECT a.id, a.titulo, a.tipo, a.descricao, a.responsavel_id, ur.nome AS responsavel_nome,
-                a.status, a.motivo_recusa, a.prazo, a.chave, a.concluida_em,
+                a.status, a.motivo_recusa, a.decisoes, a.prazo, a.chave, a.concluida_em,
                 (SELECT COUNT(*) FROM acao_prerequisitos ap
                  JOIN acoes p ON p.id = ap.prerequisito_acao_id
                  WHERE ap.acao_id = a.id AND p.status <> 'concluida') AS prereq_pendentes,
@@ -305,12 +305,12 @@ function listar_participantes_da_demanda($demanda_id)
     );
 }
 
-// Conclui uma acao.
-function concluir_acao($id)
+// Conclui uma acao. $decisoes = texto das decisoes/regras (so reuniao; null nos demais).
+function concluir_acao($id, $decisoes = null)
 {
     $conn = conectar_banco();
-    $stmt = mysqli_prepare($conn, "UPDATE acoes SET status = 'concluida', concluida_em = NOW() WHERE id = ?");
-    mysqli_stmt_bind_param($stmt, "i", $id);
+    $stmt = mysqli_prepare($conn, "UPDATE acoes SET status = 'concluida', concluida_em = NOW(), decisoes = ? WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "si", $decisoes, $id);
     return mysqli_stmt_execute($stmt);
 }
 
