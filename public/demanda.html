@@ -318,6 +318,26 @@
     </div>
   </div>
 
+  <!-- Modal: participantes da reuniao (incluir/remover pessoas) -->
+  <div id="modal-participantes" class="modal" role="dialog" aria-modal="true" aria-labelledby="part-titulo">
+    <div class="modal-conteudo">
+      <h2 class="modal-titulo" id="part-titulo">Participantes da reunião</h2>
+      <div id="part-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+      <p id="part-acao" class="texto-secundario"></p>
+      <div class="campo">
+        <label class="campo-label" for="part-usuarios">Pessoas envolvidas</label>
+        <select class="campo-input" id="part-usuarios" multiple size="6"></select>
+        <p class="texto-secundario">Segure Ctrl (ou Cmd no Mac) para selecionar várias pessoas.</p>
+      </div>
+
+      <div class="modal-acoes">
+        <button type="button" class="botao botao-secundario" id="botao-part-cancelar">Cancelar</button>
+        <button type="button" class="botao botao-primario" id="botao-part-confirmar">Salvar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: confirmar arquivar -->
   <div id="modal-arquivar" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-arquivar-titulo">
     <div class="modal-conteudo">

@@ -13,6 +13,7 @@ let acoesAnexos = [];
 let acoesParticipantes = [];
 let acaoParaAssinar = null;
 let acaoRecusando = 0;
+let acaoGerenciandoParticipantes = 0;
 
 document.addEventListener("DOMContentLoaded", async function () {
   const usuario = await exigirSessaoNoFront();
@@ -35,6 +36,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("botao-assinar-confirmar").addEventListener("click", confirmarAssinatura);
   document.getElementById("botao-recusar-cancelar").addEventListener("click", function () { fecharModal("modal-recusar"); });
   document.getElementById("botao-recusar-confirmar").addEventListener("click", confirmarRecusa);
+  document.getElementById("botao-part-cancelar").addEventListener("click", function () { fecharModal("modal-participantes"); });
+  document.getElementById("botao-part-confirmar").addEventListener("click", confirmarParticipantes);
   if (perfilUsuario === "administrador") {
     document.getElementById("nav-usuarios").hidden = false;
   }
@@ -340,6 +343,22 @@ function renderizarAcoes(alvo, acoes) {
       rodape.appendChild(btnChave);
     }
 
+    // Gerenciar participantes: so reuniao, para Gestor/Admin ou o responsavel,
+    // e enquanto a acao nao estiver concluida/recusada/cancelada.
+    const podeGerenciarPart = a.tipo === "reuniao"
+      && a.status !== "concluida" && a.status !== "recusada" && a.status !== "cancelada"
+      && (perfilUsuario === "administrador" || perfilUsuario === "gestor"
+          || parseInt(a.responsavel_id, 10) === usuarioId);
+
+    if (podeGerenciarPart) {
+      const btnPart = document.createElement("button");
+      btnPart.className = "botao-link";
+      btnPart.type = "button";
+      btnPart.textContent = "Gerenciar participantes";
+      btnPart.addEventListener("click", function () { abrirGerenciarParticipantes(a); });
+      rodape.appendChild(btnPart);
+    }
+
     info.appendChild(rodape);
 
     cab.appendChild(info);
@@ -544,6 +563,65 @@ function montarParticipantesDaAcao(acaoId) {
   linha.className = "acao-participantes texto-secundario";
   linha.textContent = "Envolvidos: " + daAcao.map(function (p) { return p.nome; }).join(", ");
   return linha;
+}
+
+// Abre o modal para incluir/remover participantes de uma reuniao (pre-marca os atuais).
+async function abrirGerenciarParticipantes(a) {
+  acaoGerenciandoParticipantes = a.id;
+  document.getElementById("part-acao").textContent = "Reunião: " + a.titulo;
+  document.getElementById("part-mensagem").hidden = true;
+
+  const atuais = acoesParticipantes
+    .filter(function (p) { return parseInt(p.acao_id, 10) === parseInt(a.id, 10); })
+    .map(function (p) { return parseInt(p.usuario_id, 10); });
+
+  const select = document.getElementById("part-usuarios");
+  select.innerHTML = "";
+  try {
+    const resposta = await getApi("/api/usuarios/listar.php");
+    if (resposta.ok) {
+      resposta.data.usuarios.forEach(function (u) {
+        const opt = document.createElement("option");
+        opt.value = u.id;
+        opt.textContent = u.nome;
+        if (atuais.indexOf(parseInt(u.id, 10)) !== -1) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+  } catch (erro) {
+    // Segue com a lista vazia.
+  }
+
+  abrirModal("modal-participantes");
+}
+
+async function confirmarParticipantes() {
+  if (acaoGerenciandoParticipantes <= 0) return;
+
+  const select = document.getElementById("part-usuarios");
+  const ids = Array.prototype.slice.call(select.selectedOptions).map(function (o) {
+    return parseInt(o.value, 10);
+  });
+
+  const botao = document.getElementById("botao-part-confirmar");
+  definirCarregando(botao, true);
+  try {
+    const resposta = await postApi("/api/acoes/participantes-definir.php", {
+      acao_id: acaoGerenciandoParticipantes,
+      participantes: ids
+    });
+    if (!resposta.ok) {
+      mostrarErro("part-mensagem", resposta.error);
+      definirCarregando(botao, false);
+      return;
+    }
+    fecharModal("modal-participantes");
+    definirCarregando(botao, false);
+    await carregarTudo();
+  } catch (erro) {
+    mostrarErro("part-mensagem", "Nao foi possivel salvar os participantes.");
+    definirCarregando(botao, false);
+  }
 }
 
 function montarAnexosDaAcao(acaoId) {

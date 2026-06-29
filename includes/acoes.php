@@ -275,6 +275,21 @@ function definir_participantes_acao($acao_id, $ids)
     }
 }
 
+// Ids dos participantes atuais de uma acao (para comparar/notificar so os novos).
+function participantes_ids_da_acao($acao_id)
+{
+    $linhas = executar_select(
+        "SELECT usuario_id FROM acao_participantes WHERE acao_id = ?",
+        "i",
+        [$acao_id]
+    );
+    $ids = [];
+    foreach ($linhas as $linha) {
+        $ids[] = (int) $linha["usuario_id"];
+    }
+    return $ids;
+}
+
 // Lista os participantes de todas as acoes de uma demanda (o front agrupa por acao_id).
 function listar_participantes_da_demanda($demanda_id)
 {

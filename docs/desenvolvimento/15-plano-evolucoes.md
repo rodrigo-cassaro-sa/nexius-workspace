@@ -53,7 +53,9 @@ Enviar um resumo periódico por e-mail (ex.: semanal) com o que importa para o u
 
 ---
 
-## Item 3 — Reunião: adicionar/editar participantes depois da criação
+## Item 3 — Reunião: adicionar/editar participantes depois da criação ✅ IMPLEMENTADO
+
+> Feito: endpoint `api/acoes/participantes-definir.php` (Gestor/Admin ou responsável; notifica os novos) + botão "Gerenciar participantes" e modal em `demanda.html`/`demanda.js`. Sem migration (usa `acao_participantes`).
 
 ### Objetivo
 Hoje os participantes de uma ação do tipo **reunião** só podem ser definidos na criação.
