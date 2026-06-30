@@ -227,6 +227,7 @@ function listar_acoes_roadmap($usuario_id, $perfil, $filtros, $inicio, $fim)
     $sql = "SELECT a.id, a.titulo, a.tipo, a.status, a.prazo, a.chave, a.criado_em, a.concluida_em,
                    a.responsavel_id, ur.nome AS responsavel_nome,
                    d.id AS demanda_id, d.titulo AS demanda_titulo,
+                   COALESCE(d.gut_gravidade * d.gut_urgencia * d.gut_tendencia, 0) AS prioridade,
                    d.projeto_id, pr.nome AS projeto_nome,
                    d.setor_id, s.nome AS setor_nome, s.responsavel_id AS setor_responsavel_id,
                    (SELECT COUNT(*) FROM acao_prerequisitos ap

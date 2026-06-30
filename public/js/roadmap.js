@@ -90,6 +90,39 @@ function posicaoBarra(iniMs, fimMs, ini, totalDias) {
   };
 }
 
+// Sinalizacao de impacto/prioridade (D24): sem alterar prazos. Uma tarefa fica "em risco"
+// de atraso quando OUTRA tarefa do MESMO responsavel, com prioridade MAIOR (GUT), concorre
+// no mesmo periodo (janelas inicio->prazo se sobrepoem). Mostra o "empurrao" das de maior
+// prioridade sobre as de menor, sem recalcular datas. So considera tarefas em aberto.
+function calcularRisco(itens) {
+  const emRisco = {};
+  const porResp = {};
+  itens.forEach(function (it) {
+    const r = it.responsavel_id || 0;
+    (porResp[r] = porResp[r] || []).push(it);
+  });
+
+  function ativa(t) { return t.status !== "concluida" && t.status !== "cancelada"; }
+
+  Object.keys(porResp).forEach(function (r) {
+    const lista = porResp[r];
+    lista.forEach(function (t) {
+      if (!ativa(t)) return;
+      const tIv = intervaloBarra(t);
+      const tPri = parseInt(t.prioridade, 10) || 0;
+      const ameacada = lista.some(function (h) {
+        if (h === t || !ativa(h)) return false;
+        if ((parseInt(h.prioridade, 10) || 0) <= tPri) return false; // so prioridade estritamente maior
+        const hIv = intervaloBarra(h);
+        return hIv.ini <= tIv.fim && tIv.ini <= hIv.fim; // janelas se sobrepoem
+      });
+      if (ameacada) emRisco[t.id] = true;
+    });
+  });
+
+  return emRisco;
+}
+
 // Situacao (cor da barra): recusada, concluida, atrasada (pendente vencida), bloqueada, pendente.
 function classeSituacao(it) {
   if (it.status === "recusada") return "recusada";
@@ -173,6 +206,22 @@ function render(data) {
     return;
   }
 
+  // Sinalizacao de impacto por prioridade (nao altera prazos): marca as tarefas em risco.
+  const risco = calcularRisco(itens);
+  itens.forEach(function (it) { it.__risco = !!risco[it.id]; });
+
+  const totalRisco = Object.keys(risco).length;
+  const aviso = document.createElement("div");
+  if (totalRisco > 0) {
+    aviso.className = "gantt-risco-aviso";
+    aviso.textContent = "⚠ " + totalRisco + (totalRisco === 1 ? " tarefa em risco de atraso" : " tarefas em risco de atraso")
+      + ": uma de maior prioridade concorre no mesmo período com o mesmo responsável. Repriorize ou reagende para tirar o conflito.";
+  } else {
+    aviso.className = "gantt-risco-aviso gantt-risco-ok";
+    aviso.textContent = "Sem conflitos de prioridade no período: cada responsável dá conta da fila sem sobreposição de maior prioridade.";
+  }
+  alvo.appendChild(aviso);
+
   const modo = document.getElementById("road-agrupar").value;
   const ini = parseData(data.inicio);
   const fim = parseData(data.fim);
@@ -236,6 +285,8 @@ function render(data) {
 function renderPorProjeto(corpo, itens, ini, totalDias, trackW) {
   const spanProj = {};
   const spanDem = {};
+  const riscoProj = {};
+  const riscoDem = {};
   itens.forEach(function (it) {
     const iv = intervaloBarra(it);
     const pk = it.projeto_id ? ("p" + it.projeto_id) : "sem";
@@ -244,6 +295,7 @@ function renderPorProjeto(corpo, itens, ini, totalDias, trackW) {
     const dk = it.demanda_id;
     if (!spanDem[dk]) { spanDem[dk] = { ini: iv.ini, fim: iv.fim }; }
     else { spanDem[dk].ini = Math.min(spanDem[dk].ini, iv.ini); spanDem[dk].fim = Math.max(spanDem[dk].fim, iv.fim); }
+    if (it.__risco) { riscoProj[pk] = true; riscoDem[dk] = true; }
   });
 
   let projAtual = null;
@@ -253,11 +305,13 @@ function renderPorProjeto(corpo, itens, ini, totalDias, trackW) {
     if (projKey !== projAtual) {
       projAtual = projKey;
       demAtual = null;
-      corpo.appendChild(linhaGrupo("gantt-grupo", it.projeto_nome || "Sem projeto", trackW, ini, totalDias, spanProj[projKey]));
+      const rotProj = (it.projeto_nome || "Sem projeto") + (riscoProj[projKey] ? " ⚠" : "");
+      corpo.appendChild(linhaGrupo("gantt-grupo", rotProj, trackW, ini, totalDias, spanProj[projKey]));
     }
     if (parseInt(it.demanda_id, 10) !== demAtual) {
       demAtual = parseInt(it.demanda_id, 10);
-      corpo.appendChild(linhaGrupo("gantt-subgrupo", it.demanda_titulo, trackW, ini, totalDias, spanDem[it.demanda_id]));
+      const rotDem = it.demanda_titulo + (riscoDem[it.demanda_id] ? " ⚠" : "");
+      corpo.appendChild(linhaGrupo("gantt-subgrupo", rotDem, trackW, ini, totalDias, spanDem[it.demanda_id]));
     }
     corpo.appendChild(linhaItem(it, ini, totalDias, trackW, (it.responsavel_nome || "—") + " · " + rotuloTipo(it.tipo)));
   });
@@ -283,15 +337,17 @@ function renderPorChave(corpo, itens, ini, totalDias, trackW, modo) {
     return String(a.prazo).localeCompare(String(b.prazo));
   });
 
-  // Span (janela total) e contagem por grupo.
+  // Span (janela total), contagem e tarefas em risco por grupo.
   const spans = {};
   const contagem = {};
+  const riscoGrupo = {};
   ordenados.forEach(function (it) {
     const k = chave(it);
     const iv = intervaloBarra(it);
-    if (!spans[k]) { spans[k] = { ini: iv.ini, fim: iv.fim }; contagem[k] = 0; }
+    if (!spans[k]) { spans[k] = { ini: iv.ini, fim: iv.fim }; contagem[k] = 0; riscoGrupo[k] = 0; }
     else { spans[k].ini = Math.min(spans[k].ini, iv.ini); spans[k].fim = Math.max(spans[k].fim, iv.fim); }
     contagem[k]++;
+    if (it.__risco) riscoGrupo[k]++;
   });
 
   let atual = null;
@@ -300,7 +356,8 @@ function renderPorChave(corpo, itens, ini, totalDias, trackW, modo) {
     if (k !== atual) {
       atual = k;
       const n = contagem[k];
-      const titulo = rotulo(it) + " · " + n + (n === 1 ? " tarefa" : " tarefas");
+      let titulo = rotulo(it) + " · " + n + (n === 1 ? " tarefa" : " tarefas");
+      if (riscoGrupo[k] > 0) titulo += " · ⚠ " + riscoGrupo[k] + " em risco";
       corpo.appendChild(linhaGrupo("gantt-grupo", titulo, trackW, ini, totalDias, spans[k]));
     }
     // Subtitulo de contexto: no setor mostra o responsavel; no responsavel mostra a demanda.
@@ -342,7 +399,7 @@ function linhaItem(it, ini, totalDias, trackW, subTexto) {
   rot.className = "gantt-rotulo gantt-rotulo-item";
   const titulo = document.createElement("span");
   titulo.className = "gantt-item-titulo";
-  titulo.textContent = (parseInt(it.chave, 10) === 1 ? "★ " : "") + it.titulo;
+  titulo.textContent = (parseInt(it.chave, 10) === 1 ? "★ " : "") + it.titulo + (it.__risco ? " ⚠" : "");
   const sub = document.createElement("span");
   sub.className = "gantt-item-sub texto-secundario";
   sub.textContent = subTexto || ((it.responsavel_nome || "—") + " · " + rotuloTipo(it.tipo));
@@ -359,10 +416,11 @@ function linhaItem(it, ini, totalDias, trackW, subTexto) {
 
   const bar = document.createElement("button");
   bar.type = "button";
-  bar.className = "gantt-bar gantt-bar-" + classeSituacao(it);
+  bar.className = "gantt-bar gantt-bar-" + classeSituacao(it) + (it.__risco ? " gantt-bar-risco" : "");
   bar.style.left = pos.left + "px";
   bar.style.width = pos.width + "px";
-  bar.title = it.titulo + " — prazo " + fmtDataBR(it.prazo);
+  bar.title = it.titulo + " — prazo " + fmtDataBR(it.prazo)
+    + (it.__risco ? " · Em risco: tarefa de maior prioridade concorre no mesmo período (mesmo responsável)." : "");
   const txt = document.createElement("span");
   txt.className = "gantt-bar-texto";
   txt.textContent = it.titulo;

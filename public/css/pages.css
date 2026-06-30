@@ -968,6 +968,32 @@
   z-index: 1;
 }
 
+/* Sinalizacao de impacto/prioridade (D24) */
+.gantt-risco-aviso {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(178, 59, 59, 0.10);
+  color: var(--cor-erro);
+  border: 1px solid rgba(178, 59, 59, 0.30);
+  border-radius: var(--raio, 8px);
+  padding: 8px 12px;
+  margin-bottom: var(--espaco-3);
+  font-size: 0.85rem;
+}
+
+.gantt-risco-aviso.gantt-risco-ok {
+  background: rgba(46, 125, 82, 0.10);
+  color: var(--cor-sucesso);
+  border-color: rgba(46, 125, 82, 0.30);
+}
+
+/* Barra de tarefa em risco: contorno tracejado de alerta (sobre a cor da situacao) */
+.gantt-bar-risco {
+  outline: 2px dashed var(--cor-erro);
+  outline-offset: 1px;
+}
+
 /* Card de Setores (admin): nome + select de responsavel principal */
 .setor-linha {
   display: flex;
