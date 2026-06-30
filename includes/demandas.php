@@ -17,18 +17,18 @@ function status_demanda_arquivamento()
 
 // Cria uma demanda com o questionario (6 campos). Retorna o id ou false.
 // $campos = [problema, impacto_operacional, risco, afeta_outros, workaround, sugestao_solucao]
-function criar_demanda($titulo, $responsavel_id, $criador_id, $campos, $setor_id = null)
+function criar_demanda($titulo, $responsavel_id, $criador_id, $campos, $setor_id = null, $projeto_id = null)
 {
     $conn = conectar_banco();
     $sql = "INSERT INTO demandas
-                (titulo, status, criador_id, responsavel_id, setor_id,
+                (titulo, status, criador_id, responsavel_id, setor_id, projeto_id,
                  problema, impacto_operacional, risco, afeta_outros, workaround, sugestao_solucao,
                  origem, momento_etapa, intencao, pilar, objetivo,
                  gut_gravidade, gut_urgencia, gut_tendencia)
-            VALUES (?, 'aberta', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            VALUES (?, 'aberta', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    // titulo(s) + criador/responsavel/setor(iii) + 6 perguntas(ssssss) + 5 triagem(sssss) + 3 gut(iii)
-    $tipos = "s" . "iii" . "ssssss" . "sssss" . "iii";
+    // titulo(s) + criador/responsavel/setor/projeto(iiii) + 6 perguntas(ssssss) + 5 triagem(sssss) + 3 gut(iii)
+    $tipos = "s" . "iiii" . "ssssss" . "sssss" . "iii";
 
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param(
@@ -38,6 +38,7 @@ function criar_demanda($titulo, $responsavel_id, $criador_id, $campos, $setor_id
         $criador_id,
         $responsavel_id,
         $setor_id,
+        $projeto_id,
         $campos["problema"],
         $campos["impacto_operacional"],
         $campos["risco"],
@@ -102,6 +103,13 @@ function montar_where_demandas($usuario_id, $perfil, $filtros)
         $where .= " AND d.setor_id = ?";
         $tipos .= "i";
         $params[] = $filtros["setor"];
+    }
+
+    // Projeto da demanda (usado na tela de detalhe do projeto).
+    if (($filtros["projeto"] ?? 0) > 0) {
+        $where .= " AND d.projeto_id = ?";
+        $tipos .= "i";
+        $params[] = $filtros["projeto"];
     }
 
     // Busca por titulo.
@@ -185,11 +193,13 @@ function buscar_demanda($id)
                 d.gut_gravidade, d.gut_urgencia, d.gut_tendencia,
                 ur.nome AS responsavel_nome, uc.nome AS criador_nome,
                 d.setor_id, s.nome AS setor_nome, s.responsavel_id AS setor_responsavel_id,
+                d.projeto_id, p.nome AS projeto_nome,
                 d.concluida_em, d.respondida_em, d.criado_em, d.atualizado_em
          FROM demandas d
          LEFT JOIN usuarios ur ON ur.id = d.responsavel_id
          LEFT JOIN usuarios uc ON uc.id = d.criador_id
          LEFT JOIN setores s ON s.id = d.setor_id
+         LEFT JOIN projetos p ON p.id = d.projeto_id
          WHERE d.id = ? LIMIT 1",
         "i",
         [$id]
@@ -231,18 +241,19 @@ function colaborador_envolvido_na_demanda($demanda_id, $usuario_id)
 
 // Atualiza dados da demanda (titulo, questionario, responsavel, status de edicao).
 // $campos = [problema, impacto_operacional, risco, afeta_outros, workaround, sugestao_solucao]
-function atualizar_demanda($id, $titulo, $responsavel_id, $status, $campos)
+function atualizar_demanda($id, $titulo, $responsavel_id, $status, $campos, $projeto_id = null)
 {
     $conn = conectar_banco();
     $sql = "UPDATE demandas SET titulo = ?, responsavel_id = ?, status = ?,
                 problema = ?, impacto_operacional = ?, risco = ?,
-                afeta_outros = ?, workaround = ?, sugestao_solucao = ?
+                afeta_outros = ?, workaround = ?, sugestao_solucao = ?, projeto_id = ?
             WHERE id = ?";
 
     $stmt = mysqli_prepare($conn, $sql);
+    // projeto_id pode ser null (mysqli envia NULL quando a variavel e null).
     mysqli_stmt_bind_param(
         $stmt,
-        "sisssssssi",
+        "sisssssssii",
         $titulo,
         $responsavel_id,
         $status,
@@ -252,9 +263,20 @@ function atualizar_demanda($id, $titulo, $responsavel_id, $status, $campos)
         $campos["afeta_outros"],
         $campos["workaround"],
         $campos["sugestao_solucao"],
+        $projeto_id,
         $id
     );
 
+    return mysqli_stmt_execute($stmt);
+}
+
+// Define (ou limpa, com null) o projeto ao qual a demanda pertence (melhoria #3).
+function definir_projeto_demanda($demanda_id, $projeto_id)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE demandas SET projeto_id = ? WHERE id = ?");
+    // projeto_id pode ser null (mysqli envia NULL quando a variavel e null).
+    mysqli_stmt_bind_param($stmt, "ii", $projeto_id, $demanda_id);
     return mysqli_stmt_execute($stmt);
 }
 

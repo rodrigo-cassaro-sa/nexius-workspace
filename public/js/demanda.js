@@ -85,6 +85,7 @@ function preencherCabecalho(d) {
   badge.textContent = rotuloStatus(d.status);
   document.getElementById("d-solicitante").textContent = d.criador_nome || "—";
   document.getElementById("d-setor").textContent = d.setor_nome || "—";
+  renderProjetoStat(d);
   document.getElementById("d-solicitado-em").textContent = formatarDataHora(d.criado_em);
 
   const sla = calcularSlaBadge(d.criado_em, d.respondida_em);
@@ -177,6 +178,71 @@ function prepararGestor() {
   document.getElementById("botao-arquivar").addEventListener("click", function () { abrirModal("modal-arquivar"); });
   document.getElementById("botao-arquivar-cancelar").addEventListener("click", function () { fecharModal("modal-arquivar"); });
   document.getElementById("botao-arquivar-confirmar").addEventListener("click", arquivar);
+
+  // Mover a demanda para um projeto (vincular/desvincular) - melhoria #3.
+  document.getElementById("demanda-projeto-mover").hidden = false;
+  carregarProjetosMover();
+  document.getElementById("botao-salvar-projeto").addEventListener("click", salvarProjetoDemanda);
+}
+
+// Exibe o projeto da demanda no cabecalho (link para a tela do projeto, ou "—").
+function renderProjetoStat(d) {
+  const alvo = document.getElementById("d-projeto");
+  alvo.innerHTML = "";
+  if (d.projeto_id) {
+    const a = document.createElement("a");
+    a.href = "projeto.html?id=" + d.projeto_id;
+    a.textContent = d.projeto_nome || ("#" + d.projeto_id);
+    alvo.appendChild(a);
+  } else {
+    alvo.textContent = "—";
+  }
+}
+
+// Popula o select de "mover para projeto" e pre-seleciona o projeto atual da demanda.
+async function carregarProjetosMover() {
+  const select = document.getElementById("d-projeto-select");
+  try {
+    const resposta = await getApi("/api/projetos/listar.php");
+    if (resposta.ok) {
+      resposta.data.projetos.forEach(function (p) {
+        const o = document.createElement("option");
+        o.value = p.id;
+        o.textContent = p.nome;
+        select.appendChild(o);
+      });
+    }
+  } catch (erro) {
+    // Mantem "Sem projeto".
+  }
+  if (demandaAtual && demandaAtual.projeto_id) {
+    select.value = demandaAtual.projeto_id;
+  }
+}
+
+async function salvarProjetoDemanda() {
+  const botao = document.getElementById("botao-salvar-projeto");
+  const select = document.getElementById("d-projeto-select");
+  const valor = select.value;
+
+  definirCarregando(botao, true);
+  try {
+    const resposta = await postApi("/api/demandas/definir-projeto.php", { id: demandaId, projeto_id: valor });
+    if (!resposta.ok) {
+      mostrarErro("mensagem", resposta.error || "Nao foi possivel atualizar a demanda.");
+      definirCarregando(botao, false);
+      return;
+    }
+    definirCarregando(botao, false);
+    // Atualiza o estado local e a exibicao do cabecalho.
+    demandaAtual.projeto_id = valor ? parseInt(valor, 10) : null;
+    demandaAtual.projeto_nome = valor ? select.options[select.selectedIndex].textContent : null;
+    renderProjetoStat(demandaAtual);
+    mostrarSucesso("mensagem", resposta.message || "Projeto atualizado.");
+  } catch (erro) {
+    mostrarErro("mensagem", "Nao foi possivel atualizar a demanda.");
+    definirCarregando(botao, false);
+  }
 }
 
 async function carregarAcoes() {

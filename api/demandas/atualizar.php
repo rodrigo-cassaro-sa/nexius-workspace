@@ -7,6 +7,7 @@
 require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/usuarios.php";
 require_once __DIR__ . "/../../includes/demandas.php";
+require_once __DIR__ . "/../../includes/projetos.php";
 require_once __DIR__ . "/../../includes/notificacoes.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -25,6 +26,7 @@ $id = isset($body["id"]) ? (int) $body["id"] : 0;
 $titulo = trim($body["titulo"] ?? "");
 $status = trim($body["status"] ?? "");
 $responsavel_id = isset($body["responsavel_id"]) && $body["responsavel_id"] !== "" ? (int) $body["responsavel_id"] : null;
+$projeto_id = isset($body["projeto_id"]) && $body["projeto_id"] !== "" ? (int) $body["projeto_id"] : null;
 
 // Questionario obrigatorio da demanda (6 perguntas).
 $campos = [
@@ -63,6 +65,9 @@ foreach ($mensagens_campos as $campo => $mensagem) {
 if ($responsavel_id !== null && !usuario_ativo_existe($responsavel_id)) {
     $erros["responsavel_id"] = "Responsavel invalido.";
 }
+if ($projeto_id !== null && !buscar_projeto($projeto_id)) {
+    $erros["projeto_id"] = "Projeto invalido.";
+}
 if (!empty($erros)) {
     json_response(["ok" => false, "error" => "Verifique os campos.", "errors" => $erros], 400);
 }
@@ -72,7 +77,7 @@ if (!$demanda) {
     json_erro("Demanda nao encontrada.", 404);
 }
 
-if (!atualizar_demanda($id, $titulo, $responsavel_id, $status, $campos)) {
+if (!atualizar_demanda($id, $titulo, $responsavel_id, $status, $campos, $projeto_id)) {
     json_erro("Nao foi possivel salvar a demanda.", 500);
 }
 

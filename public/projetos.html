@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Usuários - Workspace S&amp;A</title>
+  <title>Projetos - Workspace S&amp;A</title>
 
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/theme.css">
@@ -12,20 +12,20 @@
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-  <!-- Tela: Administracao de usuarios (apenas Admin; o backend valida o acesso real). -->
+  <!-- Tela: Lista de projetos (agrupam demandas, melhoria #3). -->
   <div class="app-shell">
     <aside class="sidebar">
       <div class="sidebar-marca"><img class="marca-img-sidebar" src="assets/img/logo_escuro.png" alt="Grupo Nexius"></div>
       <nav class="sidebar-nav">
         <a href="dashboard.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>Dashboard</span></a>
         <a href="demandas.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg><span>Demandas</span></a>
-        <a href="projetos.html" id="nav-projetos"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg><span>Projetos</span></a>
+        <a href="projetos.html" id="nav-projetos" class="ativo"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg><span>Projetos</span></a>
         <a href="acoes.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg><span>Ações</span></a>
         <a href="notificacoes.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><span>Notificações</span></a>
         <a href="chat.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span>Mensagens</span><span class="badge badge-erro chat-contador" hidden></span></a>
         <a href="relatorios.html" id="nav-relatorios" hidden><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg><span>Relatórios</span></a>
         <a href="progresso.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg><span>Progresso</span></a>
-        <a href="admin-usuarios.html" id="nav-usuarios" class="ativo"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span>Usuários</span></a>
+        <a href="admin-usuarios.html" id="nav-usuarios" hidden><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span>Usuários</span></a>
       </nav>
     </aside>
 
@@ -58,79 +58,82 @@
       </header>
 
       <main class="app-main">
+        <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
         <section class="card">
-          <h1>Convidar usuário</h1>
-
-          <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
-
-          <form id="form-convite" novalidate>
-            <div class="campo">
-              <label class="campo-label" for="email">E-mail</label>
-              <input class="campo-input" id="email" name="email" type="email" placeholder="pessoa@empresa.com" autocomplete="off" required>
+          <div class="lista-cabecalho">
+            <div>
+              <h1 class="pagina-titulo">Projetos</h1>
+              <p class="pagina-subtitulo">Agrupam demandas relacionadas sob um mesmo objetivo.</p>
             </div>
-
-            <div class="campo">
-              <label class="campo-label" for="perfil">Perfil</label>
-              <select class="campo-input" id="perfil" name="perfil">
-                <option value="colaborador">Colaborador</option>
-                <option value="gestor">Gestor</option>
-                <option value="administrador">Administrador</option>
-              </select>
-            </div>
-
-            <div class="campo">
-              <label class="campo-label" for="convite-setor">Setor (opcional)</label>
-              <select class="campo-input" id="convite-setor">
-                <option value="">Sem setor</option>
-              </select>
-            </div>
-
-            <button id="botao-convidar" class="botao botao-primario" type="submit">Gerar convite</button>
-          </form>
-
-          <div id="bloco-link" class="link-convite" hidden>
-            <p class="campo-label">Link do convite (envie para a pessoa):</p>
-            <input class="campo-input" id="link-convite" type="text" readonly>
+            <button id="botao-novo" class="botao botao-primario" type="button" hidden>+ Criar projeto</button>
           </div>
-        </section>
 
-        <section class="card">
-          <h2>Usuários cadastrados</h2>
-          <div id="usuarios-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
-          <div id="lista-usuarios">
+          <div class="barra-ferramentas">
+            <input class="campo-input" id="proj-busca" type="search" placeholder="Buscar projeto..." autocomplete="off" aria-label="Buscar projeto">
+            <select class="campo-input" id="proj-status" aria-label="Status">
+              <option value="">Status: todos</option>
+              <option value="aberto">Aberto</option>
+              <option value="em_andamento">Em andamento</option>
+              <option value="concluido">Concluído</option>
+              <option value="arquivado">Arquivado</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+            <select class="campo-input" id="proj-setor" aria-label="Setor">
+              <option value="">Setor: todos</option>
+            </select>
+          </div>
+
+          <div id="lista-projetos">
             <p class="texto-secundario">Carregando...</p>
           </div>
-        </section>
-
-        <section class="card">
-          <h2>Setores e key users</h2>
-          <p class="texto-secundario">O <strong>key user</strong> (responsável principal) de cada setor recebe as tarefas do setor (vem pré-selecionado como responsável ao criar uma ação numa demanda do setor) e enxerga todas as demandas e ações do seu setor.</p>
-          <div id="setores-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
-          <div id="lista-setores">
-            <p class="texto-secundario">Carregando...</p>
-          </div>
-        </section>
-
-        <section class="card">
-          <h2>Convites</h2>
-          <div id="lista-convites">
-            <p class="texto-secundario">Carregando...</p>
-          </div>
-        </section>
-
-        <section class="card">
-          <h2>Teste de e-mail</h2>
-          <p class="texto-secundario">Envia um e-mail de teste para verificar a configuração (Resend/SMTP).</p>
-
-          <div id="teste-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
-
-          <div class="campo">
-            <label class="campo-label" for="teste-email">E-mail de destino</label>
-            <input class="campo-input" id="teste-email" type="email" placeholder="seu@email.com">
-          </div>
-          <button id="botao-testar-email" class="botao botao-secundario" type="button">Enviar e-mail de teste</button>
         </section>
       </main>
+    </div>
+  </div>
+
+  <!-- Modal: Novo projeto -->
+  <div id="modal-novo" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-novo-titulo">
+    <div class="modal-conteudo">
+      <h2 class="modal-titulo" id="modal-novo-titulo">Novo projeto</h2>
+
+      <div id="modal-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+      <form id="form-novo" novalidate>
+        <div class="campo">
+          <label class="campo-label" for="proj-nome">Nome do projeto *</label>
+          <input class="campo-input" id="proj-nome" type="text" maxlength="160" required>
+        </div>
+        <div class="campo">
+          <label class="campo-label" for="proj-descricao">Descrição (opcional)</label>
+          <textarea class="campo-input" id="proj-descricao" rows="3" maxlength="5000"></textarea>
+        </div>
+        <div class="campo">
+          <label class="campo-label" for="proj-form-status">Status</label>
+          <select class="campo-input" id="proj-form-status">
+            <option value="aberto">Aberto</option>
+            <option value="em_andamento">Em andamento</option>
+            <option value="concluido">Concluído</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label class="campo-label" for="proj-responsavel">Responsável (opcional)</label>
+          <select class="campo-input" id="proj-responsavel">
+            <option value="">Sem responsável</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label class="campo-label" for="proj-form-setor">Setor (opcional)</label>
+          <select class="campo-input" id="proj-form-setor">
+            <option value="">Sem setor</option>
+          </select>
+        </div>
+
+        <div class="modal-acoes">
+          <button type="button" class="botao botao-secundario" id="botao-cancelar">Cancelar</button>
+          <button type="submit" class="botao botao-primario" id="botao-salvar">Criar</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -140,6 +143,6 @@
   <script src="js/auth.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/validators.js"></script>
-  <script src="js/admin-usuarios.js"></script>
+  <script src="js/projetos.js"></script>
 </body>
 </html>

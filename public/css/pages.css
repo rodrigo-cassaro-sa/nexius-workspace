@@ -707,6 +707,35 @@
   margin-left: var(--espaco-2);
 }
 
+/* Projetos: acoes no cabecalho do detalhe (editar/arquivar/cancelar) */
+.acoes-projeto {
+  display: flex;
+  gap: var(--espaco-2);
+  flex-wrap: wrap;
+}
+
+/* Projeto: descricao preservando quebras de linha */
+.texto-corpo {
+  white-space: pre-wrap;
+  margin: var(--espaco-3) 0;
+}
+
+/* Demanda: controle "mover para projeto" (select + botao na mesma linha) */
+.demanda-projeto-mover {
+  margin-top: var(--espaco-3);
+}
+
+.projeto-mover-linha {
+  display: flex;
+  gap: var(--espaco-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.projeto-mover-linha .campo-input {
+  max-width: 280px;
+}
+
 /* Relatorios: linha de periodo (datas + exportar) */
 .rel-periodo {
   display: flex;

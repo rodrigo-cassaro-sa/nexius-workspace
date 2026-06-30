@@ -11,10 +11,8 @@
 **Feito:** tela `relatorios.html` + `public/js/relatorios.js`; `includes/relatorios.php` (consultas agregadas, só leitura) e `api/relatorios/resumo.php` (JSON) + `api/relatorios/exportar.php` (CSV com BOM UTF-8 e separador `;` p/ Excel pt-BR). Mostra **% concluídas no prazo (período)**, **demandas por status**, **demandas por setor** e **produtividade por responsável (período)**. Acesso **Gestor/Admin** (validado no backend com `exigir_perfil`); item de menu "Relatórios" liberado para Gestor/Admin via `ui.js` (`configurarNavGestor`). Sem tabela nova.
 **Decidido na v1:** acesso Gestor/Admin (visão global). O **recorte por setor do key user** ficou para fase futura (não bloqueia a entrega).
 
-## 3. Conceito de Projeto (decisão de produto) — APROVADO (próximo)
-**Objetivo:** agrupar várias demandas sob um **Projeto** (com responsável/status próprios), para empresas que trabalham por projeto.
-**Decisão do dono do produto:** a empresa **trabalha por projetos que agrupam várias demandas** → seguir com o modelo Projeto.
-**Escopo:** tabela nova `projetos` + `demandas.projeto_id` (FK opcional, `ON DELETE SET NULL`) + tela de projeto (lista de demandas do projeto) + endpoints de CRUD/listagem. **Grande.**
+## 3. Conceito de Projeto (decisão de produto) — ✅ IMPLEMENTADO
+**Feito (D22):** **Migration 018** (tabela `projetos` + `demandas.projeto_id` FK opcional `ON DELETE SET NULL`); `includes/projetos.php` (CRUD + escopo **por envolvimento**); endpoints `api/projetos/` (`listar`, `criar`, `detalhe`, `atualizar`, `arquivar`) + `api/demandas/definir-projeto.php`. Telas `projetos.html` (lista + criar) e `projeto.html` (detalhe + editar/arquivar + demandas vinculadas); select de projeto no modal de nova demanda e "Mover para projeto" no detalhe da demanda; item **Projetos** no menu. **Decidido:** status espelha a demanda; responsável + setor opcionais; visibilidade por envolvimento. Criar/editar/arquivar/mover = Gestor/Admin; ver = escopo. **Migration 018 precisa ser rodada no ambiente.**
 
 ## 4. Reabertura de ação chave recusada
 **Objetivo:** fechar a limitação registrada — uma ação **chave** recusada deixa a demanda sem conclusão automática.
@@ -29,4 +27,4 @@
 ---
 
 ## Status
-- **#1 e #2** implementados. **#3** aprovado e é o próximo. **#4 e #5** pendentes, nesta ordem.
+- **#1, #2 e #3** implementados. **#4 e #5** pendentes, nesta ordem.

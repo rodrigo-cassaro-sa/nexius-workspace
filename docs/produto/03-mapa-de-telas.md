@@ -836,6 +836,38 @@ KPI e os dois painéis (status/setor) empilham no mobile; a tabela de produtivid
 
 ---
 
+## Tela: Projetos (lista) e Projeto (detalhe)
+
+> Telas acrescentadas pelo plano de melhorias pós-setores (item #3, D22 em `decisoes-pendentes.md`). Projeto agrupa várias demandas. Tabela nova `projetos` + `demandas.projeto_id`.
+
+### Objetivo
+Agrupar demandas relacionadas sob um mesmo **Projeto** (com responsável e setor próprios, opcionais), para a empresa que trabalha por projetos.
+
+### Tipo de usuário que acessa
+Todos os perfis, com **escopo por envolvimento**: Gestor/Admin veem todos os projetos; o Colaborador vê os projetos em que é responsável, key user do setor do projeto, ou que tenham ao menos uma demanda em que esteja envolvido. Criar/editar/arquivar projeto e mover demanda = **Gestor/Admin** (validado no backend).
+
+### Dados exibidos
+- **Lista (`projetos.html`):** nome, status, responsável, setor e progresso de demandas (concluídas/total). Filtros: busca por nome, status e setor.
+- **Detalhe (`projeto.html`):** nome, status, descrição, responsável, setor, criador, contagem de demandas e a **lista de demandas vinculadas** (reaproveita a listagem de demandas filtrada por projeto, respeitando o escopo). Para Gestor/Admin: edição (nome, descrição, status, responsável, setor) e ações de **arquivar/cancelar**.
+
+### Ações disponíveis
+Criar projeto (modal, Gestor/Admin); abrir detalhe; editar; arquivar/cancelar. Vincular uma demanda a um projeto pelo **modal de nova demanda** (select "Projeto") ou pelo controle **"Mover para projeto"** no detalhe da demanda.
+
+### Regras de negócio aplicadas
+Status espelha o ciclo da demanda (`aberto`, `em_andamento`, `concluido`, `arquivado`, `cancelado`); `concluido` é manual (projeto não tem ação chave). Sem exclusão física: arquiva/cancela via status. Apagar um projeto **não apaga** as demandas (`ON DELETE SET NULL`). A permissão real é do backend.
+
+### Estados da tela
+- Carregando: "Carregando..." na lista e no detalhe.
+- Vazio: "Nenhum projeto encontrado." (lista); "Nenhuma demanda vinculada a este projeto." (detalhe).
+- Erro: alerta genérico de falha.
+- Sucesso: lista/detalhe preenchidos; criação leva ao detalhe do novo projeto.
+- Sem permissão: Colaborador sem envolvimento recebe 403 ao abrir um projeto fora do seu escopo; ações de edição não aparecem para quem não é Gestor/Admin.
+
+### Comportamento responsivo
+Listas (projetos e demandas do projeto) viram cartões no mobile (mesmo padrão das demais). Formulários em coluna única.
+
+---
+
 ## Checklist de validação
 
 - [x] Este documento foi preenchido?

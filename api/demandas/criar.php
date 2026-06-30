@@ -6,6 +6,7 @@
 require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/usuarios.php";
 require_once __DIR__ . "/../../includes/demandas.php";
+require_once __DIR__ . "/../../includes/projetos.php";
 require_once __DIR__ . "/../../includes/notificacoes.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -103,7 +104,13 @@ $campos = array_merge($campos, $triagem, $gut);
 $criador = buscar_usuario_por_id(obter_usuario_logado_id());
 $setor_id = ($criador && $criador["setor_id"] !== null) ? (int) $criador["setor_id"] : null;
 
-$id = criar_demanda($titulo, $responsavel_id, obter_usuario_logado_id(), $campos, $setor_id);
+// Projeto (opcional): vincula a demanda a um projeto existente.
+$projeto_id = isset($body["projeto_id"]) && $body["projeto_id"] !== "" ? (int) $body["projeto_id"] : null;
+if ($projeto_id !== null && !buscar_projeto($projeto_id)) {
+    json_erro("Projeto invalido.", 400);
+}
+
+$id = criar_demanda($titulo, $responsavel_id, obter_usuario_logado_id(), $campos, $setor_id, $projeto_id);
 if (!$id) {
     json_erro("Nao foi possivel criar a demanda.", 500);
 }

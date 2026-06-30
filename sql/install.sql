@@ -105,6 +105,30 @@ CREATE TABLE IF NOT EXISTS tokens_recuperacao (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
+-- projetos (melhoria #3) - agrupa varias demandas. Status espelha a demanda;
+-- responsavel e setor sao opcionais. Criada apos usuarios e setores (FKs).
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS projetos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(160) NOT NULL,
+  descricao TEXT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'aberto',
+  responsavel_id INT NULL,
+  setor_id INT NULL,
+  criador_id INT NOT NULL,
+  criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_projetos_status (status),
+  KEY idx_projetos_responsavel (responsavel_id),
+  KEY idx_projetos_setor (setor_id),
+  KEY idx_projetos_criador (criador_id),
+  CONSTRAINT fk_projetos_responsavel FOREIGN KEY (responsavel_id) REFERENCES usuarios(id),
+  CONSTRAINT fk_projetos_setor FOREIGN KEY (setor_id) REFERENCES setores(id),
+  CONSTRAINT fk_projetos_criador FOREIGN KEY (criador_id) REFERENCES usuarios(id),
+  CONSTRAINT chk_projetos_status CHECK (status IN ('aberto','em_andamento','concluido','arquivado','cancelado'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
 -- demandas
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS demandas (
@@ -129,6 +153,7 @@ CREATE TABLE IF NOT EXISTS demandas (
   criador_id INT NOT NULL,
   responsavel_id INT NULL,
   setor_id INT NULL,
+  projeto_id INT NULL,
   concluida_em DATETIME NULL,
   respondida_em DATETIME NULL,
   criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -137,10 +162,12 @@ CREATE TABLE IF NOT EXISTS demandas (
   KEY idx_demandas_criador (criador_id),
   KEY idx_demandas_responsavel (responsavel_id),
   KEY idx_demandas_setor (setor_id),
+  KEY idx_demandas_projeto (projeto_id),
   KEY idx_demandas_criado_em (criado_em),
   CONSTRAINT fk_demandas_criador FOREIGN KEY (criador_id) REFERENCES usuarios(id),
   CONSTRAINT fk_demandas_responsavel FOREIGN KEY (responsavel_id) REFERENCES usuarios(id),
   CONSTRAINT fk_demandas_setor FOREIGN KEY (setor_id) REFERENCES setores(id),
+  CONSTRAINT fk_demandas_projeto FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE SET NULL,
   CONSTRAINT chk_demandas_status CHECK (status IN ('aberta','em_andamento','concluida','arquivada','cancelada'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

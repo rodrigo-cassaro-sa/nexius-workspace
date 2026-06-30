@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("botao-nova").addEventListener("click", abrirNova);
     document.getElementById("botao-cancelar").addEventListener("click", function () { fecharModal("modal-nova"); });
     document.getElementById("form-nova").addEventListener("submit", salvarNova);
+    carregarProjetosSelect();
   }
 
   // A busca agora fica na topbar (#busca-topo). Aceita ?busca= vindo de outra tela.
@@ -102,6 +103,24 @@ async function carregarFiltroSetores() {
     });
   } catch (erro) {
     // Mantem "Setor: todos".
+  }
+}
+
+// Popula o select de Projeto no modal de nova demanda (projetos ativos).
+async function carregarProjetosSelect() {
+  const select = document.getElementById("projeto");
+  if (!select) return;
+  try {
+    const resposta = await getApi("/api/projetos/listar.php");
+    if (!resposta.ok) return;
+    resposta.data.projetos.forEach(function (p) {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.nome;
+      select.appendChild(opt);
+    });
+  } catch (erro) {
+    // Mantem "Sem projeto".
   }
 }
 
@@ -436,7 +455,7 @@ async function salvarNova(evento) {
   definirCarregando(botao, true);
 
   try {
-    const dados = Object.assign({ titulo: titulo }, campos, triagem, gut);
+    const dados = Object.assign({ titulo: titulo, projeto_id: document.getElementById("projeto").value }, campos, triagem, gut);
     const resposta = await postApi("/api/demandas/criar.php", dados);
 
     if (!resposta.ok) {

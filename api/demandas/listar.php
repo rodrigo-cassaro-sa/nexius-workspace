@@ -45,6 +45,7 @@ $filtros = [
     "status" => $filtro_status,
     "solicitante" => isset($_GET["solicitante"]) ? (int) $_GET["solicitante"] : 0,
     "setor" => isset($_GET["setor"]) ? (int) $_GET["setor"] : 0,
+    "projeto" => isset($_GET["projeto"]) ? (int) $_GET["projeto"] : 0,
     "busca" => trim($_GET["busca"] ?? ""),
     "intencao" => $intencao,
     "pilar" => $pilar,
