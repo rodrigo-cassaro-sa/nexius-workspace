@@ -287,6 +287,13 @@ document.addEventListener("DOMContentLoaded", function () {
   configurarAvatar();
   configurarBuscaTopo();
   configurarMenuMobile();
+
+  // Mantem os contadores (mensagens/notificacoes) atualizados sem recarregar a pagina.
+  // Polling leve: as funcoes so consultam quando o badge existe na tela (telas internas).
+  setInterval(function () {
+    atualizarContadorNotificacoes();
+    atualizarContadorMensagens();
+  }, 20000);
 });
 
 // Liga os botoes de mostrar/ocultar senha. Funciona em qualquer tela com
