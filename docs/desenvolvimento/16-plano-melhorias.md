@@ -14,10 +14,8 @@
 ## 3. Conceito de Projeto (decisão de produto) — ✅ IMPLEMENTADO
 **Feito (D22):** **Migration 018** (tabela `projetos` + `demandas.projeto_id` FK opcional `ON DELETE SET NULL`); `includes/projetos.php` (CRUD + escopo **por envolvimento**); endpoints `api/projetos/` (`listar`, `criar`, `detalhe`, `atualizar`, `arquivar`) + `api/demandas/definir-projeto.php`. Telas `projetos.html` (lista + criar) e `projeto.html` (detalhe + editar/arquivar + demandas vinculadas); select de projeto no modal de nova demanda e "Mover para projeto" no detalhe da demanda; item **Projetos** no menu. **Decidido:** status espelha a demanda; responsável + setor opcionais; visibilidade por envolvimento. Criar/editar/arquivar/mover = Gestor/Admin; ver = escopo. **Migration 018 precisa ser rodada no ambiente.**
 
-## 4. Reabertura de ação chave recusada
-**Objetivo:** fechar a limitação registrada — uma ação **chave** recusada deixa a demanda sem conclusão automática.
-**Escopo:** ação de "reabrir" (volta a `pendente`) para ação recusada, permitindo retomar o fluxo. Pequeno.
-**Decisões a confirmar:** quem reabre (sugiro Gestor/Admin); reabrir limpa o `motivo_recusa`?
+## 4. Reabertura de ação recusada — ✅ IMPLEMENTADO
+**Feito:** botão **"Reabrir"** nas tarefas com status `recusada` (Gestor/Admin) — volta a ação para `pendente` e **limpa o `motivo_recusa`**, permitindo ao responsável reentregar/concluir. Fecha a limitação do D19 (ação chave recusada deixava a demanda travada). `reabrir_acao()` em `includes/acoes.php` + `api/acoes/reabrir.php` (notifica o responsável). Sem tabela nova; "bloqueada" continua derivada de pré-requisito. **Decidido:** reabre = Gestor/Admin (mesma alçada da recusa); reabrir limpa o motivo.
 
 ## 5. Key user concluir/editar tarefas do setor
 **Objetivo:** hoje o key user **vê** todo o seu setor, mas só o **responsável** conclui a própria ação. Permitir que o key user **conclua/edite** ações de terceiros do seu setor.
@@ -27,4 +25,4 @@
 ---
 
 ## Status
-- **#1, #2 e #3** implementados. **#4 e #5** pendentes, nesta ordem.
+- **#1, #2, #3 e #4** implementados. **#5** pendente.

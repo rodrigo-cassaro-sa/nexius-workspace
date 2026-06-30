@@ -474,6 +474,19 @@ function renderizarAcoes(alvo, acoes) {
       statusArea.appendChild(btnRec);
     }
 
+    // Reabrir: tarefa recusada volta a pendente para retomar o fluxo. So Gestor/Admin (melhoria #4).
+    const podeReabrir = a.status === "recusada"
+      && (perfilUsuario === "administrador" || perfilUsuario === "gestor");
+
+    if (podeReabrir) {
+      const btnReabrir = document.createElement("button");
+      btnReabrir.className = "botao botao-secundario";
+      btnReabrir.type = "button";
+      btnReabrir.textContent = "Reabrir";
+      btnReabrir.addEventListener("click", function () { reabrirAcao(a); });
+      statusArea.appendChild(btnReabrir);
+    }
+
     cab.appendChild(statusArea);
     item.appendChild(cab);
 
@@ -618,6 +631,23 @@ async function confirmarRecusa() {
   } catch (erro) {
     mostrarErro("recusar-mensagem", "Nao foi possivel recusar a entrega.");
     definirCarregando(botao, false);
+  }
+}
+
+// Reabre uma tarefa recusada (Gestor/Admin): volta a pendente para retomar o fluxo.
+async function reabrirAcao(a) {
+  if (!confirm("Reabrir esta tarefa? Ela volta para pendente e o responsável poderá concluí-la novamente.")) {
+    return;
+  }
+  try {
+    const resposta = await postApi("/api/acoes/reabrir.php", { id: a.id });
+    if (!resposta.ok) {
+      mostrarErro("mensagem", resposta.error || "Nao foi possivel reabrir a tarefa.");
+      return;
+    }
+    await carregarTudo();
+  } catch (erro) {
+    mostrarErro("mensagem", "Nao foi possivel reabrir a tarefa.");
   }
 }
 

@@ -331,6 +331,17 @@ function recusar_acao($id, $motivo)
     return mysqli_stmt_execute($stmt);
 }
 
+// Reabre uma acao recusada: volta para 'pendente' e limpa o motivo (melhoria #4).
+// A situacao "bloqueada" (se houver pre-requisito pendente) e derivada na exibicao.
+function reabrir_acao($id)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE acoes SET status = 'pendente', motivo_recusa = NULL WHERE id = ? AND status = 'recusada'");
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    return mysqli_stmt_affected_rows($stmt) > 0;
+}
+
 // Conclui a demanda (usado quando a acao chave e concluida).
 function concluir_demanda_por_acao_chave($demanda_id)
 {
