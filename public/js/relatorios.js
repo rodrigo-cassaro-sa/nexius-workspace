@@ -61,11 +61,34 @@ async function carregarRelatorios() {
 }
 
 function renderResumo(d) {
-  // % no prazo (periodo)
+  // KPIs do topo, derivados dos dados ja retornados (sem chamada extra ao backend).
+  const status = d.demandas_por_status || [];
+  let totalDemandas = 0;
+  let demandasConcluidas = 0;
+  let demandasAtivas = 0;
+  status.forEach(function (s) {
+    const t = parseInt(s.total, 10) || 0;
+    totalDemandas += t;
+    if (s.status === "concluida") demandasConcluidas += t;
+    if (s.status === "aberta" || s.status === "em_andamento") demandasAtivas += t;
+  });
+
+  document.getElementById("rel-demandas-total").textContent = totalDemandas;
+  document.getElementById("rel-demandas-ativas").textContent = demandasAtivas + " em aberto/andamento";
+
+  document.getElementById("rel-demandas-concluidas").textContent = demandasConcluidas;
+  document.getElementById("rel-demandas-concluidas-base").textContent =
+    totalDemandas > 0 ? (Math.round((demandasConcluidas / totalDemandas) * 100) + "% do total") : "—";
+
+  // % no prazo (periodo) + acoes concluidas no periodo
   const p = d.acoes_prazo;
+  document.getElementById("rel-acoes-total").textContent = p.total;
+  document.getElementById("rel-acoes-base").textContent =
+    p.total > 0 ? (p.no_prazo + " no prazo") : "Nenhuma no período";
+
   document.getElementById("rel-prazo").textContent = (p.percentual === null) ? "—" : p.percentual + "%";
   document.getElementById("rel-prazo-base").textContent =
-    p.total > 0 ? (p.no_prazo + " de " + p.total + " ações concluídas no prazo") : "Sem ações concluídas no período";
+    p.total > 0 ? (p.no_prazo + " de " + p.total + " no prazo") : "Sem ações concluídas no período";
 
   // Demandas por status
   renderLinhas("rel-status", d.demandas_por_status, function (item) {
