@@ -446,8 +446,11 @@ function renderizarAcoes(alvo, acoes) {
       statusArea.appendChild(nota);
     }
 
-    // Concluir: so o responsavel, acao pendente e sem pre-requisito pendente.
-    const podeConcluir = parseInt(a.responsavel_id, 10) === usuarioId
+    // Concluir: o responsavel OU o key user do setor da demanda (melhoria #5),
+    // com acao pendente e sem pre-requisito pendente.
+    const ehKeyUser = demandaAtual && demandaAtual.setor_responsavel_id
+      && parseInt(demandaAtual.setor_responsavel_id, 10) === usuarioId;
+    const podeConcluir = (parseInt(a.responsavel_id, 10) === usuarioId || ehKeyUser)
       && a.status === "pendente"
       && parseInt(a.prereq_pendentes, 10) === 0;
 

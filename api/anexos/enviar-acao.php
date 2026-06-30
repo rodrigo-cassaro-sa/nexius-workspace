@@ -9,6 +9,7 @@
 
 require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/acoes.php";
+require_once __DIR__ . "/../../includes/demandas.php";
 require_once __DIR__ . "/../../includes/anexos.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -27,10 +28,12 @@ if (!$acao) {
     json_erro("Acao nao encontrada.", 404);
 }
 
-// O responsavel pela acao ou Admin/Gestor podem anexar evidencia.
+// O responsavel pela acao, o key user do setor da demanda (melhoria #5) ou Admin/Gestor
+// podem anexar evidencia (assim o key user consegue concluir analise/reuniao do seu setor).
 $perfil = obter_usuario_logado_perfil();
 $eh_responsavel = (int) $acao["responsavel_id"] === obter_usuario_logado_id();
-if (!$eh_responsavel && $perfil !== "administrador" && $perfil !== "gestor") {
+$eh_keyuser = usuario_eh_keyuser_da_demanda($acao["demanda_id"], obter_usuario_logado_id());
+if (!$eh_responsavel && !$eh_keyuser && $perfil !== "administrador" && $perfil !== "gestor") {
     json_response(["ok" => false, "error" => "Sem permissao."], 403);
 }
 

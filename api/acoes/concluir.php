@@ -37,9 +37,12 @@ if (!$acao) {
     json_erro("Acao nao encontrada.", 404);
 }
 
-// So o responsavel conclui a propria acao.
-if ((int) $acao["responsavel_id"] !== obter_usuario_logado_id()) {
-    json_response(["ok" => false, "error" => "Apenas o responsavel pode concluir esta acao."], 403);
+// Conclui o RESPONSAVEL da acao OU o key user (responsavel principal) do setor da
+// demanda (melhoria #5: o key user resolve/conclui as tarefas do seu setor).
+$eh_responsavel = (int) $acao["responsavel_id"] === obter_usuario_logado_id();
+$eh_keyuser = usuario_eh_keyuser_da_demanda($acao["demanda_id"], obter_usuario_logado_id());
+if (!$eh_responsavel && !$eh_keyuser) {
+    json_response(["ok" => false, "error" => "Apenas o responsavel ou o key user do setor pode concluir esta acao."], 403);
 }
 
 if ($acao["status"] !== "pendente") {
@@ -91,6 +94,10 @@ $ator = obter_usuario_logado_id();
 $demanda = buscar_demanda($acao["demanda_id"]);
 if ($demanda) {
     $alvos = [$demanda["criador_id"], $demanda["responsavel_id"]];
+    // Se o key user concluiu no lugar do responsavel, avisa tambem o responsavel da acao.
+    if (!$eh_responsavel && $acao["responsavel_id"] !== null) {
+        $alvos[] = (int) $acao["responsavel_id"];
+    }
     if ((int) $acao["chave"] === 1) {
         notificar_varios($alvos, $ator, "conclusao", "Demanda concluída", $demanda["titulo"], "demanda.html?id=" . $acao["demanda_id"]);
     } else {

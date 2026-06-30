@@ -17,12 +17,10 @@
 ## 4. Reabertura de ação recusada — ✅ IMPLEMENTADO
 **Feito:** botão **"Reabrir"** nas tarefas com status `recusada` (Gestor/Admin) — volta a ação para `pendente` e **limpa o `motivo_recusa`**, permitindo ao responsável reentregar/concluir. Fecha a limitação do D19 (ação chave recusada deixava a demanda travada). `reabrir_acao()` em `includes/acoes.php` + `api/acoes/reabrir.php` (notifica o responsável). Sem tabela nova; "bloqueada" continua derivada de pré-requisito. **Decidido:** reabre = Gestor/Admin (mesma alçada da recusa); reabrir limpa o motivo.
 
-## 5. Key user concluir/editar tarefas do setor
-**Objetivo:** hoje o key user **vê** todo o seu setor, mas só o **responsável** conclui a própria ação. Permitir que o key user **conclua/edite** ações de terceiros do seu setor.
-**Escopo:** ampliar a permissão de concluir/editar ação para o key user do setor da demanda. **Mudança de permissão** (mexer em `concluir.php` e afins).
-**Decisões a confirmar:** o key user conclui **qualquer** ação do setor ou só as de certos tipos? Mantém a assinatura/lastro?
+## 5. Key user concluir tarefas do setor — ✅ IMPLEMENTADO
+**Feito:** a conclusão de uma ação passa a ser permitida ao **responsável OU ao key user** (responsável principal) do setor da demanda — `usuario_eh_keyuser_da_demanda()` em `includes/demandas.php`, aplicado em `api/acoes/concluir.php` e em `api/anexos/enviar-acao.php` (para o key user também anexar a evidência de análise/reunião). O botão "Concluir" aparece para o key user no detalhe da demanda. **Decidido:** key user conclui **qualquer** tarefa do seu setor (mesmas regras: pré-requisitos, evidência obrigatória de análise/reunião, decisões da reunião); a **assinatura/lastro é mantida** (registra o nome de quem concluiu); quando o key user conclui no lugar do responsável, o responsável é **notificado**. Não havia endpoint genérico de "editar ação" — o que faltava era a **conclusão**, agora coberta. Sem tabela nova (reaproveita `setores.responsavel_id`).
 
 ---
 
 ## Status
-- **#1, #2, #3 e #4** implementados. **#5** pendente.
+- **#1 a #5 implementados.** Plano de melhorias pós-setores concluído.

@@ -218,6 +218,20 @@ function usuario_pode_ver_demanda($demanda_id, $usuario_id, $perfil)
     return colaborador_envolvido_na_demanda($demanda_id, $usuario_id);
 }
 
+// O usuario e o key user (responsavel principal) do setor desta demanda? (melhoria #5)
+// Usado para permitir que o key user conclua/gerencie tarefas do seu setor.
+function usuario_eh_keyuser_da_demanda($demanda_id, $usuario_id)
+{
+    $linhas = executar_select(
+        "SELECT 1 FROM demandas d
+         JOIN setores s ON s.id = d.setor_id
+         WHERE d.id = ? AND s.responsavel_id = ? LIMIT 1",
+        "ii",
+        [$demanda_id, $usuario_id]
+    );
+    return !empty($linhas);
+}
+
 // Escopo de visibilidade do colaborador sobre uma demanda especifica.
 function colaborador_envolvido_na_demanda($demanda_id, $usuario_id)
 {
