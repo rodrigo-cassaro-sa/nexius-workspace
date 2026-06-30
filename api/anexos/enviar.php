@@ -37,6 +37,8 @@ if (!$resultado["ok"]) {
     json_erro($resultado["erro"], $resultado["status"]);
 }
 
+registrar_log("anexo_enviado_demanda", "demanda_id=" . $demanda_id . " salvos=" . count($resultado["salvos"]));
+
 json_sucesso(
     ["salvos" => $resultado["salvos"], "rejeitados" => $resultado["rejeitados"]],
     "Anexos processados."
