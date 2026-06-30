@@ -18,9 +18,10 @@ function contar_demandas_por_status($usuario_id, $perfil)
             EXISTS (SELECT 1 FROM acoes a WHERE a.demanda_id = d.id AND a.responsavel_id = ?)
             OR EXISTS (SELECT 1 FROM comentarios c JOIN acoes a2 ON a2.id = c.acao_id
                        WHERE a2.demanda_id = d.id AND c.autor_id = ?)
+            OR EXISTS (SELECT 1 FROM setores ks WHERE ks.id = d.setor_id AND ks.responsavel_id = ?)
         )";
-        $tipos = "ii";
-        $params = [$usuario_id, $usuario_id];
+        $tipos = "iii";
+        $params = [$usuario_id, $usuario_id, $usuario_id];
     }
 
     $sql .= " GROUP BY status";

@@ -105,8 +105,10 @@ function montar_where_acoes($usuario_id, $perfil, $filtros)
                        WHERE a2.demanda_id = d.id AND c.autor_id = ?)
             OR EXISTS (SELECT 1 FROM acao_participantes ap JOIN acoes a3 ON a3.id = ap.acao_id
                        WHERE a3.demanda_id = d.id AND ap.usuario_id = ?)
+            OR EXISTS (SELECT 1 FROM setores ks WHERE ks.id = d.setor_id AND ks.responsavel_id = ?)
         )";
-        $tipos .= "iii";
+        $tipos .= "iiii";
+        $params[] = $usuario_id;
         $params[] = $usuario_id;
         $params[] = $usuario_id;
         $params[] = $usuario_id;

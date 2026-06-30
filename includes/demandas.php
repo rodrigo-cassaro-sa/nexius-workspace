@@ -65,15 +65,18 @@ function montar_where_demandas($usuario_id, $perfil, $filtros)
     $tipos = "";
     $params = [];
 
-    // Escopo do colaborador: responsavel de alguma acao da demanda OU autor de comentario nela.
+    // Escopo do colaborador: responsavel de alguma acao da demanda OU autor de comentario nela
+    // OU key user (responsavel principal) do setor da demanda (ve todo o setor - D21).
     if ($perfil === "colaborador") {
         $where .= " AND (
             EXISTS (SELECT 1 FROM acoes a WHERE a.demanda_id = d.id AND a.responsavel_id = ?)
             OR EXISTS (SELECT 1 FROM comentarios c
                        JOIN acoes a2 ON a2.id = c.acao_id
                        WHERE a2.demanda_id = d.id AND c.autor_id = ?)
+            OR EXISTS (SELECT 1 FROM setores ks WHERE ks.id = d.setor_id AND ks.responsavel_id = ?)
         )";
-        $tipos .= "ii";
+        $tipos .= "iii";
+        $params[] = $usuario_id;
         $params[] = $usuario_id;
         $params[] = $usuario_id;
     }
@@ -210,9 +213,10 @@ function colaborador_envolvido_na_demanda($demanda_id, $usuario_id)
             OR EXISTS (SELECT 1 FROM acao_participantes ap
                        JOIN acoes a3 ON a3.id = ap.acao_id
                        WHERE a3.demanda_id = d.id AND ap.usuario_id = ?)
+            OR EXISTS (SELECT 1 FROM setores ks WHERE ks.id = d.setor_id AND ks.responsavel_id = ?)
          ) LIMIT 1",
-        "iiii",
-        [$demanda_id, $usuario_id, $usuario_id, $usuario_id]
+        "iiiii",
+        [$demanda_id, $usuario_id, $usuario_id, $usuario_id, $usuario_id]
     );
 
     return !empty($linhas);
