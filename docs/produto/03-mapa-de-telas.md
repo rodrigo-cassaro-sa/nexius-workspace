@@ -868,6 +868,37 @@ Listas (projetos e demandas do projeto) viram cartões no mobile (mesmo padrão 
 
 ---
 
+## Tela: Roadmap (Gantt / linha do tempo)
+
+> Tela acrescentada por decisão de produto (D23 em `decisoes-pendentes.md`). Mostra a fila de projetos, demandas e tarefas no tempo (pelo prazo), como um Gantt. Sem tabela nova (usa `acoes`, `demandas`, `projetos`, `setores`).
+
+### Objetivo da tela
+Dar uma visão geral (overview) do que está na fila e quando vence: posiciona as **tarefas** numa linha do tempo, agrupadas por **projeto** e **demanda**, para enxergar prazos, lacunas de tempo e o impacto de novas entradas — e permitir **prorrogar prazos**.
+
+### Tipo de usuário que acessa
+Todos os perfis, com **escopo**: Gestor/Admin veem todas as tarefas; o Colaborador vê apenas as de demandas em que está envolvido (mesma regra das Ações). Alterar prazo = **Gestor/Admin** ou **key user** do setor da demanda.
+
+### Dados exibidos
+Barras por tarefa (início = criação, fim = prazo; concluída usa a data de conclusão), agrupadas por projeto → demanda. Cor por situação (pendente, bloqueada, atrasada, concluída, recusada). Linha do "hoje". Filtros: período (De/Até, padrão ~3 meses), projeto e setor.
+
+### Ações disponíveis
+Navegar/filtrar o período, projeto e setor; clicar numa barra abre o detalhe da tarefa (com link para a demanda) e, para quem tem permissão, **alterar o prazo** (prorrogação) ou removê-lo.
+
+### Regras de negócio aplicadas
+Só tarefas **com prazo** aparecem. A prorrogação valida a data no backend, não reagenda tarefa concluída/cancelada, registra log e **notifica o responsável**. O escopo e a permissão são validados no backend.
+
+### Estados da tela
+- Carregando: "Carregando..." na área do gráfico.
+- Vazio: "Nenhuma tarefa com prazo no período selecionado."
+- Erro: alerta genérico de falha ao carregar/salvar.
+- Sucesso: timeline renderizada; ao salvar um prazo, recarrega.
+- Sem permissão: o escopo limita o conteúdo; o botão de salvar prazo só aparece para quem pode alterar.
+
+### Comportamento responsivo
+A linha do tempo rola horizontalmente no mobile (a coluna de rótulos fica fixa à esquerda). Filtros e legenda quebram em linha.
+
+---
+
 ## Checklist de validação
 
 - [x] Este documento foi preenchido?

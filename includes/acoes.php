@@ -132,6 +132,12 @@ function montar_where_acoes($usuario_id, $perfil, $filtros)
         $params[] = $filtros["setor"];
     }
 
+    if (($filtros["projeto"] ?? 0) > 0) {
+        $where .= " AND d.projeto_id = ?";
+        $tipos .= "i";
+        $params[] = (int) $filtros["projeto"];
+    }
+
     if ($filtros["busca"] !== "") {
         $where .= " AND a.titulo LIKE ?";
         $tipos .= "s";
@@ -204,6 +210,46 @@ function listar_acoes_calendario($usuario_id, $perfil, $filtros, $inicio, $fim)
             . $where . " ORDER BY a.prazo ASC, a.id ASC";
 
     return executar_select($sql, $tipos, $params);
+}
+
+// Lista as acoes COM prazo dentro de um intervalo, para o roadmap/Gantt (melhoria D23).
+// Reaproveita o mesmo escopo/filtros de montar_where_acoes (sem duplicar regra). Inclui a
+// data de criacao (inicio da barra), a demanda, o projeto e o setor (para o key user editar).
+function listar_acoes_roadmap($usuario_id, $perfil, $filtros, $inicio, $fim)
+{
+    list($where, $tipos, $params) = montar_where_acoes($usuario_id, $perfil, $filtros);
+
+    $where .= " AND a.prazo IS NOT NULL AND a.prazo >= ? AND a.prazo <= ?";
+    $tipos .= "ss";
+    $params[] = $inicio;
+    $params[] = $fim;
+
+    $sql = "SELECT a.id, a.titulo, a.tipo, a.status, a.prazo, a.chave, a.criado_em, a.concluida_em,
+                   a.responsavel_id, ur.nome AS responsavel_nome,
+                   d.id AS demanda_id, d.titulo AS demanda_titulo,
+                   d.projeto_id, pr.nome AS projeto_nome,
+                   d.setor_id, s.responsavel_id AS setor_responsavel_id,
+                   (SELECT COUNT(*) FROM acao_prerequisitos ap
+                    JOIN acoes p ON p.id = ap.prerequisito_acao_id
+                    WHERE ap.acao_id = a.id AND p.status <> 'concluida') AS prereq_pendentes
+            FROM acoes a
+            JOIN demandas d ON d.id = a.demanda_id
+            LEFT JOIN usuarios ur ON ur.id = a.responsavel_id
+            LEFT JOIN projetos pr ON pr.id = d.projeto_id
+            LEFT JOIN setores s ON s.id = d.setor_id"
+            . $where . " ORDER BY (d.projeto_id IS NULL), d.projeto_id ASC, d.id ASC, a.prazo ASC, a.id ASC";
+
+    return executar_select($sql, $tipos, $params);
+}
+
+// Define (ou limpa, com null) o prazo de uma acao - prorrogacao no roadmap (D23).
+function definir_prazo_acao($id, $prazo)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE acoes SET prazo = ? WHERE id = ?");
+    // prazo pode ser null (mysqli envia NULL quando a variavel e null).
+    mysqli_stmt_bind_param($stmt, "si", $prazo, $id);
+    return mysqli_stmt_execute($stmt);
 }
 
 // Busca uma acao (inclui demanda_id, tipo e chave para as regras).

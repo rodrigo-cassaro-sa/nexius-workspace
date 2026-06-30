@@ -752,6 +752,200 @@
   max-width: 180px;
 }
 
+/* Roadmap / Gantt (D23) ---------------------------------------------------- */
+.gantt-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--espaco-3);
+  margin-bottom: var(--espaco-3);
+}
+
+.gantt-toolbar .campo {
+  margin-bottom: 0;
+}
+
+.gantt-toolbar .campo-input {
+  max-width: 200px;
+}
+
+.gantt-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-3);
+  margin-bottom: var(--espaco-3);
+  font-size: 0.8rem;
+  color: var(--cor-texto-secundario);
+}
+
+.gantt-legenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gantt-legenda i {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.leg-pendente { background: var(--cor-info); }
+.leg-bloqueada { background: var(--cor-aviso); }
+.leg-atrasada { background: var(--cor-erro); }
+.leg-concluida { background: var(--cor-sucesso); }
+.leg-recusada { background: #7E2F2F; }
+
+.gantt-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio, 8px);
+}
+
+.gantt {
+  position: relative;
+}
+
+.gantt-cabecalho {
+  display: flex;
+  border-bottom: 1px solid var(--cor-borda);
+  background: var(--cor-superficie);
+}
+
+.gantt-rotulo {
+  width: 240px;
+  min-width: 240px;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  border-right: 1px solid var(--cor-borda);
+  position: sticky;
+  left: 0;
+  background: var(--cor-superficie);
+  z-index: 2;
+}
+
+.gantt-rotulo-cab {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.gantt-eixo {
+  position: relative;
+  height: 28px;
+  flex: none;
+}
+
+.gantt-tick {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-left: 1px solid var(--cor-borda);
+  padding-left: 4px;
+  font-size: 0.7rem;
+  color: var(--cor-texto-secundario);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+.gantt-corpo {
+  position: relative;
+}
+
+.gantt-linha {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--cor-borda);
+  min-height: 36px;
+}
+
+.gantt-linha:last-child {
+  border-bottom: none;
+}
+
+.gantt-rotulo.gantt-grupo {
+  font-weight: 700;
+  background: var(--cor-fundo);
+  display: flex;
+  align-items: center;
+}
+
+.gantt-rotulo.gantt-subgrupo {
+  font-weight: 600;
+  padding-left: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.gantt-rotulo-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 30px;
+}
+
+.gantt-item-titulo {
+  font-size: 0.84rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gantt-item-sub {
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gantt-track {
+  position: relative;
+  flex: none;
+}
+
+.gantt-bar {
+  position: absolute;
+  top: 7px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.72rem;
+  padding: 0 6px;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.gantt-bar:hover {
+  filter: brightness(1.08);
+}
+
+.gantt-bar-texto {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gantt-bar-pendente { background: var(--cor-info); }
+.gantt-bar-bloqueada { background: var(--cor-aviso); }
+.gantt-bar-atrasada { background: var(--cor-erro); }
+.gantt-bar-concluida { background: var(--cor-sucesso); }
+.gantt-bar-recusada { background: #7E2F2F; }
+
+.gantt-hoje {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--cor-primaria);
+  opacity: 0.7;
+  z-index: 1;
+}
+
 /* Card de Setores (admin): nome + select de responsavel principal */
 .setor-linha {
   display: flex;
