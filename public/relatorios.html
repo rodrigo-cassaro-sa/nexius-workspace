@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Perfil - Workspace S&amp;A</title>
+  <title>Relatórios - Workspace S&amp;A</title>
 
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/theme.css">
@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-  <!-- Tela: Perfil do usuario. Inclui dados basicos e preferencia de tema. -->
+  <!-- Tela: Relatórios (gestão). Apenas Gestor/Admin; o backend valida. -->
   <div class="app-shell">
     <aside class="sidebar">
       <div class="sidebar-marca"><img class="marca-img-sidebar" src="assets/img/logo_escuro.png" alt="Grupo Nexius"></div>
@@ -22,7 +22,7 @@
         <a href="acoes.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg><span>Ações</span></a>
         <a href="notificacoes.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><span>Notificações</span></a>
         <a href="chat.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span>Mensagens</span><span class="badge badge-erro chat-contador" hidden></span></a>
-        <a href="relatorios.html" id="nav-relatorios" hidden><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg><span>Relatórios</span></a>
+        <a href="relatorios.html" id="nav-relatorios" class="ativo" hidden><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg><span>Relatórios</span></a>
         <a href="progresso.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg><span>Progresso</span></a>
         <a href="admin-usuarios.html" id="nav-usuarios" hidden><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span>Usuários</span></a>
       </nav>
@@ -57,66 +57,56 @@
       </header>
 
       <main class="app-main">
+        <div class="pagina-cabecalho">
+          <h1 class="pagina-titulo">Relatórios</h1>
+          <p class="pagina-subtitulo">Visão gerencial de demandas e ações.</p>
+        </div>
+
+        <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
         <section class="card">
-          <h1>Meu perfil</h1>
-
-          <div id="mensagem-perfil" class="alerta" role="alert" aria-live="polite" hidden></div>
-
-          <form id="form-perfil" novalidate>
+          <div class="rel-periodo">
             <div class="campo">
-              <label class="campo-label" for="nome">Nome</label>
-              <input class="campo-input" id="nome" name="nome" type="text" maxlength="100" required>
+              <label class="campo-label" for="rel-inicio">De</label>
+              <input class="campo-input" id="rel-inicio" type="date">
             </div>
-
             <div class="campo">
-              <label class="campo-label" for="email">E-mail</label>
-              <input class="campo-input" id="email" type="email" disabled>
-              <p class="texto-secundario">O e-mail não pode ser alterado.</p>
+              <label class="campo-label" for="rel-fim">Até</label>
+              <input class="campo-input" id="rel-fim" type="date">
             </div>
-
-            <div class="campo">
-              <span class="campo-label">Perfil</span>
-              <p><span class="badge" id="p-perfil">—</span></p>
-            </div>
-
-            <button id="botao-salvar" class="botao botao-primario" type="submit">Salvar</button>
-          </form>
+            <button id="rel-exportar" class="botao botao-secundario" type="button">Exportar CSV (produtividade)</button>
+          </div>
+          <p class="texto-secundario">O período afeta o "% no prazo" e a "produtividade". As contagens por status/setor são da situação atual.</p>
         </section>
 
-        <section class="card">
-          <h2>Trocar senha</h2>
-
-          <div id="mensagem-senha" class="alerta" role="alert" aria-live="polite" hidden></div>
-
-          <form id="form-senha" novalidate>
-            <div class="campo">
-              <label class="campo-label" for="senha-atual">Senha atual</label>
-              <input class="campo-input" id="senha-atual" type="password" autocomplete="current-password" required>
+        <div class="kpi-grid">
+          <section class="card kpi-card">
+            <div class="kpi-topo">
+              <div>
+                <p class="kpi-rotulo">% concluídas no prazo (período)</p>
+                <p class="kpi-numero" id="rel-prazo">—</p>
+                <p class="texto-secundario" id="rel-prazo-base">—</p>
+              </div>
+              <span class="kpi-icone kpi-icone-sucesso" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></span>
             </div>
-            <div class="campo">
-              <label class="campo-label" for="senha-nova">Nova senha</label>
-              <input class="campo-input" id="senha-nova" type="password" autocomplete="new-password" minlength="8" required>
-            </div>
-            <div class="campo">
-              <label class="campo-label" for="senha-confirmar">Confirmar nova senha</label>
-              <input class="campo-input" id="senha-confirmar" type="password" autocomplete="new-password" minlength="8" required>
-            </div>
-            <button id="botao-senha" class="botao botao-primario" type="submit">Alterar senha</button>
-          </form>
-        </section>
+          </section>
+        </div>
 
-        <section class="card">
-          <h2>Preferências</h2>
-          <p class="texto-secundario">Tema da interface (claro ou escuro).</p>
-          <button id="botao-tema" class="botao botao-secundario" type="button">Alternar tema</button>
+        <div class="painel-duo">
+          <section class="card">
+            <p class="kpi-rotulo">Demandas por status</p>
+            <div id="rel-status" class="tipos-grid"><p class="texto-secundario">Carregando...</p></div>
+          </section>
+          <section class="card">
+            <p class="kpi-rotulo">Demandas por setor</p>
+            <div id="rel-setor" class="tipos-grid"><p class="texto-secundario">Carregando...</p></div>
+          </section>
+        </div>
 
-          <div class="pref-digest">
-            <label class="toggle">
-              <input type="checkbox" id="pref-digest">
-              <span class="toggle-trilho"></span>
-              <span class="pref-digest-texto">Receber resumo semanal por e-mail</span>
-            </label>
-            <p class="texto-secundario">Um resumo das suas pendências e ações atrasadas. Você pode desligar quando quiser.</p>
+        <section class="card" style="margin-top: var(--espaco-4);">
+          <p class="kpi-rotulo">Produtividade por responsável (período)</p>
+          <div id="rel-produtividade">
+            <p class="texto-secundario">Carregando...</p>
           </div>
         </section>
       </main>
@@ -128,6 +118,6 @@
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/ui.js"></script>
-  <script src="js/perfil.js"></script>
+  <script src="js/relatorios.js"></script>
 </body>
 </html>

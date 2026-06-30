@@ -238,6 +238,21 @@ function configurarBuscaTopo() {
   });
 }
 
+// Mostra o item "Relatorios" no menu para Gestor/Admin (tela so deles).
+// Centralizado aqui para nao repetir em cada pagina; so consulta se o item existir.
+async function configurarNavGestor() {
+  const nav = document.getElementById("nav-relatorios");
+  if (!nav || !nav.hidden) return;
+  try {
+    const resposta = await getApi("/api/auth/me.php");
+    if (resposta && resposta.ok && (resposta.data.perfil === "administrador" || resposta.data.perfil === "gestor")) {
+      nav.hidden = false;
+    }
+  } catch (erro) {
+    // Mantem oculto.
+  }
+}
+
 // Menu mobile: cria o botao hamburguer na topbar e abre/fecha a sidebar como
 // painel deslizante (guia visual secao 9). Compartilhado por todas as telas internas.
 function configurarMenuMobile() {
@@ -287,6 +302,7 @@ document.addEventListener("DOMContentLoaded", function () {
   configurarAvatar();
   configurarBuscaTopo();
   configurarMenuMobile();
+  configurarNavGestor();
 
   // Mantem os contadores (mensagens/notificacoes) atualizados sem recarregar a pagina.
   // Polling leve: as funcoes so consultam quando o badge existe na tela (telas internas).

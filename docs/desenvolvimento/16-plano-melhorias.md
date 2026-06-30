@@ -7,15 +7,14 @@
 ## 1. Filtro/visão por setor — ✅ IMPLEMENTADO (quick win)
 **Feito:** filtro `setor` em `montar_where_demandas` e `montar_where_acoes`; dropdown "Setor: todos" nas telas **Demandas** e **Ações** (lista **e** calendário), populado por `api/setores/listar.php`; endpoints `demandas/listar`, `acoes/listar-todas` e `acoes/calendario` aceitam `setor`. Sem tabela nova.
 
-## 2. Relatórios (gestão)
-**Objetivo:** visão gerencial: demandas por status/**setor**, produtividade por responsável, **% no prazo por período**, com **exportação (CSV)**.
-**Escopo provável:** tela nova `relatorios.html` + `api/relatorios/*` (consultas agregadas, só leitura). Respeita escopo (Gestor/Admin veem tudo; key user vê o seu setor).
-**Decisões a confirmar:** quais relatórios entram na v1; quem acessa (sugiro Gestor/Admin; key user com recorte do setor); export CSV no MVP de relatórios?
+## 2. Relatórios (gestão) — ✅ IMPLEMENTADO
+**Feito:** tela `relatorios.html` + `public/js/relatorios.js`; `includes/relatorios.php` (consultas agregadas, só leitura) e `api/relatorios/resumo.php` (JSON) + `api/relatorios/exportar.php` (CSV com BOM UTF-8 e separador `;` p/ Excel pt-BR). Mostra **% concluídas no prazo (período)**, **demandas por status**, **demandas por setor** e **produtividade por responsável (período)**. Acesso **Gestor/Admin** (validado no backend com `exigir_perfil`); item de menu "Relatórios" liberado para Gestor/Admin via `ui.js` (`configurarNavGestor`). Sem tabela nova.
+**Decidido na v1:** acesso Gestor/Admin (visão global). O **recorte por setor do key user** ficou para fase futura (não bloqueia a entrega).
 
-## 3. Conceito de Projeto (decisão de produto)
+## 3. Conceito de Projeto (decisão de produto) — APROVADO (próximo)
 **Objetivo:** agrupar várias demandas sob um **Projeto** (com responsável/status próprios), para empresas que trabalham por projeto.
-**Escopo provável:** tabela nova `projetos` + `demandas.projeto_id` + tela de projeto (lista de demandas do projeto). **Grande.**
-**DECISÃO NECESSÁRIA antes de codar:** *a empresa trabalha por **projetos que agrupam várias demandas**, ou cada demanda já é a unidade de trabalho?* Se for a 2ª, este item não é necessário.
+**Decisão do dono do produto:** a empresa **trabalha por projetos que agrupam várias demandas** → seguir com o modelo Projeto.
+**Escopo:** tabela nova `projetos` + `demandas.projeto_id` (FK opcional, `ON DELETE SET NULL`) + tela de projeto (lista de demandas do projeto) + endpoints de CRUD/listagem. **Grande.**
 
 ## 4. Reabertura de ação chave recusada
 **Objetivo:** fechar a limitação registrada — uma ação **chave** recusada deixa a demanda sem conclusão automática.
@@ -30,4 +29,4 @@
 ---
 
 ## Status
-- **#1** em andamento (este ciclo). **#2–#5** pendentes, nesta ordem. **#3** bloqueado por decisão de produto (modelo projeto x demanda).
+- **#1 e #2** implementados. **#3** aprovado e é o próximo. **#4 e #5** pendentes, nesta ordem.

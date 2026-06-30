@@ -803,6 +803,39 @@ Qualquer usuário autenticado; cada um só vê as conversas das quais participa 
 
 ---
 
+## Tela: Relatórios (gestão)
+
+> Tela acrescentada pelo plano de melhorias pós-setores (item #2 em `docs/desenvolvimento/16-plano-melhorias.md`). Visão gerencial só leitura, sem tabela nova (usa `demandas`, `acoes`, `setores`, `usuarios`).
+
+### Objetivo da tela
+Dar à gestão uma visão consolidada: quantas demandas há por status e por setor, o percentual de ações concluídas no prazo num período e a produtividade por responsável.
+
+### Tipo de usuário que acessa
+Apenas **Gestor** e **Administrador** (validado no backend com `exigir_perfil`). O item de menu "Relatórios" aparece só para esses perfis. O recorte por setor do key user fica para fase futura.
+
+### Dados exibidos
+- **% concluídas no prazo (período):** entre as ações concluídas no intervalo, quantas dentro do prazo.
+- **Demandas por status** e **Demandas por setor:** contagem da situação atual (não filtra período).
+- **Produtividade por responsável (período):** ações concluídas e quantas no prazo, por pessoa.
+
+### Ações disponíveis
+Escolher o período (datas De/Até; padrão últimos 30 dias); **exportar a produtividade em CSV** (BOM UTF-8 e separador `;`, compatível com Excel pt-BR).
+
+### Regras de negócio aplicadas
+Só leitura (não altera dados). Período em `YYYY-MM-DD`, com defaults seguros no backend. A exportação gera log (`relatorio_exportado`). Acesso restrito a Gestor/Admin no backend.
+
+### Estados da tela
+- Carregando: "Carregando..." nos blocos.
+- Vazio: "Sem dados." nas listas; "Nenhuma ação concluída no período." na produtividade; "—" no KPI sem base.
+- Erro: alerta genérico de falha ao carregar.
+- Sucesso: KPI, listas e tabela preenchidos; CSV baixado.
+- Sem permissão: Colaborador é redirecionado ao Dashboard (e o backend bloqueia).
+
+### Comportamento responsivo
+KPI e os dois painéis (status/setor) empilham no mobile; a tabela de produtividade vira cartões (mesmo padrão das demais listas).
+
+---
+
 ## Checklist de validação
 
 - [x] Este documento foi preenchido?

@@ -707,6 +707,22 @@
   margin-left: var(--espaco-2);
 }
 
+/* Relatorios: linha de periodo (datas + exportar) */
+.rel-periodo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--espaco-3);
+}
+
+.rel-periodo .campo {
+  margin-bottom: 0;
+}
+
+.rel-periodo .campo-input {
+  max-width: 180px;
+}
+
 /* Card de Setores (admin): nome + select de responsavel principal */
 .setor-linha {
   display: flex;
