@@ -722,7 +722,14 @@
 
 /* Demanda: controle "mover para projeto" (select + botao na mesma linha) */
 .demanda-projeto-mover {
-  margin-top: var(--espaco-3);
+  margin-top: var(--espaco-4);
+  padding-top: var(--espaco-3);
+  border-top: 1px solid var(--cor-borda);
+}
+
+.demanda-projeto-mover .campo-label {
+  display: block;
+  margin-bottom: var(--espaco-2);
 }
 
 .projeto-mover-linha {
