@@ -171,14 +171,15 @@ function marcar_onboarding_concluido($id)
 
 // Cria um usuario com perfil informado (usado no aceite de convite). Senha ja em hash.
 // Retorna o id criado ou false em caso de falha.
-function criar_usuario($nome, $email, $senha_hash, $perfil)
+function criar_usuario($nome, $email, $senha_hash, $perfil, $setor_id = null)
 {
     $conn = conectar_banco();
-    $sql = "INSERT INTO usuarios (nome, email, senha_hash, perfil, ativo, onboarding_concluido)
-            VALUES (?, ?, ?, ?, 1, 0)";
+    $sql = "INSERT INTO usuarios (nome, email, senha_hash, perfil, setor_id, ativo, onboarding_concluido)
+            VALUES (?, ?, ?, ?, ?, 1, 0)";
 
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ssss", $nome, $email, $senha_hash, $perfil);
+    // setor_id pode ser null: o mysqli envia NULL quando a variavel ligada e null.
+    mysqli_stmt_bind_param($stmt, "ssssi", $nome, $email, $senha_hash, $perfil, $setor_id);
     $ok = mysqli_stmt_execute($stmt);
 
     return $ok ? mysqli_insert_id($conn) : false;

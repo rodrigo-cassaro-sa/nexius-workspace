@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS convites (
   id INT AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(180) NOT NULL,
   perfil VARCHAR(20) NOT NULL,
+  setor_id INT NULL,
   token CHAR(64) NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'pendente',
   expira_em DATETIME NOT NULL,
@@ -76,8 +77,10 @@ CREATE TABLE IF NOT EXISTS convites (
   KEY idx_convites_status (status),
   KEY idx_convites_criado_por (criado_por),
   KEY idx_convites_usuario (usuario_id),
+  KEY idx_convites_setor (setor_id),
   CONSTRAINT fk_convites_criado_por FOREIGN KEY (criado_por) REFERENCES usuarios(id),
   CONSTRAINT fk_convites_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+  CONSTRAINT fk_convites_setor FOREIGN KEY (setor_id) REFERENCES setores(id),
   CONSTRAINT chk_convites_perfil CHECK (perfil IN ('administrador','gestor','colaborador')),
   CONSTRAINT chk_convites_status CHECK (status IN ('pendente','aceito','cancelado','expirado'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -4,14 +4,15 @@
 // Acesso a dados da tabela convites (procedural, mysqli, prepared statements).
 
 // Cria um convite pendente. Retorna o id ou false.
-function criar_convite($email, $perfil, $token, $expira_em, $criado_por)
+function criar_convite($email, $perfil, $token, $expira_em, $criado_por, $setor_id = null)
 {
     $conn = conectar_banco();
-    $sql = "INSERT INTO convites (email, perfil, token, status, expira_em, criado_por)
-            VALUES (?, ?, ?, 'pendente', ?, ?)";
+    $sql = "INSERT INTO convites (email, perfil, setor_id, token, status, expira_em, criado_por)
+            VALUES (?, ?, ?, ?, 'pendente', ?, ?)";
 
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ssssi", $email, $perfil, $token, $expira_em, $criado_por);
+    // setor_id pode ser null: o mysqli envia NULL quando a variavel ligada e null.
+    mysqli_stmt_bind_param($stmt, "ssissi", $email, $perfil, $setor_id, $token, $expira_em, $criado_por);
     $ok = mysqli_stmt_execute($stmt);
 
     return $ok ? mysqli_insert_id($conn) : false;
@@ -32,7 +33,7 @@ function cancelar_convites_pendentes_por_email($email)
 function buscar_convite_pendente_por_token($token)
 {
     $conn = conectar_banco();
-    $sql = "SELECT id, email, perfil, status, expira_em
+    $sql = "SELECT id, email, perfil, setor_id, status, expira_em
             FROM convites WHERE token = ? AND status = 'pendente' LIMIT 1";
 
     $stmt = mysqli_prepare($conn, $sql);

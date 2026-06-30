@@ -44,6 +44,20 @@ async function carregarSetores() {
     usuariosAtivos = [];
   }
   renderSetores();
+  preencherConviteSetor();
+}
+
+// Popula o select de setor do formulario de convite (mantem "Sem setor" como 1a opcao).
+function preencherConviteSetor() {
+  const sel = document.getElementById("convite-setor");
+  if (!sel) return;
+  sel.length = 1;
+  setoresLista.forEach(function (s) {
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = s.nome;
+    sel.appendChild(opt);
+  });
 }
 
 function renderSetores() {
@@ -147,6 +161,7 @@ async function gerarConvite(evento) {
   const botao = document.getElementById("botao-convidar");
   const email = document.getElementById("email").value.trim();
   const perfil = document.getElementById("perfil").value;
+  const setorId = document.getElementById("convite-setor").value;
 
   if (!validarEmailFront(email)) {
     mostrarErro("mensagem", "Informe um e-mail valido.");
@@ -156,7 +171,7 @@ async function gerarConvite(evento) {
   definirCarregando(botao, true);
 
   try {
-    const resposta = await postApi("/api/convites/criar.php", { email: email, perfil: perfil });
+    const resposta = await postApi("/api/convites/criar.php", { email: email, perfil: perfil, setor_id: setorId });
 
     if (!resposta.ok) {
       mostrarErro("mensagem", resposta.error);

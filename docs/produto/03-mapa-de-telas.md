@@ -576,7 +576,7 @@ Lista de usuários (nome, e-mail, perfil, **setor**, situação ativo/inativo); 
 
 ### Ações disponíveis
 
-Convidar usuário; reenviar/cancelar convite; alterar perfil; **definir o setor do usuário**; ativar/inativar usuário; **definir o responsável principal de cada setor** (D21).
+Convidar usuário (**com setor opcional**); reenviar/cancelar convite; alterar perfil; **definir o setor do usuário**; ativar/inativar usuário; **definir o responsável principal de cada setor** (D21).
 
 ### Regras de negócio aplicadas
 

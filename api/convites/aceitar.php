@@ -53,7 +53,8 @@ $conn = conectar_banco();
 mysqli_begin_transaction($conn);
 
 $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
-$usuario_id = criar_usuario($nome, $convite["email"], $senha_hash, $convite["perfil"]);
+$setor_id = isset($convite["setor_id"]) && $convite["setor_id"] !== null ? (int) $convite["setor_id"] : null;
+$usuario_id = criar_usuario($nome, $convite["email"], $senha_hash, $convite["perfil"], $setor_id);
 $vinculado = $usuario_id ? marcar_convite_aceito($convite["id"], $usuario_id) : false;
 
 if (!$usuario_id || !$vinculado) {

@@ -7,6 +7,7 @@
 require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/usuarios.php";
 require_once __DIR__ . "/../../includes/convites.php";
+require_once __DIR__ . "/../../includes/setores.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     json_response(["ok" => false, "error" => "Metodo nao permitido."], 405);
@@ -22,6 +23,7 @@ if ($body === null) {
 
 $email = trim($body["email"] ?? "");
 $perfil = trim($body["perfil"] ?? "");
+$setor_id = isset($body["setor_id"]) && $body["setor_id"] !== "" ? (int) $body["setor_id"] : null;
 
 $perfis_validos = ["administrador", "gestor", "colaborador"];
 $erros = [];
@@ -30,6 +32,9 @@ if (!validar_email($email)) {
 }
 if (!valor_em_lista($perfil, $perfis_validos)) {
     $erros["perfil"] = "Perfil invalido.";
+}
+if ($setor_id !== null && !buscar_setor($setor_id)) {
+    $erros["setor_id"] = "Setor invalido.";
 }
 if (!empty($erros)) {
     json_response(["ok" => false, "error" => "Verifique os campos.", "errors" => $erros], 400);
@@ -46,7 +51,7 @@ cancelar_convites_pendentes_por_email($email);
 $token = bin2hex(random_bytes(32));
 $expira_em = date("Y-m-d H:i:s", time() + 7 * 24 * 60 * 60);
 
-$id = criar_convite($email, $perfil, $token, $expira_em, obter_usuario_logado_id());
+$id = criar_convite($email, $perfil, $token, $expira_em, obter_usuario_logado_id(), $setor_id);
 if (!$id) {
     json_erro("Nao foi possivel criar o convite.", 500);
 }
