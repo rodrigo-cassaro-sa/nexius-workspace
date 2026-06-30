@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("filtro-busca").addEventListener("input", debounce(recarregarAtiva, 350));
   document.getElementById("filtro-status").addEventListener("change", recarregarAtiva);
   document.getElementById("filtro-responsavel").addEventListener("change", recarregarAtiva);
+  document.getElementById("filtro-setor").addEventListener("change", recarregarAtiva);
   document.getElementById("filtro-situacao").addEventListener("change", recarregarAtiva);
   document.getElementById("pag-anterior").addEventListener("click", function () { irPara(paginaAtual - 1); });
   document.getElementById("pag-proxima").addEventListener("click", function () { irPara(paginaAtual + 1); });
@@ -51,6 +52,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   carregarResponsaveis();
+  carregarFiltroSetores();
 
   // Permite abrir direto no calendário via URL (ex.: acoes.html?visao=calendario).
   if (params.get("visao") === "calendario") {
@@ -93,10 +95,12 @@ function paramsFiltros() {
   const busca = document.getElementById("filtro-busca").value.trim();
   const status = document.getElementById("filtro-status").value;
   const responsavel = document.getElementById("filtro-responsavel").value;
+  const setor = document.getElementById("filtro-setor").value;
   const situacao = document.getElementById("filtro-situacao").value;
   return "busca=" + encodeURIComponent(busca)
     + "&status=" + encodeURIComponent(status)
     + "&responsavel=" + encodeURIComponent(responsavel)
+    + "&setor=" + encodeURIComponent(setor)
     + "&situacao=" + encodeURIComponent(situacao);
 }
 
@@ -140,6 +144,22 @@ async function carregarResponsaveis() {
     });
   } catch (erro) {
     // Mantem "Responsável: todos".
+  }
+}
+
+async function carregarFiltroSetores() {
+  const select = document.getElementById("filtro-setor");
+  try {
+    const resposta = await getApi("/api/setores/listar.php");
+    if (!resposta.ok) return;
+    resposta.data.setores.forEach(function (s) {
+      const opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = s.nome;
+      select.appendChild(opt);
+    });
+  } catch (erro) {
+    // Mantem "Setor: todos".
   }
 }
 

@@ -30,6 +30,7 @@ if ($situacao !== "" && !in_array($situacao, ["atrasadas", "bloqueadas"], true))
 $filtros = [
     "status" => $status,
     "responsavel" => isset($_GET["responsavel"]) ? (int) $_GET["responsavel"] : 0,
+    "setor" => isset($_GET["setor"]) ? (int) $_GET["setor"] : 0,
     "busca" => trim($_GET["busca"] ?? ""),
     "situacao" => $situacao
 ];

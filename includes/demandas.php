@@ -97,6 +97,13 @@ function montar_where_demandas($usuario_id, $perfil, $filtros)
         $params[] = $filtros["solicitante"];
     }
 
+    // Setor da demanda.
+    if (($filtros["setor"] ?? 0) > 0) {
+        $where .= " AND d.setor_id = ?";
+        $tipos .= "i";
+        $params[] = $filtros["setor"];
+    }
+
     // Busca por titulo.
     if ($filtros["busca"] !== "") {
         $where .= " AND d.titulo LIKE ?";

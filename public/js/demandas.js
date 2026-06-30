@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   document.getElementById("filtro-status").addEventListener("change", recarregar);
   document.getElementById("filtro-solicitante").addEventListener("change", recarregar);
+  document.getElementById("filtro-setor").addEventListener("change", recarregar);
   document.getElementById("filtro-pilar").addEventListener("change", recarregar);
   document.getElementById("filtro-intencao").addEventListener("change", recarregar);
   document.getElementById("filtro-objetivo").addEventListener("change", recarregar);
@@ -49,6 +50,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("pag-proxima").addEventListener("click", function () { irPara(paginaAtual + 1); });
 
   carregarFiltroSolicitantes();
+  carregarFiltroSetores();
   carregarDemandas();
 });
 
@@ -87,6 +89,22 @@ async function carregarFiltroSolicitantes() {
   }
 }
 
+async function carregarFiltroSetores() {
+  const select = document.getElementById("filtro-setor");
+  try {
+    const resposta = await getApi("/api/setores/listar.php");
+    if (!resposta.ok) return;
+    resposta.data.setores.forEach(function (s) {
+      const opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = s.nome;
+      select.appendChild(opt);
+    });
+  } catch (erro) {
+    // Mantem "Setor: todos".
+  }
+}
+
 async function carregarDemandas() {
   const alvo = document.getElementById("lista-demandas");
   mostrarCarregando("lista-demandas", 4);
@@ -95,6 +113,7 @@ async function carregarDemandas() {
   const busca = document.getElementById("busca-topo").value.trim();
   const status = document.getElementById("filtro-status").value;
   const solicitante = document.getElementById("filtro-solicitante").value;
+  const setor = document.getElementById("filtro-setor").value;
   const pilar = document.getElementById("filtro-pilar").value;
   const intencao = document.getElementById("filtro-intencao").value;
   const objetivo = document.getElementById("filtro-objetivo").value;
@@ -104,6 +123,7 @@ async function carregarDemandas() {
     + "?busca=" + encodeURIComponent(busca)
     + "&status=" + encodeURIComponent(status)
     + "&solicitante=" + encodeURIComponent(solicitante)
+    + "&setor=" + encodeURIComponent(setor)
     + "&pilar=" + encodeURIComponent(pilar)
     + "&intencao=" + encodeURIComponent(intencao)
     + "&objetivo=" + encodeURIComponent(objetivo)

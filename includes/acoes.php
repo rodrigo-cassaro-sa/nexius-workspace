@@ -126,6 +126,12 @@ function montar_where_acoes($usuario_id, $perfil, $filtros)
         $params[] = $filtros["responsavel"];
     }
 
+    if (($filtros["setor"] ?? 0) > 0) {
+        $where .= " AND d.setor_id = ?";
+        $tipos .= "i";
+        $params[] = $filtros["setor"];
+    }
+
     if ($filtros["busca"] !== "") {
         $where .= " AND a.titulo LIKE ?";
         $tipos .= "s";
