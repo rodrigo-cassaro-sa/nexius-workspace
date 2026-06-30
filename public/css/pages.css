@@ -936,6 +936,21 @@
 .gantt-bar-concluida { background: var(--cor-sucesso); }
 .gantt-bar-recusada { background: #7E2F2F; }
 
+/* Barra-resumo (overview) nas linhas de projeto e demanda */
+.gantt-bar-resumo {
+  position: absolute;
+  top: 14px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--cor-secundaria);
+  opacity: 0.4;
+}
+
+.gantt-grupo + .gantt-track .gantt-bar-resumo,
+.gantt-rotulo.gantt-grupo + .gantt-track .gantt-bar-resumo {
+  opacity: 0.55;
+}
+
 .gantt-hoje {
   position: absolute;
   top: 0;

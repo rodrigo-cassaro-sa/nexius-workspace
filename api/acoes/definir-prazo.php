@@ -38,11 +38,13 @@ if (!$acao) {
     json_erro("Acao nao encontrada.", 404);
 }
 
-// Gestor/Admin ou key user do setor da demanda podem ajustar o prazo.
+// Podem ajustar o prazo: Gestor/Admin, o key user do setor da demanda, ou o
+// proprio responsavel da tarefa (prorroga o seu prazo).
 $perfil = obter_usuario_logado_perfil();
 $eh_gestor = ($perfil === "administrador" || $perfil === "gestor");
 $eh_keyuser = usuario_eh_keyuser_da_demanda($acao["demanda_id"], obter_usuario_logado_id());
-if (!$eh_gestor && !$eh_keyuser) {
+$eh_responsavel = (int) $acao["responsavel_id"] === obter_usuario_logado_id();
+if (!$eh_gestor && !$eh_keyuser && !$eh_responsavel) {
     json_response(["ok" => false, "error" => "Sem permissao para alterar o prazo."], 403);
 }
 

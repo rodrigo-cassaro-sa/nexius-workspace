@@ -876,10 +876,10 @@ Listas (projetos e demandas do projeto) viram cartões no mobile (mesmo padrão 
 Dar uma visão geral (overview) do que está na fila e quando vence: posiciona as **tarefas** numa linha do tempo, agrupadas por **projeto** e **demanda**, para enxergar prazos, lacunas de tempo e o impacto de novas entradas — e permitir **prorrogar prazos**.
 
 ### Tipo de usuário que acessa
-Todos os perfis, com **escopo**: Gestor/Admin veem todas as tarefas; o Colaborador vê apenas as de demandas em que está envolvido (mesma regra das Ações). Alterar prazo = **Gestor/Admin** ou **key user** do setor da demanda.
+Todos os perfis, com **escopo**: Gestor/Admin veem todas as tarefas; o Colaborador vê apenas as de demandas em que está envolvido (mesma regra das Ações). Alterar prazo = **Gestor/Admin**, **key user** do setor da demanda ou o **responsável** da própria tarefa.
 
 ### Dados exibidos
-Barras por tarefa (início = criação, fim = prazo; concluída usa a data de conclusão), agrupadas por projeto → demanda. Cor por situação (pendente, bloqueada, atrasada, concluída, recusada). Linha do "hoje". Filtros: período (De/Até, padrão ~3 meses), projeto e setor.
+Barras por tarefa (início = criação, fim = prazo; concluída usa a data de conclusão), agrupadas por projeto → demanda. Cada linha de **projeto** e de **demanda** mostra ainda uma **barra-resumo** (do início mais cedo ao prazo mais tarde do grupo). Cor por situação (pendente, bloqueada, atrasada, concluída, recusada). Linha do "hoje". Filtros: período (De/Até, padrão ~3 meses), projeto e setor.
 
 ### Ações disponíveis
 Navegar/filtrar o período, projeto e setor; clicar numa barra abre o detalhe da tarefa (com link para a demanda) e, para quem tem permissão, **alterar o prazo** (prorrogação) ou removê-lo.

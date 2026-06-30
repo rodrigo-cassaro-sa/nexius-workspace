@@ -68,6 +68,27 @@ function rotuloTipo(tipo) {
   return mapa[tipo] || tipo;
 }
 
+// Intervalo (em ms) que a tarefa ocupa: inicio = criacao; fim = conclusao (se concluida) ou prazo.
+function intervaloBarra(it) {
+  const ini = parseData(it.criado_em).getTime();
+  const fim = ((it.status === "concluida" && it.concluida_em) ? parseData(it.concluida_em) : parseData(it.prazo)).getTime();
+  return { ini: ini, fim: fim };
+}
+
+// Converte um intervalo (ms) em left/width (px), recortado a janela visivel.
+function posicaoBarra(iniMs, fimMs, ini, totalDias) {
+  const fimRange = new Date(ini.getTime() + (totalDias - 1) * 86400000);
+  let s = new Date(iniMs); s.setHours(0, 0, 0, 0);
+  let e = new Date(fimMs); e.setHours(0, 0, 0, 0);
+  if (s < ini) s = ini;
+  if (e > fimRange) e = fimRange;
+  if (e < s) e = s;
+  return {
+    left: diffDias(ini, s) * PX_DIA,
+    width: Math.max((diffDias(s, e) + 1) * PX_DIA, 10)
+  };
+}
+
 // Situacao (cor da barra): recusada, concluida, atrasada (pendente vencida), bloqueada, pendente.
 function classeSituacao(it) {
   if (it.status === "recusada") return "recusada";
@@ -180,6 +201,19 @@ function render(data) {
   cab.appendChild(eixo);
   gantt.appendChild(cab);
 
+  // Spans (intervalo total) por projeto e por demanda, para as barras-resumo.
+  const spanProj = {};
+  const spanDem = {};
+  itens.forEach(function (it) {
+    const iv = intervaloBarra(it);
+    const pk = it.projeto_id ? ("p" + it.projeto_id) : "sem";
+    if (!spanProj[pk]) { spanProj[pk] = { ini: iv.ini, fim: iv.fim }; }
+    else { spanProj[pk].ini = Math.min(spanProj[pk].ini, iv.ini); spanProj[pk].fim = Math.max(spanProj[pk].fim, iv.fim); }
+    const dk = it.demanda_id;
+    if (!spanDem[dk]) { spanDem[dk] = { ini: iv.ini, fim: iv.fim }; }
+    else { spanDem[dk].ini = Math.min(spanDem[dk].ini, iv.ini); spanDem[dk].fim = Math.max(spanDem[dk].fim, iv.fim); }
+  });
+
   const corpo = document.createElement("div");
   corpo.className = "gantt-corpo";
 
@@ -202,11 +236,11 @@ function render(data) {
     if (projKey !== projAtual) {
       projAtual = projKey;
       demAtual = null;
-      corpo.appendChild(linhaGrupo("gantt-grupo", it.projeto_nome || "Sem projeto", trackW));
+      corpo.appendChild(linhaGrupo("gantt-grupo", it.projeto_nome || "Sem projeto", trackW, ini, totalDias, spanProj[projKey]));
     }
     if (parseInt(it.demanda_id, 10) !== demAtual) {
       demAtual = parseInt(it.demanda_id, 10);
-      corpo.appendChild(linhaGrupo("gantt-subgrupo", it.demanda_titulo, trackW));
+      corpo.appendChild(linhaGrupo("gantt-subgrupo", it.demanda_titulo, trackW, ini, totalDias, spanDem[it.demanda_id]));
     }
     corpo.appendChild(linhaItem(it, ini, totalDias, trackW));
   });
@@ -219,7 +253,7 @@ function render(data) {
   alvo.appendChild(scroll);
 }
 
-function linhaGrupo(classe, texto, trackW) {
+function linhaGrupo(classe, texto, trackW, ini, totalDias, span) {
   const linha = document.createElement("div");
   linha.className = "gantt-linha";
   const rot = document.createElement("div");
@@ -228,6 +262,17 @@ function linhaGrupo(classe, texto, trackW) {
   const track = document.createElement("div");
   track.className = "gantt-track";
   track.style.width = trackW + "px";
+
+  // Barra-resumo: span do inicio mais cedo ao prazo mais tarde do grupo (overview).
+  if (span) {
+    const pos = posicaoBarra(span.ini, span.fim, ini, totalDias);
+    const resumo = document.createElement("div");
+    resumo.className = "gantt-bar-resumo";
+    resumo.style.left = pos.left + "px";
+    resumo.style.width = pos.width + "px";
+    track.appendChild(resumo);
+  }
+
   linha.appendChild(rot);
   linha.appendChild(track);
   return linha;
@@ -253,18 +298,14 @@ function linhaItem(it, ini, totalDias, trackW) {
   track.style.width = trackW + "px";
 
   // Barra: inicio = criacao da tarefa; fim = conclusao (se concluida) ou prazo.
-  const inicioBar = parseData(it.criado_em);
-  const fimBar = (it.status === "concluida" && it.concluida_em) ? parseData(it.concluida_em) : parseData(it.prazo);
-  const fimRange = new Date(ini.getTime() + (totalDias - 1) * 86400000);
-  let s = inicioBar < ini ? ini : inicioBar;
-  let e = fimBar > fimRange ? fimRange : fimBar;
-  if (e < s) e = s;
+  const iv = intervaloBarra(it);
+  const pos = posicaoBarra(iv.ini, iv.fim, ini, totalDias);
 
   const bar = document.createElement("button");
   bar.type = "button";
   bar.className = "gantt-bar gantt-bar-" + classeSituacao(it);
-  bar.style.left = (diffDias(ini, s) * PX_DIA) + "px";
-  bar.style.width = Math.max((diffDias(s, e) + 1) * PX_DIA, 10) + "px";
+  bar.style.left = pos.left + "px";
+  bar.style.width = pos.width + "px";
   bar.title = it.titulo + " — prazo " + fmtDataBR(it.prazo);
   const txt = document.createElement("span");
   txt.className = "gantt-bar-texto";
@@ -281,7 +322,10 @@ function linhaItem(it, ini, totalDias, trackW) {
 function podeEditarPrazo(it) {
   if (it.status === "concluida" || it.status === "cancelada") return false;
   if (perfilUsuario === "administrador" || perfilUsuario === "gestor") return true;
-  return it.setor_responsavel_id && parseInt(it.setor_responsavel_id, 10) === usuarioId;
+  // Key user do setor da demanda.
+  if (it.setor_responsavel_id && parseInt(it.setor_responsavel_id, 10) === usuarioId) return true;
+  // Responsavel pela propria tarefa.
+  return parseInt(it.responsavel_id, 10) === usuarioId;
 }
 
 function abrirPrazo(it) {
