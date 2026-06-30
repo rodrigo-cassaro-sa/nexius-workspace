@@ -52,7 +52,10 @@ CREATE TABLE IF NOT EXISTS setores (
 
 INSERT IGNORE INTO setores (nome) VALUES
   ('Comercial'), ('Relacionamento'), ('Logística'), ('Roteirização'),
-  ('Equipe Externa'), ('Fechamento'), ('Financeiro');
+  ('Equipe Externa'), ('Fechamento'), ('Financeiro'),
+  ('Diretoria Financeira (CFO)'), ('Diretoria Comercial (CCO)'),
+  ('Diretoria Operacional (COO)'), ('Diretoria Presidência (CEO)'),
+  ('RH'), ('Tecnologia');
 
 ALTER TABLE usuarios
   ADD CONSTRAINT fk_usuarios_setor FOREIGN KEY (setor_id) REFERENCES setores(id);

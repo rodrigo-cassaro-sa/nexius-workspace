@@ -36,7 +36,7 @@ Resumo dos campos principais (ver SQL para tipos, chaves e constraints completos
 Motivo: identidade, autenticação, perfil, setor e estado do usuário.
 
 ### setores (D21 — Migration 015)
-`id` · `nome` (único) · `responsavel_id` (FK usuarios, NULL = responsável principal do setor) · `criado_em`. Lista fixa (seed): Comercial, Relacionamento, Logística, Roteirização, Equipe Externa, Fechamento, Financeiro. A demanda herda o setor do criador; ao criar ação, o responsável vem pré-selecionado com o responsável principal do setor (editável). Gestão (setor do usuário + responsável do setor) só por Administrador.
+`id` · `nome` (único) · `responsavel_id` (FK usuarios, NULL = responsável principal do setor) · `criado_em`. Lista fixa (seed): Comercial, Relacionamento, Logística, Roteirização, Equipe Externa, Fechamento, Financeiro, Diretoria Financeira (CFO), Diretoria Comercial (CCO), Diretoria Operacional (COO), Diretoria Presidência (CEO), RH, Tecnologia (os 6 últimos na Migration 017). A demanda herda o setor do criador; ao criar ação, o responsável vem pré-selecionado com o responsável principal do setor (editável). Gestão (setor do usuário + responsável do setor) só por Administrador.
 
 ### convites
 `id` · `email` · `perfil` · `token` (único) · `status` (pendente/aceito/cancelado/expirado) · `expira_em` · `criado_por` (FK usuarios) · `usuario_id` (FK usuarios, ao aceitar) · timestamps.
