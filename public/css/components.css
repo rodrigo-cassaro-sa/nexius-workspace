@@ -483,7 +483,9 @@
 /* Barra de ferramentas (busca + filtros + acao a direita) */
 .barra-ferramentas {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  /* Ajusta o numero de colunas ao espaco: cabe tudo em uma linha no desktop
+     e quebra sozinho em telas menores (filtros com largura minima legivel). */
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: var(--espaco-2);
   margin: var(--espaco-3) 0 var(--espaco-4);
 }
