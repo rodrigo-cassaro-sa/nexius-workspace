@@ -22,11 +22,32 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("nav-usuarios").hidden = false;
   }
 
+  // Preferencia de resumo por e-mail (digest): reflete o valor atual e salva ao alternar.
+  const toggleDigest = document.getElementById("pref-digest");
+  toggleDigest.checked = !!usuario.digest_ativo;
+  toggleDigest.addEventListener("change", salvarDigest);
+
   document.getElementById("form-perfil").addEventListener("submit", salvarPerfil);
   document.getElementById("form-senha").addEventListener("submit", alterarSenha);
   document.getElementById("botao-sair").addEventListener("click", sairDoSistema);
   document.getElementById("botao-tema").addEventListener("click", alternarTema);
 });
+
+async function salvarDigest() {
+  const toggle = document.getElementById("pref-digest");
+  try {
+    const resposta = await postApi("/api/perfil/preferencias.php", { digest_ativo: toggle.checked ? 1 : 0 });
+    if (!resposta.ok) {
+      mostrarErro("mensagem-perfil", resposta.error);
+      toggle.checked = !toggle.checked; // desfaz visualmente se falhar
+      return;
+    }
+    mostrarSucesso("mensagem-perfil", toggle.checked ? "Resumo por e-mail ativado." : "Resumo por e-mail desativado.");
+  } catch (erro) {
+    mostrarErro("mensagem-perfil", "Nao foi possivel salvar a preferencia.");
+    toggle.checked = !toggle.checked;
+  }
+}
 
 async function salvarPerfil(evento) {
   evento.preventDefault();

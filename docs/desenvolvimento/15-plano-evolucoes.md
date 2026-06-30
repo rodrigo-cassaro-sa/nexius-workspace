@@ -15,7 +15,9 @@ Ordem sugerida de execução: **3 → 4 → 1** (são incrementos pequenos sobre
 
 ---
 
-## Item 1 — D15: Resumo periódico por e-mail (digest)
+## Item 1 — D15: Resumo periódico por e-mail (digest) ✅ IMPLEMENTADO
+
+> Feito: **Migration 014** (`usuarios.digest_ativo` + `digest_enviado_em`); `includes/digest.php` (resumo pessoal reaproveitando o Dashboard) + `cron/enviar-digest.php` (enfileira na `fila_email`; idempotente ~6 dias; anti-spam: pula quem não tem pendências/atrasadas); opt-out no Perfil (`api/perfil/preferencias.php` + toggle). **Falta operacional:** agendar o cron no EasyPanel (semanal) e depender do domínio de e-mail. **Push** não foi feito (avaliação futura).
 
 ### Objetivo
 Enviar um resumo periódico por e-mail (ex.: semanal) com o que importa para o usuário

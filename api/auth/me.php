@@ -27,5 +27,6 @@ json_sucesso([
     "nome" => $usuario["nome"],
     "email" => $usuario["email"],
     "perfil" => $usuario["perfil"],
-    "onboarding_concluido" => (int) $usuario["onboarding_concluido"] === 1
+    "onboarding_concluido" => (int) $usuario["onboarding_concluido"] === 1,
+    "digest_ativo" => (int) $usuario["digest_ativo"] === 1
 ]);

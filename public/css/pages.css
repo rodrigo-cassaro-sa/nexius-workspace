@@ -696,6 +696,17 @@
   margin: var(--espaco-2) 0 0;
 }
 
+/* Preferencia de resumo por e-mail (digest) no Perfil */
+.pref-digest {
+  margin-top: var(--espaco-4);
+  padding-top: var(--espaco-4);
+  border-top: 1px solid var(--cor-borda);
+}
+
+.pref-digest-texto {
+  margin-left: var(--espaco-2);
+}
+
 /* Decisoes das reunioes (no detalhe da demanda) */
 .decisao-item {
   padding: var(--espaco-3) 0;

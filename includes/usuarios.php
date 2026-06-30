@@ -32,7 +32,7 @@ function buscar_usuario_por_email($email)
 function buscar_usuario_por_id($id)
 {
     $conn = conectar_banco();
-    $sql = "SELECT id, nome, email, perfil, ativo, onboarding_concluido
+    $sql = "SELECT id, nome, email, perfil, ativo, onboarding_concluido, digest_ativo
             FROM usuarios WHERE id = ? LIMIT 1";
 
     $stmt = mysqli_prepare($conn, $sql);
@@ -41,6 +41,16 @@ function buscar_usuario_por_id($id)
     $resultado = mysqli_stmt_get_result($stmt);
 
     return mysqli_fetch_assoc($resultado) ?: null;
+}
+
+// Liga/desliga a preferencia de resumo periodico por e-mail (digest) do usuario.
+function definir_digest_usuario($id, $ativo)
+{
+    $conn = conectar_banco();
+    $ativo = $ativo ? 1 : 0;
+    $stmt = mysqli_prepare($conn, "UPDATE usuarios SET digest_ativo = ? WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "ii", $ativo, $id);
+    return mysqli_stmt_execute($stmt);
 }
 
 // Cria o administrador inicial (bootstrap). Recebe a senha ja em hash.
