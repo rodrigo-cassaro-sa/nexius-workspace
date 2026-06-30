@@ -99,7 +99,11 @@ if (!empty($erros)) {
 
 $campos = array_merge($campos, $triagem, $gut);
 
-$id = criar_demanda($titulo, $responsavel_id, obter_usuario_logado_id(), $campos);
+// A demanda herda o setor do criador (D21).
+$criador = buscar_usuario_por_id(obter_usuario_logado_id());
+$setor_id = ($criador && $criador["setor_id"] !== null) ? (int) $criador["setor_id"] : null;
+
+$id = criar_demanda($titulo, $responsavel_id, obter_usuario_logado_id(), $campos, $setor_id);
 if (!$id) {
     json_erro("Nao foi possivel criar a demanda.", 500);
 }

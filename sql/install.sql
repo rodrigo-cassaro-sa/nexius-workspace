@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   email VARCHAR(180) NOT NULL,
   senha_hash VARCHAR(255) NULL,
   perfil VARCHAR(20) NOT NULL,
+  setor_id INT NULL,
   ativo TINYINT(1) NOT NULL DEFAULT 1,
   onboarding_concluido TINYINT(1) NOT NULL DEFAULT 0,
   digest_ativo TINYINT(1) NOT NULL DEFAULT 1,
@@ -30,8 +31,31 @@ CREATE TABLE IF NOT EXISTS usuarios (
   UNIQUE KEY uq_usuarios_email (email),
   KEY idx_usuarios_perfil (perfil),
   KEY idx_usuarios_ativo (ativo),
+  KEY idx_usuarios_setor (setor_id),
   CONSTRAINT chk_usuarios_perfil CHECK (perfil IN ('administrador','gestor','colaborador'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- setores (D21) - lista fixa; responsavel_id = responsavel principal do setor.
+-- Criada apos usuarios (FK responsavel_id -> usuarios); a FK usuarios.setor_id e
+-- adicionada logo abaixo por ALTER.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS setores (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(60) NOT NULL,
+  responsavel_id INT NULL,
+  criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_setores_nome (nome),
+  KEY idx_setores_responsavel (responsavel_id),
+  CONSTRAINT fk_setores_responsavel FOREIGN KEY (responsavel_id) REFERENCES usuarios(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO setores (nome) VALUES
+  ('Comercial'), ('Relacionamento'), ('Logística'), ('Roteirização'),
+  ('Equipe Externa'), ('Fechamento'), ('Financeiro');
+
+ALTER TABLE usuarios
+  ADD CONSTRAINT fk_usuarios_setor FOREIGN KEY (setor_id) REFERENCES setores(id);
 
 -- ---------------------------------------------------------------------------
 -- convites
@@ -98,6 +122,7 @@ CREATE TABLE IF NOT EXISTS demandas (
   status VARCHAR(20) NOT NULL DEFAULT 'aberta',
   criador_id INT NOT NULL,
   responsavel_id INT NULL,
+  setor_id INT NULL,
   concluida_em DATETIME NULL,
   respondida_em DATETIME NULL,
   criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -105,9 +130,11 @@ CREATE TABLE IF NOT EXISTS demandas (
   KEY idx_demandas_status (status),
   KEY idx_demandas_criador (criador_id),
   KEY idx_demandas_responsavel (responsavel_id),
+  KEY idx_demandas_setor (setor_id),
   KEY idx_demandas_criado_em (criado_em),
   CONSTRAINT fk_demandas_criador FOREIGN KEY (criador_id) REFERENCES usuarios(id),
   CONSTRAINT fk_demandas_responsavel FOREIGN KEY (responsavel_id) REFERENCES usuarios(id),
+  CONSTRAINT fk_demandas_setor FOREIGN KEY (setor_id) REFERENCES setores(id),
   CONSTRAINT chk_demandas_status CHECK (status IN ('aberta','em_andamento','concluida','arquivada','cancelada'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

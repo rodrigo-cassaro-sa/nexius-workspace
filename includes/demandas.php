@@ -17,18 +17,18 @@ function status_demanda_arquivamento()
 
 // Cria uma demanda com o questionario (6 campos). Retorna o id ou false.
 // $campos = [problema, impacto_operacional, risco, afeta_outros, workaround, sugestao_solucao]
-function criar_demanda($titulo, $responsavel_id, $criador_id, $campos)
+function criar_demanda($titulo, $responsavel_id, $criador_id, $campos, $setor_id = null)
 {
     $conn = conectar_banco();
     $sql = "INSERT INTO demandas
-                (titulo, status, criador_id, responsavel_id,
+                (titulo, status, criador_id, responsavel_id, setor_id,
                  problema, impacto_operacional, risco, afeta_outros, workaround, sugestao_solucao,
                  origem, momento_etapa, intencao, pilar, objetivo,
                  gut_gravidade, gut_urgencia, gut_tendencia)
-            VALUES (?, 'aberta', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            VALUES (?, 'aberta', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    // titulo(s) + criador/responsavel(ii) + 6 perguntas(ssssss) + 5 triagem(sssss) + 3 gut(iii)
-    $tipos = "s" . "ii" . "ssssss" . "sssss" . "iii";
+    // titulo(s) + criador/responsavel/setor(iii) + 6 perguntas(ssssss) + 5 triagem(sssss) + 3 gut(iii)
+    $tipos = "s" . "iii" . "ssssss" . "sssss" . "iii";
 
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param(
@@ -37,6 +37,7 @@ function criar_demanda($titulo, $responsavel_id, $criador_id, $campos)
         $titulo,
         $criador_id,
         $responsavel_id,
+        $setor_id,
         $campos["problema"],
         $campos["impacto_operacional"],
         $campos["risco"],
@@ -173,10 +174,12 @@ function buscar_demanda($id)
                 d.origem, d.momento_etapa, d.intencao, d.pilar, d.objetivo,
                 d.gut_gravidade, d.gut_urgencia, d.gut_tendencia,
                 ur.nome AS responsavel_nome, uc.nome AS criador_nome,
+                d.setor_id, s.nome AS setor_nome, s.responsavel_id AS setor_responsavel_id,
                 d.concluida_em, d.respondida_em, d.criado_em, d.atualizado_em
          FROM demandas d
          LEFT JOIN usuarios ur ON ur.id = d.responsavel_id
          LEFT JOIN usuarios uc ON uc.id = d.criador_id
+         LEFT JOIN setores s ON s.id = d.setor_id
          WHERE d.id = ? LIMIT 1",
         "i",
         [$id]

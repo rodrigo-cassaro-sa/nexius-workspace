@@ -84,6 +84,7 @@ function preencherCabecalho(d) {
   badge.className = classeBadgeStatus(d.status);
   badge.textContent = rotuloStatus(d.status);
   document.getElementById("d-solicitante").textContent = d.criador_nome || "—";
+  document.getElementById("d-setor").textContent = d.setor_nome || "—";
   document.getElementById("d-solicitado-em").textContent = formatarDataHora(d.criado_em);
 
   const sla = calcularSlaBadge(d.criado_em, d.respondida_em);
@@ -759,7 +760,8 @@ async function abrirNovaAcao() {
   document.getElementById("form-acao").reset();
   document.getElementById("acao-mensagem").hidden = true;
   document.getElementById("a-demanda").value = demandaAtual.titulo;
-  await carregarResponsaveis("a-responsavel", null);
+  // Responsavel ja vem pre-selecionado com o responsavel principal do setor da demanda (editavel).
+  await carregarResponsaveis("a-responsavel", demandaAtual ? demandaAtual.setor_responsavel_id : null);
   await carregarParticipantesSelect();
   preencherPrerequisitos();
   // Mostra os participantes so quando o tipo for "reuniao".

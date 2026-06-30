@@ -3,6 +3,8 @@
 // Exige sessao e perfil administrador (o backend tambem valida tudo).
 
 let usuarioLogadoId = 0;
+let setoresLista = [];
+let usuariosAtivos = [];
 
 document.addEventListener("DOMContentLoaded", async function () {
   const usuario = await exigirSessaoNoFront();
@@ -23,9 +25,93 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("form-convite").addEventListener("submit", gerarConvite);
   document.getElementById("botao-testar-email").addEventListener("click", testarEmail);
 
+  await carregarSetores();
   carregarUsuarios();
   carregarConvites();
 });
+
+// Carrega setores + usuarios ativos e renderiza o card de setores (responsavel principal).
+async function carregarSetores() {
+  try {
+    const [respSet, respUsu] = await Promise.all([
+      getApi("/api/setores/listar.php"),
+      getApi("/api/usuarios/listar.php")
+    ]);
+    setoresLista = (respSet && respSet.ok) ? respSet.data.setores : [];
+    usuariosAtivos = (respUsu && respUsu.ok) ? respUsu.data.usuarios : [];
+  } catch (erro) {
+    setoresLista = [];
+    usuariosAtivos = [];
+  }
+  renderSetores();
+}
+
+function renderSetores() {
+  const alvo = document.getElementById("lista-setores");
+  alvo.innerHTML = "";
+
+  if (setoresLista.length === 0) {
+    alvo.textContent = "Nenhum setor cadastrado.";
+    return;
+  }
+
+  setoresLista.forEach(function (s) {
+    const linha = document.createElement("div");
+    linha.className = "setor-linha";
+
+    const nome = document.createElement("span");
+    nome.className = "setor-nome";
+    nome.textContent = s.nome;
+    linha.appendChild(nome);
+
+    const sel = document.createElement("select");
+    sel.className = "campo-input";
+    const vazio = document.createElement("option");
+    vazio.value = "";
+    vazio.textContent = "Sem responsável";
+    sel.appendChild(vazio);
+    usuariosAtivos.forEach(function (u) {
+      const opt = document.createElement("option");
+      opt.value = u.id;
+      opt.textContent = u.nome;
+      if (parseInt(s.responsavel_id, 10) === parseInt(u.id, 10)) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener("change", function () { definirResponsavelSetor(s.id, sel.value); });
+    linha.appendChild(sel);
+
+    alvo.appendChild(linha);
+  });
+}
+
+async function definirResponsavelSetor(setorId, responsavelId) {
+  try {
+    const resposta = await postApi("/api/setores/definir-responsavel.php", {
+      setor_id: setorId,
+      responsavel_id: responsavelId
+    });
+    if (!resposta.ok) {
+      mostrarErro("setores-mensagem", resposta.error);
+      return;
+    }
+    mostrarSucesso("setores-mensagem", "Responsável do setor atualizado.");
+  } catch (erro) {
+    mostrarErro("setores-mensagem", "Nao foi possivel salvar o responsável do setor.");
+  }
+}
+
+async function definirSetorUsuario(id, setorId) {
+  try {
+    const resposta = await postApi("/api/usuarios/definir-setor.php", { id: id, setor_id: setorId });
+    if (!resposta.ok) {
+      mostrarErro("usuarios-mensagem", resposta.error);
+      return;
+    }
+    mostrarSucesso("usuarios-mensagem", "Setor do usuário atualizado.");
+  } catch (erro) {
+    mostrarErro("usuarios-mensagem", "Nao foi possivel salvar o setor.");
+  }
+}
 
 async function testarEmail() {
   const botao = document.getElementById("botao-testar-email");
@@ -223,7 +309,7 @@ function renderUsuarios(alvo, usuarios) {
 
   const thead = document.createElement("thead");
   const cab = document.createElement("tr");
-  ["Nome", "E-mail", "Perfil", "Status", "Ação"].forEach(function (t) {
+  ["Nome", "E-mail", "Perfil", "Setor", "Status", "Ação"].forEach(function (t) {
     const th = document.createElement("th");
     th.textContent = t;
     cab.appendChild(th);
@@ -268,6 +354,26 @@ function renderUsuarios(alvo, usuarios) {
     }
     tdPerfil.appendChild(sel);
     tr.appendChild(tdPerfil);
+
+    // Setor (select que altera; qualquer usuario pode ter setor definido pelo admin).
+    const tdSetor = document.createElement("td");
+    tdSetor.setAttribute("data-rotulo", "Setor");
+    const selSetor = document.createElement("select");
+    selSetor.className = "campo-input";
+    const vazioSetor = document.createElement("option");
+    vazioSetor.value = "";
+    vazioSetor.textContent = "Sem setor";
+    selSetor.appendChild(vazioSetor);
+    setoresLista.forEach(function (s) {
+      const opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = s.nome;
+      if (parseInt(u.setor_id, 10) === parseInt(s.id, 10)) opt.selected = true;
+      selSetor.appendChild(opt);
+    });
+    selSetor.addEventListener("change", function () { definirSetorUsuario(u.id, selSetor.value); });
+    tdSetor.appendChild(selSetor);
+    tr.appendChild(tdSetor);
 
     // Status (badge).
     const tdStatus = document.createElement("td");

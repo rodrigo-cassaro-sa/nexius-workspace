@@ -32,7 +32,7 @@ function buscar_usuario_por_email($email)
 function buscar_usuario_por_id($id)
 {
     $conn = conectar_banco();
-    $sql = "SELECT id, nome, email, perfil, ativo, onboarding_concluido, digest_ativo
+    $sql = "SELECT id, nome, email, perfil, setor_id, ativo, onboarding_concluido, digest_ativo
             FROM usuarios WHERE id = ? LIMIT 1";
 
     $stmt = mysqli_prepare($conn, $sql);
@@ -107,9 +107,22 @@ function listar_usuarios_ativos()
 function listar_usuarios()
 {
     return executar_select(
-        "SELECT id, nome, email, perfil, ativo, criado_em
-         FROM usuarios ORDER BY nome ASC"
+        "SELECT u.id, u.nome, u.email, u.perfil, u.ativo, u.criado_em,
+                u.setor_id, s.nome AS setor_nome
+         FROM usuarios u
+         LEFT JOIN setores s ON s.id = u.setor_id
+         ORDER BY u.nome ASC"
     );
+}
+
+// Define (ou limpa, com null) o setor de um usuario.
+function definir_setor_usuario($id, $setor_id)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE usuarios SET setor_id = ? WHERE id = ?");
+    // setor_id pode ser null: o mysqli envia NULL quando a variavel ligada e null.
+    mysqli_stmt_bind_param($stmt, "ii", $setor_id, $id);
+    return mysqli_stmt_execute($stmt);
 }
 
 // Atualiza o perfil de um usuario (gestao de usuarios).

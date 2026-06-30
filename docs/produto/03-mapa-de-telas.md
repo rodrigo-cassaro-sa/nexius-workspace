@@ -572,11 +572,11 @@ Apenas Administrador.
 
 ### Dados exibidos
 
-Lista de usuários (nome, e-mail, perfil, situação ativo/inativo) e convites pendentes.
+Lista de usuários (nome, e-mail, perfil, **setor**, situação ativo/inativo); convites pendentes; **card "Setores"** com o responsável principal de cada setor (D21).
 
 ### Ações disponíveis
 
-Convidar usuário; reenviar/cancelar convite; alterar perfil; ativar/inativar usuário.
+Convidar usuário; reenviar/cancelar convite; alterar perfil; **definir o setor do usuário**; ativar/inativar usuário; **definir o responsável principal de cada setor** (D21).
 
 ### Regras de negócio aplicadas
 

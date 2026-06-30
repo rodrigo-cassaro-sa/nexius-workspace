@@ -32,8 +32,11 @@ Derivadas de `01-descricao-produto.md` §19. Apenas o que o MVP exige:
 Resumo dos campos principais (ver SQL para tipos, chaves e constraints completos).
 
 ### usuarios
-`id` · `nome` · `email` (único) · `senha_hash` (NULL até definir senha) · `perfil` (administrador/gestor/colaborador) · `ativo` · `onboarding_concluido` · `criado_em` · `atualizado_em`.
-Motivo: identidade, autenticação, perfil e estado do usuário.
+`id` · `nome` · `email` (único) · `senha_hash` (NULL até definir senha) · `perfil` (administrador/gestor/colaborador) · `setor_id` (FK setores, NULL — D21) · `ativo` · `onboarding_concluido` · `digest_ativo` · `digest_enviado_em` · `criado_em` · `atualizado_em`.
+Motivo: identidade, autenticação, perfil, setor e estado do usuário.
+
+### setores (D21 — Migration 015)
+`id` · `nome` (único) · `responsavel_id` (FK usuarios, NULL = responsável principal do setor) · `criado_em`. Lista fixa (seed): Comercial, Relacionamento, Logística, Roteirização, Equipe Externa, Fechamento, Financeiro. A demanda herda o setor do criador; ao criar ação, o responsável vem pré-selecionado com o responsável principal do setor (editável). Gestão (setor do usuário + responsável do setor) só por Administrador.
 
 ### convites
 `id` · `email` · `perfil` · `token` (único) · `status` (pendente/aceito/cancelado/expirado) · `expira_em` · `criado_por` (FK usuarios) · `usuario_id` (FK usuarios, ao aceitar) · timestamps.
@@ -44,7 +47,7 @@ Motivo: entrada por convite, sem cadastro aberto.
 Motivo: redefinição de senha segura, com expiração curta e uso único.
 
 ### demandas
-`id` · `titulo` · `descricao` · `status` (aberta/em_andamento/concluida/arquivada/cancelada) · `criador_id` (FK) · `responsavel_id` (FK) · `concluida_em` · timestamps.
+`id` · `titulo` · `descricao` · `status` (aberta/em_andamento/concluida/arquivada/cancelada) · `criador_id` (FK) · `responsavel_id` (FK) · `setor_id` (FK setores, NULL — herdado do criador, D21) · `concluida_em` · timestamps. (+ questionário/GUT/triagem/SLA das migrations 002–007.)
 Motivo: entidade central do produto.
 
 ### acoes
