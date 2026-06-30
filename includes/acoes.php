@@ -228,7 +228,7 @@ function listar_acoes_roadmap($usuario_id, $perfil, $filtros, $inicio, $fim)
                    a.responsavel_id, ur.nome AS responsavel_nome,
                    d.id AS demanda_id, d.titulo AS demanda_titulo,
                    d.projeto_id, pr.nome AS projeto_nome,
-                   d.setor_id, s.responsavel_id AS setor_responsavel_id,
+                   d.setor_id, s.nome AS setor_nome, s.responsavel_id AS setor_responsavel_id,
                    (SELECT COUNT(*) FROM acao_prerequisitos ap
                     JOIN acoes p ON p.id = ap.prerequisito_acao_id
                     WHERE ap.acao_id = a.id AND p.status <> 'concluida') AS prereq_pendentes

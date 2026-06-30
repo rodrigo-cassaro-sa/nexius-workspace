@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("road-fim").addEventListener("change", carregarRoadmap);
   document.getElementById("road-projeto").addEventListener("change", carregarRoadmap);
   document.getElementById("road-setor").addEventListener("change", carregarRoadmap);
+  document.getElementById("road-agrupar").addEventListener("change", carregarRoadmap);
 
   document.getElementById("botao-prazo-fechar").addEventListener("click", function () { fecharModal("modal-prazo"); });
   document.getElementById("botao-prazo-salvar").addEventListener("click", salvarPrazo);
@@ -172,6 +173,7 @@ function render(data) {
     return;
   }
 
+  const modo = document.getElementById("road-agrupar").value;
   const ini = parseData(data.inicio);
   const fim = parseData(data.fim);
   const totalDias = diffDias(ini, fim) + 1;
@@ -186,7 +188,8 @@ function render(data) {
   cab.className = "gantt-cabecalho";
   const cabRot = document.createElement("div");
   cabRot.className = "gantt-rotulo gantt-rotulo-cab";
-  cabRot.textContent = "Projeto / Demanda / Tarefa";
+  cabRot.textContent = modo === "responsavel" ? "Responsável / Tarefa"
+    : (modo === "setor" ? "Setor / Tarefa" : "Projeto / Demanda / Tarefa");
   const eixo = document.createElement("div");
   eixo.className = "gantt-eixo";
   eixo.style.width = trackW + "px";
@@ -200,19 +203,6 @@ function render(data) {
   cab.appendChild(cabRot);
   cab.appendChild(eixo);
   gantt.appendChild(cab);
-
-  // Spans (intervalo total) por projeto e por demanda, para as barras-resumo.
-  const spanProj = {};
-  const spanDem = {};
-  itens.forEach(function (it) {
-    const iv = intervaloBarra(it);
-    const pk = it.projeto_id ? ("p" + it.projeto_id) : "sem";
-    if (!spanProj[pk]) { spanProj[pk] = { ini: iv.ini, fim: iv.fim }; }
-    else { spanProj[pk].ini = Math.min(spanProj[pk].ini, iv.ini); spanProj[pk].fim = Math.max(spanProj[pk].fim, iv.fim); }
-    const dk = it.demanda_id;
-    if (!spanDem[dk]) { spanDem[dk] = { ini: iv.ini, fim: iv.fim }; }
-    else { spanDem[dk].ini = Math.min(spanDem[dk].ini, iv.ini); spanDem[dk].fim = Math.max(spanDem[dk].fim, iv.fim); }
-  });
 
   const corpo = document.createElement("div");
   corpo.className = "gantt-corpo";
@@ -228,7 +218,34 @@ function render(data) {
     corpo.appendChild(lh);
   }
 
-  // Agrupa por projeto -> demanda preservando a ordem vinda do backend.
+  if (modo === "responsavel" || modo === "setor") {
+    renderPorChave(corpo, itens, ini, totalDias, trackW, modo);
+  } else {
+    renderPorProjeto(corpo, itens, ini, totalDias, trackW);
+  }
+
+  gantt.appendChild(corpo);
+
+  const scroll = document.createElement("div");
+  scroll.className = "gantt-scroll";
+  scroll.appendChild(gantt);
+  alvo.appendChild(scroll);
+}
+
+// Visao padrao: projeto -> demanda -> tarefa (com barras-resumo por grupo).
+function renderPorProjeto(corpo, itens, ini, totalDias, trackW) {
+  const spanProj = {};
+  const spanDem = {};
+  itens.forEach(function (it) {
+    const iv = intervaloBarra(it);
+    const pk = it.projeto_id ? ("p" + it.projeto_id) : "sem";
+    if (!spanProj[pk]) { spanProj[pk] = { ini: iv.ini, fim: iv.fim }; }
+    else { spanProj[pk].ini = Math.min(spanProj[pk].ini, iv.ini); spanProj[pk].fim = Math.max(spanProj[pk].fim, iv.fim); }
+    const dk = it.demanda_id;
+    if (!spanDem[dk]) { spanDem[dk] = { ini: iv.ini, fim: iv.fim }; }
+    else { spanDem[dk].ini = Math.min(spanDem[dk].ini, iv.ini); spanDem[dk].fim = Math.max(spanDem[dk].fim, iv.fim); }
+  });
+
   let projAtual = null;
   let demAtual = null;
   itens.forEach(function (it) {
@@ -242,15 +259,54 @@ function render(data) {
       demAtual = parseInt(it.demanda_id, 10);
       corpo.appendChild(linhaGrupo("gantt-subgrupo", it.demanda_titulo, trackW, ini, totalDias, spanDem[it.demanda_id]));
     }
-    corpo.appendChild(linhaItem(it, ini, totalDias, trackW));
+    corpo.appendChild(linhaItem(it, ini, totalDias, trackW, (it.responsavel_nome || "—") + " · " + rotuloTipo(it.tipo)));
+  });
+}
+
+// Visao de carga: agrupa por responsavel (key user/pessoa) ou por setor, com a fila
+// de tarefas pelo prazo. O contador e a barra-resumo ajudam a ver sobrecarga.
+function renderPorChave(corpo, itens, ini, totalDias, trackW, modo) {
+  function chave(it) {
+    if (modo === "setor") return it.setor_id ? ("s" + it.setor_id) : "sem";
+    return it.responsavel_id ? ("u" + it.responsavel_id) : "sem";
+  }
+  function rotulo(it) {
+    if (modo === "setor") return it.setor_nome || "Sem setor";
+    return it.responsavel_nome || "Sem responsável";
+  }
+
+  // Ordena por grupo (rotulo) e depois por prazo.
+  const ordenados = itens.slice().sort(function (a, b) {
+    const ra = rotulo(a).toLowerCase();
+    const rb = rotulo(b).toLowerCase();
+    if (ra !== rb) return ra < rb ? -1 : 1;
+    return String(a.prazo).localeCompare(String(b.prazo));
   });
 
-  gantt.appendChild(corpo);
+  // Span (janela total) e contagem por grupo.
+  const spans = {};
+  const contagem = {};
+  ordenados.forEach(function (it) {
+    const k = chave(it);
+    const iv = intervaloBarra(it);
+    if (!spans[k]) { spans[k] = { ini: iv.ini, fim: iv.fim }; contagem[k] = 0; }
+    else { spans[k].ini = Math.min(spans[k].ini, iv.ini); spans[k].fim = Math.max(spans[k].fim, iv.fim); }
+    contagem[k]++;
+  });
 
-  const scroll = document.createElement("div");
-  scroll.className = "gantt-scroll";
-  scroll.appendChild(gantt);
-  alvo.appendChild(scroll);
+  let atual = null;
+  ordenados.forEach(function (it) {
+    const k = chave(it);
+    if (k !== atual) {
+      atual = k;
+      const n = contagem[k];
+      const titulo = rotulo(it) + " · " + n + (n === 1 ? " tarefa" : " tarefas");
+      corpo.appendChild(linhaGrupo("gantt-grupo", titulo, trackW, ini, totalDias, spans[k]));
+    }
+    // Subtitulo de contexto: no setor mostra o responsavel; no responsavel mostra a demanda.
+    const sub = (modo === "setor" ? (it.responsavel_nome || "—") : it.demanda_titulo) + " · " + rotuloTipo(it.tipo);
+    corpo.appendChild(linhaItem(it, ini, totalDias, trackW, sub));
+  });
 }
 
 function linhaGrupo(classe, texto, trackW, ini, totalDias, span) {
@@ -278,7 +334,7 @@ function linhaGrupo(classe, texto, trackW, ini, totalDias, span) {
   return linha;
 }
 
-function linhaItem(it, ini, totalDias, trackW) {
+function linhaItem(it, ini, totalDias, trackW, subTexto) {
   const linha = document.createElement("div");
   linha.className = "gantt-linha";
 
@@ -289,7 +345,7 @@ function linhaItem(it, ini, totalDias, trackW) {
   titulo.textContent = (parseInt(it.chave, 10) === 1 ? "★ " : "") + it.titulo;
   const sub = document.createElement("span");
   sub.className = "gantt-item-sub texto-secundario";
-  sub.textContent = (it.responsavel_nome || "—") + " · " + rotuloTipo(it.tipo);
+  sub.textContent = subTexto || ((it.responsavel_nome || "—") + " · " + rotuloTipo(it.tipo));
   rot.appendChild(titulo);
   rot.appendChild(sub);
 
