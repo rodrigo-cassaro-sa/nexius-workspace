@@ -6,10 +6,15 @@ FROM php:8.2-apache
 # Extensao do MySQL (mysqli) usada pelo backend.
 RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 
-# Cron para as tarefas agendadas (fila de e-mail, digest, retencao de logs).
+# Cron para as tarefas agendadas + timezone America/Sao_Paulo (horarios em Brasilia).
+# O cron usa /etc/localtime para decidir a hora de execucao; tzdata fornece o fuso.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends cron \
+    && apt-get install -y --no-install-recommends cron tzdata \
+    && ln -snf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime \
+    && echo "America/Sao_Paulo" > /etc/timezone \
     && rm -rf /var/lib/apt/lists/*
+
+ENV TZ=America/Sao_Paulo
 
 # Modulos do Apache (headers para seguranca; rewrite para uso futuro).
 RUN a2enmod rewrite headers
@@ -24,6 +29,7 @@ RUN { \
       echo "display_errors=Off"; \
       echo "log_errors=On"; \
       echo "expose_php=Off"; \
+      echo "date.timezone=America/Sao_Paulo"; \
     } > /usr/local/etc/php/conf.d/zz-app.ini
 
 # Copia a aplicacao para a imagem.
