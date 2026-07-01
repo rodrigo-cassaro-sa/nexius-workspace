@@ -34,5 +34,7 @@ json_sucesso([
     "demandas_por_status" => relatorio_demandas_por_status(),
     "demandas_por_setor" => relatorio_demandas_por_setor(),
     "acoes_prazo" => relatorio_acoes_prazo($inicio, $fim),
-    "produtividade" => relatorio_produtividade($inicio, $fim)
+    "produtividade" => relatorio_produtividade($inicio, $fim),
+    "atrasos_por_responsavel" => relatorio_atrasos_por_responsavel($inicio, $fim),
+    "recusas_por_setor" => relatorio_recusas_por_setor()
 ]);

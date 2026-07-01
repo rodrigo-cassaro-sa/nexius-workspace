@@ -102,6 +102,14 @@ function renderResumo(d) {
 
   // Produtividade (tabela)
   renderProdutividade(d.produtividade);
+
+  // Padroes de falha: atrasos por responsavel e recusas por setor.
+  renderLinhas("rel-atrasos", d.atrasos_por_responsavel, function (item) {
+    return { rotulo: item.responsavel, valor: item.atrasadas };
+  });
+  renderLinhas("rel-recusas", d.recusas_por_setor, function (item) {
+    return { rotulo: item.setor, valor: item.recusadas };
+  });
 }
 
 // Renderiza uma lista "rotulo + numero" (mesmo estilo do dashboard).

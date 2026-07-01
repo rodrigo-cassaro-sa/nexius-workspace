@@ -50,6 +50,39 @@ function relatorio_acoes_prazo($inicio, $fim)
     ];
 }
 
+// Padrao de falha - ATRASOS por responsavel: acoes concluidas FORA do prazo no periodo.
+function relatorio_atrasos_por_responsavel($inicio, $fim)
+{
+    return executar_select(
+        "SELECT u.nome AS responsavel, COUNT(*) AS atrasadas
+         FROM acoes a
+         JOIN usuarios u ON u.id = a.responsavel_id
+         WHERE a.status = 'concluida' AND a.concluida_em IS NOT NULL
+           AND DATE(a.concluida_em) BETWEEN ? AND ?
+           AND a.prazo IS NOT NULL AND DATE(a.concluida_em) > a.prazo
+         GROUP BY u.id, u.nome
+         ORDER BY atrasadas DESC, u.nome ASC",
+        "ss",
+        [$inicio, $fim]
+    );
+}
+
+// Padrao de falha - RECUSAS por setor: entregas atualmente recusadas, por setor da demanda.
+function relatorio_recusas_por_setor()
+{
+    return executar_select(
+        "SELECT COALESCE(s.nome, '(sem setor)') AS setor, COUNT(*) AS recusadas
+         FROM acoes a
+         JOIN demandas d ON d.id = a.demanda_id
+         LEFT JOIN setores s ON s.id = d.setor_id
+         WHERE a.status = 'recusada'
+         GROUP BY d.setor_id, s.nome
+         ORDER BY recusadas DESC",
+        "",
+        []
+    );
+}
+
 // Produtividade por responsavel: acoes concluidas e quantas no prazo, no periodo.
 function relatorio_produtividade($inicio, $fim)
 {
