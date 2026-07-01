@@ -743,6 +743,10 @@
   max-width: 280px;
 }
 
+.projeto-mover-linha .campo-inline {
+  margin-bottom: 0;
+}
+
 /* Relatorios: linha de periodo (datas + exportar) */
 .rel-periodo {
   display: flex;

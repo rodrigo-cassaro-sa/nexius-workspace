@@ -99,6 +99,7 @@ function preencherCabecalho(d) {
   document.getElementById("d-solicitante").textContent = d.criador_nome || "—";
   document.getElementById("d-setor").textContent = d.setor_nome || "—";
   renderProjetoStat(d);
+  document.getElementById("d-prazo-alvo-view").textContent = formatarPrazoAlvo(d.prazo_alvo);
   document.getElementById("d-solicitado-em").textContent = formatarDataHora(d.criado_em);
 
   const sla = calcularSlaBadge(d.criado_em, d.respondida_em);
@@ -231,31 +232,56 @@ async function carregarProjetosMover() {
   if (demandaAtual && demandaAtual.projeto_id) {
     select.value = demandaAtual.projeto_id;
   }
+  document.getElementById("d-prazo-alvo").value =
+    demandaAtual && demandaAtual.prazo_alvo ? String(demandaAtual.prazo_alvo).substring(0, 10) : "";
 }
 
+// Salva o projeto e/ou o prazo alvo da demanda (envia so o que mudou).
 async function salvarProjetoDemanda() {
   const botao = document.getElementById("botao-salvar-projeto");
   const select = document.getElementById("d-projeto-select");
-  const valor = select.value;
+  const valorProjeto = select.value;
+  const valorPrazo = document.getElementById("d-prazo-alvo").value;
+
+  const projetoAtual = demandaAtual.projeto_id ? String(demandaAtual.projeto_id) : "";
+  const prazoAtual = demandaAtual.prazo_alvo ? String(demandaAtual.prazo_alvo).substring(0, 10) : "";
 
   definirCarregando(botao, true);
   try {
-    const resposta = await postApi("/api/demandas/definir-projeto.php", { id: demandaId, projeto_id: valor });
-    if (!resposta.ok) {
-      mostrarErro("mensagem", resposta.error || "Nao foi possivel atualizar a demanda.");
-      definirCarregando(botao, false);
-      return;
+    if (valorProjeto !== projetoAtual) {
+      const rp = await postApi("/api/demandas/definir-projeto.php", { id: demandaId, projeto_id: valorProjeto });
+      if (!rp.ok) {
+        mostrarErro("mensagem", rp.error || "Nao foi possivel atualizar o projeto.");
+        definirCarregando(botao, false);
+        return;
+      }
+      demandaAtual.projeto_id = valorProjeto ? parseInt(valorProjeto, 10) : null;
+      demandaAtual.projeto_nome = valorProjeto ? select.options[select.selectedIndex].textContent : null;
+      renderProjetoStat(demandaAtual);
+    }
+    if (valorPrazo !== prazoAtual) {
+      const rd = await postApi("/api/demandas/definir-prazo.php", { id: demandaId, prazo: valorPrazo });
+      if (!rd.ok) {
+        mostrarErro("mensagem", rd.error || "Nao foi possivel atualizar o prazo.");
+        definirCarregando(botao, false);
+        return;
+      }
+      demandaAtual.prazo_alvo = valorPrazo || null;
+      document.getElementById("d-prazo-alvo-view").textContent = valorPrazo ? formatarPrazoAlvo(valorPrazo) : "—";
     }
     definirCarregando(botao, false);
-    // Atualiza o estado local e a exibicao do cabecalho.
-    demandaAtual.projeto_id = valor ? parseInt(valor, 10) : null;
-    demandaAtual.projeto_nome = valor ? select.options[select.selectedIndex].textContent : null;
-    renderProjetoStat(demandaAtual);
-    mostrarSucesso("mensagem", resposta.message || "Projeto atualizado.");
+    mostrarSucesso("mensagem", "Demanda atualizada.");
   } catch (erro) {
     mostrarErro("mensagem", "Nao foi possivel atualizar a demanda.");
     definirCarregando(botao, false);
   }
+}
+
+// Formata AAAA-MM-DD como DD/MM/AAAA (prazo alvo).
+function formatarPrazoAlvo(iso) {
+  if (!iso) return "—";
+  const s = String(iso).substring(0, 10).split("-");
+  return s.length === 3 ? (s[2] + "/" + s[1] + "/" + s[0]) : "—";
 }
 
 async function carregarAcoes() {

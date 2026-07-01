@@ -39,6 +39,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   carregarDemandas();
 });
 
+function formatarPrazoBR(iso) {
+  if (!iso) return "—";
+  const s = String(iso).substring(0, 10).split("-");
+  return s.length === 3 ? (s[2] + "/" + s[1] + "/" + s[0]) : "—";
+}
+
 function rotuloStatusProjeto(status) {
   const mapa = {
     aberto: "Aberto",
@@ -99,6 +105,7 @@ function renderProjeto(p) {
 
   document.getElementById("p-responsavel").textContent = p.responsavel_nome || "—";
   document.getElementById("p-setor").textContent = p.setor_nome || "—";
+  document.getElementById("p-prazo").textContent = formatarPrazoBR(p.prazo);
   document.getElementById("p-criador").textContent = p.criador_nome || "—";
 
   const total = parseInt(p.total_demandas, 10) || 0;
@@ -152,6 +159,7 @@ async function abrirEdicao() {
   document.getElementById("e-status").value = statusEdicao.indexOf(projetoAtual.status) !== -1 ? projetoAtual.status : "aberto";
   document.getElementById("e-responsavel").value = projetoAtual.responsavel_id || "";
   document.getElementById("e-setor").value = projetoAtual.setor_id || "";
+  document.getElementById("e-prazo").value = projetoAtual.prazo ? String(projetoAtual.prazo).substring(0, 10) : "";
   document.getElementById("editar-mensagem").hidden = true;
 
   document.getElementById("card-editar").hidden = false;
@@ -176,6 +184,7 @@ async function salvarEdicao(evento) {
     nome: nome,
     descricao: document.getElementById("e-descricao").value.trim(),
     status: document.getElementById("e-status").value,
+    prazo: document.getElementById("e-prazo").value,
     responsavel_id: document.getElementById("e-responsavel").value,
     setor_id: document.getElementById("e-setor").value
   };

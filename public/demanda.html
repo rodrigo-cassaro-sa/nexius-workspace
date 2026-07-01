@@ -101,8 +101,12 @@
                 <span class="badge" id="d-sla">—</span>
               </div>
               <div class="stat">
-                <span class="stat-rotulo">Prazo</span>
+                <span class="stat-rotulo">Prazo (ação chave)</span>
                 <span class="stat-valor" id="d-prazo">—</span>
+              </div>
+              <div class="stat">
+                <span class="stat-rotulo">Prazo alvo</span>
+                <span class="stat-valor" id="d-prazo-alvo-view">—</span>
               </div>
               <div class="stat">
                 <span class="stat-rotulo">Prioridade (GUT)</span>
@@ -111,11 +115,17 @@
             </div>
 
             <div class="demanda-projeto-mover" id="demanda-projeto-mover" hidden>
-              <label class="campo-label" for="d-projeto-select">Mover para projeto</label>
               <div class="projeto-mover-linha">
-                <select class="campo-input" id="d-projeto-select">
-                  <option value="">Sem projeto</option>
-                </select>
+                <div class="campo campo-inline">
+                  <label class="campo-label" for="d-projeto-select">Projeto</label>
+                  <select class="campo-input" id="d-projeto-select">
+                    <option value="">Sem projeto</option>
+                  </select>
+                </div>
+                <div class="campo campo-inline">
+                  <label class="campo-label" for="d-prazo-alvo">Prazo alvo</label>
+                  <input class="campo-input" id="d-prazo-alvo" type="date">
+                </div>
                 <button type="button" class="botao botao-secundario" id="botao-salvar-projeto">Salvar</button>
               </div>
             </div>

@@ -23,10 +23,15 @@ if ($body === null) {
 $nome = trim($body["nome"] ?? "");
 $descricao = trim($body["descricao"] ?? "");
 $status = trim($body["status"] ?? "aberto");
+$prazo = trim($body["prazo"] ?? "");
+$prazo = $prazo === "" ? null : $prazo;
 $responsavel_id = isset($body["responsavel_id"]) && $body["responsavel_id"] !== "" ? (int) $body["responsavel_id"] : null;
 $setor_id = isset($body["setor_id"]) && $body["setor_id"] !== "" ? (int) $body["setor_id"] : null;
 
 $erros = [];
+if ($prazo !== null && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $prazo)) {
+    $erros["prazo"] = "Data invalida.";
+}
 if (!validar_tamanho($nome, 2, 160)) {
     $erros["nome"] = "Informe um nome (2 a 160 caracteres).";
 }
@@ -46,7 +51,7 @@ if (!empty($erros)) {
     json_response(["ok" => false, "error" => "Verifique os campos.", "errors" => $erros], 400);
 }
 
-$id = criar_projeto($nome, $descricao, $status, $responsavel_id, $setor_id, obter_usuario_logado_id());
+$id = criar_projeto($nome, $descricao, $status, $prazo, $responsavel_id, $setor_id, obter_usuario_logado_id());
 if (!$id) {
     json_erro("Nao foi possivel criar o projeto.", 500);
 }

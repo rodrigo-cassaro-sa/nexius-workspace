@@ -81,7 +81,7 @@ function listar_projetos($usuario_id, $perfil, $filtros)
 {
     list($where, $tipos, $params) = montar_where_projetos($usuario_id, $perfil, $filtros);
 
-    $sql = "SELECT p.id, p.nome, p.status, p.responsavel_id, p.setor_id, p.criado_em,
+    $sql = "SELECT p.id, p.nome, p.status, p.prazo, p.responsavel_id, p.setor_id, p.criado_em,
                    ur.nome AS responsavel_nome, s.nome AS setor_nome,
                    (SELECT COUNT(*) FROM demandas d WHERE d.projeto_id = p.id AND d.status <> 'cancelada') AS total_demandas,
                    (SELECT COUNT(*) FROM demandas d WHERE d.projeto_id = p.id AND d.status = 'concluida') AS demandas_concluidas
@@ -97,7 +97,7 @@ function listar_projetos($usuario_id, $perfil, $filtros)
 function buscar_projeto($id)
 {
     $linhas = executar_select(
-        "SELECT p.id, p.nome, p.descricao, p.status, p.responsavel_id, p.setor_id, p.criador_id,
+        "SELECT p.id, p.nome, p.descricao, p.status, p.prazo, p.responsavel_id, p.setor_id, p.criador_id,
                 ur.nome AS responsavel_nome, s.nome AS setor_nome, uc.nome AS criador_nome,
                 p.criado_em, p.atualizado_em,
                 (SELECT COUNT(*) FROM demandas d WHERE d.projeto_id = p.id AND d.status <> 'cancelada') AS total_demandas,
@@ -152,32 +152,32 @@ function montar_where_pertencimento_projeto($usuario_id)
     )";
 }
 
-// Cria um projeto. Retorna o id ou false.
-function criar_projeto($nome, $descricao, $status, $responsavel_id, $setor_id, $criador_id)
+// Cria um projeto. Retorna o id ou false. $prazo em YYYY-MM-DD ou null.
+function criar_projeto($nome, $descricao, $status, $prazo, $responsavel_id, $setor_id, $criador_id)
 {
     $conn = conectar_banco();
     $stmt = mysqli_prepare(
         $conn,
-        "INSERT INTO projetos (nome, descricao, status, responsavel_id, setor_id, criador_id)
-         VALUES (?, ?, ?, ?, ?, ?)"
+        "INSERT INTO projetos (nome, descricao, status, prazo, responsavel_id, setor_id, criador_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?)"
     );
-    // responsavel_id e setor_id podem ser null (mysqli envia NULL quando a variavel e null).
-    mysqli_stmt_bind_param($stmt, "sssiii", $nome, $descricao, $status, $responsavel_id, $setor_id, $criador_id);
+    // prazo, responsavel_id e setor_id podem ser null (mysqli envia NULL quando a variavel e null).
+    mysqli_stmt_bind_param($stmt, "ssssiii", $nome, $descricao, $status, $prazo, $responsavel_id, $setor_id, $criador_id);
     $ok = mysqli_stmt_execute($stmt);
 
     return $ok ? mysqli_insert_id($conn) : false;
 }
 
 // Atualiza os dados do projeto (status de edicao apenas; arquivamento e por funcao propria).
-function atualizar_projeto($id, $nome, $descricao, $status, $responsavel_id, $setor_id)
+function atualizar_projeto($id, $nome, $descricao, $status, $prazo, $responsavel_id, $setor_id)
 {
     $conn = conectar_banco();
     $stmt = mysqli_prepare(
         $conn,
-        "UPDATE projetos SET nome = ?, descricao = ?, status = ?, responsavel_id = ?, setor_id = ?
+        "UPDATE projetos SET nome = ?, descricao = ?, status = ?, prazo = ?, responsavel_id = ?, setor_id = ?
          WHERE id = ?"
     );
-    mysqli_stmt_bind_param($stmt, "sssiii", $nome, $descricao, $status, $responsavel_id, $setor_id, $id);
+    mysqli_stmt_bind_param($stmt, "ssssiii", $nome, $descricao, $status, $prazo, $responsavel_id, $setor_id, $id);
 
     return mysqli_stmt_execute($stmt);
 }

@@ -215,6 +215,7 @@ async function salvarNovo(evento) {
     nome: nome,
     descricao: document.getElementById("proj-descricao").value.trim(),
     status: document.getElementById("proj-form-status").value,
+    prazo: document.getElementById("proj-prazo").value,
     responsavel_id: document.getElementById("proj-responsavel").value,
     setor_id: document.getElementById("proj-form-setor").value
   };

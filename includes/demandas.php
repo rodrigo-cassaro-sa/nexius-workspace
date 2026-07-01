@@ -193,7 +193,7 @@ function buscar_demanda($id)
                 d.gut_gravidade, d.gut_urgencia, d.gut_tendencia,
                 ur.nome AS responsavel_nome, uc.nome AS criador_nome,
                 d.setor_id, s.nome AS setor_nome, s.responsavel_id AS setor_responsavel_id,
-                d.projeto_id, p.nome AS projeto_nome,
+                d.projeto_id, p.nome AS projeto_nome, d.prazo AS prazo_alvo,
                 d.concluida_em, d.respondida_em, d.criado_em, d.atualizado_em
          FROM demandas d
          LEFT JOIN usuarios ur ON ur.id = d.responsavel_id
@@ -281,6 +281,16 @@ function atualizar_demanda($id, $titulo, $responsavel_id, $status, $campos, $pro
         $id
     );
 
+    return mysqli_stmt_execute($stmt);
+}
+
+// Define (ou limpa, com null) o prazo alvo da demanda (controle de prazo no nivel da demanda).
+function definir_prazo_demanda($demanda_id, $prazo)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE demandas SET prazo = ? WHERE id = ?");
+    // prazo pode ser null (mysqli envia NULL quando a variavel e null).
+    mysqli_stmt_bind_param($stmt, "si", $prazo, $demanda_id);
     return mysqli_stmt_execute($stmt);
 }
 
