@@ -930,6 +930,37 @@ As listas viram cartões no mobile (mesmo padrão das demais).
 
 ---
 
+## Tela: Auditoria de logs
+
+> Tela acrescentada na revisão anti-frágil. Só leitura. A tabela `logs` já existia (base) e agora é a fonte oficial (os logs persistem no banco desde a migration 019).
+
+### Objetivo da tela
+Permitir investigar **quem fez o quê e quando** — rastreabilidade das ações do sistema, dentro do portal (sem precisar do phpMyAdmin).
+
+### Tipo de usuário que acessa
+Apenas **Administrador** (validado no backend). Item de menu "Auditoria" visível só para Admin.
+
+### Dados exibidos
+Tabela paginada (30/página, mais recentes primeiro): data/hora, usuário, ação, IP e detalhes. Filtros: busca (ação/detalhe), usuário, ação (lista distinta), período (De/Até).
+
+### Ações disponíveis
+Filtrar e paginar. Não há edição — logs são imutáveis (retenção de 1 ano via `cron/limpar-logs.php`).
+
+### Regras de negócio aplicadas
+Só leitura; acesso restrito a Administrador no backend (`api/logs/listar.php` e `acoes.php`). Prepared statements nos filtros.
+
+### Estados da tela
+- Carregando: "Carregando...".
+- Vazio: "Nenhum registro encontrado."
+- Erro: alerta genérico.
+- Sucesso: tabela + paginação.
+- Sem permissão: Gestor/Colaborador são redirecionados ao Dashboard (backend também bloqueia).
+
+### Comportamento responsivo
+A tabela vira cartões no mobile (mesmo padrão das demais listas).
+
+---
+
 ## Checklist de validação
 
 - [x] Este documento foi preenchido?

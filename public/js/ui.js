@@ -243,12 +243,20 @@ function configurarBuscaTopo() {
 async function configurarNavGestor() {
   const relatorios = document.getElementById("nav-relatorios");
   const higiene = document.getElementById("nav-higiene");
-  if (!relatorios && !higiene) return;
+  const auditoria = document.getElementById("nav-auditoria");
+  if (!relatorios && !higiene && !auditoria) return;
   try {
     const resposta = await getApi("/api/auth/me.php");
-    if (resposta && resposta.ok && (resposta.data.perfil === "administrador" || resposta.data.perfil === "gestor")) {
+    if (!resposta || !resposta.ok) return;
+    const perfil = resposta.data.perfil;
+    // Relatorios e Controle: Gestor/Admin.
+    if (perfil === "administrador" || perfil === "gestor") {
       if (relatorios) relatorios.hidden = false;
       if (higiene) higiene.hidden = false;
+    }
+    // Auditoria de logs: apenas Administrador.
+    if (perfil === "administrador" && auditoria) {
+      auditoria.hidden = false;
     }
   } catch (erro) {
     // Mantem oculto.

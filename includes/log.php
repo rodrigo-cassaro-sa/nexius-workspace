@@ -56,3 +56,63 @@ function limpar_logs_antigos()
     $ok = mysqli_query($conn, "DELETE FROM logs WHERE criado_em < (NOW() - INTERVAL 1 YEAR)");
     return $ok ? mysqli_affected_rows($conn) : 0;
 }
+
+// Lista os logs (auditoria) com filtros e paginacao. So leitura. Usado pela tela de Auditoria (Admin).
+// $filtros: usuario_id (int), acao (string), inicio/fim (YYYY-MM-DD), busca (string).
+function listar_logs($filtros, $pagina, $por_pagina)
+{
+    $where = " WHERE 1 = 1";
+    $tipos = "";
+    $params = [];
+
+    if (($filtros["usuario_id"] ?? 0) > 0) {
+        $where .= " AND l.usuario_id = ?";
+        $tipos .= "i";
+        $params[] = (int) $filtros["usuario_id"];
+    }
+    if (($filtros["acao"] ?? "") !== "") {
+        $where .= " AND l.acao = ?";
+        $tipos .= "s";
+        $params[] = $filtros["acao"];
+    }
+    if (($filtros["inicio"] ?? "") !== "") {
+        $where .= " AND l.criado_em >= ?";
+        $tipos .= "s";
+        $params[] = $filtros["inicio"] . " 00:00:00";
+    }
+    if (($filtros["fim"] ?? "") !== "") {
+        $where .= " AND l.criado_em <= ?";
+        $tipos .= "s";
+        $params[] = $filtros["fim"] . " 23:59:59";
+    }
+    if (($filtros["busca"] ?? "") !== "") {
+        $where .= " AND (l.acao LIKE ? OR l.detalhes LIKE ?)";
+        $tipos .= "ss";
+        $params[] = "%" . $filtros["busca"] . "%";
+        $params[] = "%" . $filtros["busca"] . "%";
+    }
+
+    $total = (int) executar_select("SELECT COUNT(*) AS total FROM logs l" . $where, $tipos, $params)[0]["total"];
+
+    $offset = ($pagina - 1) * $por_pagina;
+    $sql = "SELECT l.id, l.criado_em, l.usuario_id, u.nome AS usuario_nome,
+                   l.acao, l.ip, l.detalhes
+            FROM logs l
+            LEFT JOIN usuarios u ON u.id = l.usuario_id"
+            . $where . " ORDER BY l.id DESC LIMIT ? OFFSET ?";
+
+    $logs = executar_select($sql, $tipos . "ii", array_merge($params, [$por_pagina, $offset]));
+
+    return ["logs" => $logs, "total" => $total];
+}
+
+// Lista distinta de acoes registradas (para o filtro da tela de Auditoria).
+function logs_acoes_distintas()
+{
+    $linhas = executar_select("SELECT DISTINCT acao FROM logs ORDER BY acao ASC", "", []);
+    $acoes = [];
+    foreach ($linhas as $l) {
+        $acoes[] = $l["acao"];
+    }
+    return $acoes;
+}
