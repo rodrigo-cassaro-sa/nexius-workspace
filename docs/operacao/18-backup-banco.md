@@ -110,7 +110,15 @@ Além da opção 1, o **container do app já faz backup diário** (aproveitando 
 ```sh
 sh /var/www/html/cron/backup-banco.sh
 ls -lh /var/www/html/storage/backups/
+# Validar que NAO esta vazio (deve mostrar o inicio do dump SQL, nao dar erro):
+gunzip -c /var/www/html/storage/backups/nexius_workspace_*.sql.gz | head -20
 ```
+> **Um `.gz` de ~20 bytes = backup vazio/falho** (o `mysqldump` não conectou). Um backup real tem tamanho compatível com os dados (KB/MB) e o `gunzip | head` mostra `CREATE TABLE ...`. O script novo **aborta em vez de gerar arquivo vazio** se o dump falhar.
+
+### Conexão TLS (self-signed)
+O servidor usa certificado **self-signed** na VPC; por isso o script passa `ssl-verify-server-cert=0` (mantém a conexão sem exigir cadeia de certificado válida). Se ainda assim der erro de conexão, veja a próxima nota (autenticação).
+
+> Se você já rodou o backup antigo e ficaram arquivos de ~20 bytes em `storage/backups`, apague-os: `find /var/www/html/storage/backups -name '*.sql.gz' -size -100c -delete`.
 
 **Ressalva importante:** este backup fica no **mesmo host do app** — **não é offsite**. Mantê-lo é ótimo, mas para segurança real continue considerando a **opção 1** (no servidor do banco) e/ou **enviar os `.sql.gz` para fora** (Spaces/rclone). Restauração: mesma da seção 2 (baixe o arquivo de `storage/backups`).
 

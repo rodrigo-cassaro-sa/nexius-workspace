@@ -10,21 +10,31 @@ DIR="/var/www/html/storage/backups"
 RETENCAO_DIAS=365   # ~12 meses
 
 mkdir -p "$DIR"
-ARQ="$DIR/${DB_NOME}_$(date +%Y%m%d_%H%M%S).sql.gz"
+STAMP="$(date +%Y%m%d_%H%M%S)"
 
-# Arquivo temporario de credenciais: evita a senha na linha de comando (visivel em `ps`).
+# Arquivos temporarios (credenciais + dump cru). Limpos ao sair (mesmo em erro).
 CNF="$(mktemp)"
-trap 'rm -f "$CNF"' EXIT
+TMP="$(mktemp)"
+trap 'rm -f "$CNF" "$TMP"' EXIT
+
+# Credenciais fora da linha de comando (nao aparecem em `ps`).
+# ssl-verify-server-cert=0: o servidor usa certificado self-signed na VPC privada;
+# mantem a conexao, sem exigir cadeia de certificado valida.
 cat > "$CNF" <<EOF
 [client]
 host=${DB_HOST}
 user=${DB_USUARIO}
 password=${DB_SENHA}
+ssl-verify-server-cert=0
 EOF
 
-# --single-transaction: dump consistente sem travar as tabelas (InnoDB).
+# Dump para arquivo (SEM pipe de proposito): assim uma falha do mysqldump aborta o
+# script (set -e) e nao gera um .gz vazio "de sucesso". --single-transaction = consistente.
 mysqldump --defaults-extra-file="$CNF" --single-transaction --quick \
-  --routines --triggers --events "$DB_NOME" | gzip > "$ARQ"
+  --routines --triggers --events "$DB_NOME" > "$TMP"
+
+ARQ="$DIR/${DB_NOME}_${STAMP}.sql.gz"
+gzip -c "$TMP" > "$ARQ"
 
 # Rotacao: remove backups com mais de 12 meses.
 find "$DIR" -name "${DB_NOME}_*.sql.gz" -type f -mtime +"$RETENCAO_DIAS" -delete
