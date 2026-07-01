@@ -191,6 +191,13 @@ function prepararGestor() {
   // Arquivamento da demanda (acao de ciclo de vida; nao edita o conteudo).
   document.getElementById("demanda-acoes").hidden = false;
   document.getElementById("botao-arquivar").addEventListener("click", function () { abrirModal("modal-arquivar"); });
+
+  // Reabrir demanda concluida (por engano): volta a em_andamento + reabre a acao chave.
+  if (demandaAtual && demandaAtual.status === "concluida") {
+    const btnReabrir = document.getElementById("botao-reabrir");
+    btnReabrir.hidden = false;
+    btnReabrir.addEventListener("click", reabrirDemanda);
+  }
   document.getElementById("botao-arquivar-cancelar").addEventListener("click", function () { fecharModal("modal-arquivar"); });
   document.getElementById("botao-arquivar-confirmar").addEventListener("click", arquivar);
 
@@ -316,6 +323,23 @@ function formatarPrazoAlvo(iso) {
   if (!iso) return "—";
   const s = String(iso).substring(0, 10).split("-");
   return s.length === 3 ? (s[2] + "/" + s[1] + "/" + s[0]) : "—";
+}
+
+// Reabre a demanda concluida (Gestor/Admin): volta a em_andamento e reabre a acao chave.
+async function reabrirDemanda() {
+  if (!confirm("Reabrir esta demanda? Ela volta para \"em andamento\" e a ação chave volta a pendente.")) {
+    return;
+  }
+  try {
+    const r = await postApi("/api/demandas/reabrir.php", { id: demandaId });
+    if (!r.ok) {
+      mostrarErro("mensagem", r.error || "Não foi possível reabrir a demanda.");
+      return;
+    }
+    await carregarTudo();
+  } catch (e) {
+    mostrarErro("mensagem", "Não foi possível reabrir a demanda.");
+  }
 }
 
 async function carregarAcoes() {

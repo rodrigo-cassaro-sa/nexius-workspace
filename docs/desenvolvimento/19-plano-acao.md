@@ -13,8 +13,8 @@ Itens que restam do **lado do desenvolvimento** (não são pendências operacion
 
 ## B. Precisa de decisão (antes de codar)
 
-- [ ] **B1. Esforço/capacidade — impacto recalculando datas de verdade.** Hoje o impacto de prioridade é **qualitativo** (sinaliza "em risco", não move datas). Para o "empurrão" real, precisa de um modelo. **Decisões:** (a) unidade de **esforço** por tarefa (dias? horas? pontos?); (b) **capacidade** por pessoa (ex.: X por semana?); (c) o sistema **recalcula/empurra os prazos automaticamente** ou só **sugere/simula**? Impacto: campos novos + migração + regras de calendário. **Grande.**
-- [ ] **B2. Relatórios com recorte por setor.** Hoje os Relatórios são globais (Gestor/Admin). **Decisão:** o **key user** deve ver os relatórios **só do seu setor**? E/ou um **filtro de setor** para Gestor/Admin? Pequeno/médio.
+- [ ] **B1. Esforço/capacidade — recálculo automático de datas (DECIDIDO).** Modelo: **esforço por tarefa (em dias)** + **capacidade por pessoa (por semana)**; o sistema **empurra automaticamente** os prazos das tarefas de **menor prioridade** quando uma de maior prioridade concorre pela agenda do mesmo responsável. Campos novos + migração + algoritmo de agendamento. **Grande** — será feito por último e com cuidado.
+- [x] **B2. Relatórios com recorte por setor (DECIDIDO: filtro de setor).** Adicionar um **filtro "Setor"** nos Relatórios para Gestor/Admin recortarem por setor. Simples.
 - [ ] **B3. Envio offsite do backup** (rclone/DO Spaces, ou backup no droplet do MySQL). **Decidido: adiado para a ÚLTIMA ETAPA** (o backup do container já roda; falta só a cópia fora do host).
 
 ## Fora deste plano (decisões já tomadas)
@@ -27,7 +27,7 @@ Push (fora do escopo — D15), chat fases 2+ (canceladas — D20). Não entram.
 | Item | Status | QA acrescentado? |
 |---|---|---|
 | A1 Editar demanda | pendente | — |
-| A2 Reabrir demanda | pendente | — |
+| A2 Reabrir demanda | ✅ feito | ✅ (seção 8) |
 | B1 Esforço/capacidade | aguardando decisão | — |
 | B2 Relatórios por setor | aguardando decisão | — |
 | B3 Offsite backup | adiado (última etapa) | — |

@@ -80,6 +80,7 @@ Pré: duas tarefas do **mesmo responsável**, prazos sobrepostos, em demandas co
 ## 8. Fluxos de tarefa (revisão)
 
 - [ ] **Reabrir ação recusada**: recusar uma entrega (Gestor/Admin) → botão **Reabrir** volta para pendente e limpa o motivo; o responsável é notificado.
+- [ ] **Reabrir demanda concluída** (A2): numa demanda **concluída**, Gestor/Admin veem o botão **"Reabrir demanda"** → a demanda volta a **em andamento** e a **ação chave** volta a **pendente**; o dono/criador é notificado. Em demanda não-concluída o botão não aparece.
 - [ ] **Key user conclui tarefa do setor**: como key user, concluir uma tarefa de **outro** responsável do seu setor (assinatura exigida; para análise/reunião, anexar evidência). O responsável é notificado.
 
 ## 9. Permissões e escopo (transversal)

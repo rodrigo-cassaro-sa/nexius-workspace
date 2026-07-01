@@ -338,6 +338,25 @@ function marcar_demanda_respondida($demanda_id)
     return mysqli_stmt_affected_rows($stmt) > 0;
 }
 
+// Reabre uma demanda concluida: volta a 'em_andamento' (desfaz a conclusao). So se estava concluida.
+function reabrir_demanda($id)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE demandas SET status = 'em_andamento', concluida_em = NULL WHERE id = ? AND status = 'concluida'");
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    return mysqli_stmt_affected_rows($stmt) > 0;
+}
+
+// Reabre a acao chave concluida da demanda (volta a 'pendente'), para retomar o fluxo.
+function reabrir_acao_chave_da_demanda($demanda_id)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE acoes SET status = 'pendente', concluida_em = NULL WHERE demanda_id = ? AND chave = 1 AND status = 'concluida'");
+    mysqli_stmt_bind_param($stmt, "i", $demanda_id);
+    return mysqli_stmt_execute($stmt);
+}
+
 // Arquiva ou cancela a demanda (status arquivada/cancelada).
 function arquivar_demanda($id, $status)
 {
