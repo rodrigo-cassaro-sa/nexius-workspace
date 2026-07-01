@@ -418,66 +418,106 @@ function linhaItem(it, ini, totalDias, trackW, subTexto) {
 }
 
 // Configura a barra: clique abre o popup; se o usuario pode editar e a tarefa tem prazo,
-// habilita arrastar (so mouse) para deslocar o prazo em dias (rasta e solta).
+// habilita arrastar para deslocar o prazo em dias (rasta e solta).
+// - No corpo da barra: arrasta so com MOUSE (no toque isso rolaria a timeline).
+// - Numa alca dedicada (direita): arrasta com mouse E toque (a alca nao rola).
 function configurarBarra(bar, it) {
-  const editavel = podeEditarPrazo(it) && it.prazo;
-  let arrastando = false;
-  let startX = 0;
-  let dx = 0;
-  let houveDrag = false;
-
-  if (editavel) {
+  if (podeEditarPrazo(it) && it.prazo) {
     bar.classList.add("gantt-bar-editavel");
+    ativarArraste(bar, bar, it, "mouse");
 
-    bar.addEventListener("pointerdown", function (e) {
-      // So arrasta com mouse; no toque, mantem o tap (abre popup) e a rolagem.
-      if (e.pointerType !== "mouse" || e.button !== 0) return;
-      arrastando = true;
-      houveDrag = false;
-      dx = 0;
-      startX = e.clientX;
-      bar.setPointerCapture(e.pointerId);
-    });
-
-    bar.addEventListener("pointermove", function (e) {
-      if (!arrastando) return;
-      dx = e.clientX - startX;
-      if (Math.abs(dx) > 3) {
-        houveDrag = true;
-        bar.classList.add("gantt-bar-arrastando");
-      }
-      bar.style.transform = "translateX(" + dx + "px)";
-    });
-
-    bar.addEventListener("pointerup", function () {
-      if (!arrastando) return;
-      arrastando = false;
-      bar.classList.remove("gantt-bar-arrastando");
-      bar.style.transform = "";
-      if (houveDrag) {
-        const dias = Math.round(dx / PX_DIA);
-        if (dias !== 0) {
-          aplicarNovoPrazo(it, dias);
-        }
-      }
-    });
-
-    bar.addEventListener("pointercancel", function () {
-      arrastando = false;
-      bar.classList.remove("gantt-bar-arrastando");
-      bar.style.transform = "";
-    });
+    const alca = document.createElement("span");
+    alca.className = "gantt-bar-alca";
+    alca.title = "Arraste para mudar o prazo";
+    bar.appendChild(alca);
+    ativarArraste(alca, bar, it, "qualquer");
   }
 
   bar.addEventListener("click", function (e) {
     // Se acabou de arrastar, nao abre o popup (o arraste ja aplicou o prazo).
-    if (houveDrag) {
-      houveDrag = false;
+    if (bar.dataset.arrastou === "1") {
+      bar.dataset.arrastou = "";
       e.preventDefault();
       return;
     }
     abrirPrazo(it);
   });
+}
+
+// Liga o arraste em "alvo" movendo visualmente "bar" e ajustando o prazo de "it".
+// modo "mouse" = so ponteiro de mouse; "qualquer" = mouse ou toque.
+function ativarArraste(alvo, bar, it, modo) {
+  let arrastando = false;
+  let startX = 0;
+  let dx = 0;
+
+  alvo.addEventListener("pointerdown", function (e) {
+    if (modo === "mouse" && e.pointerType !== "mouse") return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    arrastando = true;
+    dx = 0;
+    startX = e.clientX;
+    bar.dataset.arrastou = "";
+    alvo.setPointerCapture(e.pointerId);
+    e.stopPropagation();
+  });
+
+  alvo.addEventListener("pointermove", function (e) {
+    if (!arrastando) return;
+    dx = e.clientX - startX;
+    if (Math.abs(dx) > 3) {
+      bar.dataset.arrastou = "1";
+      bar.classList.add("gantt-bar-arrastando");
+    }
+    bar.style.transform = "translateX(" + dx + "px)";
+    if (bar.dataset.arrastou === "1") {
+      const dias = Math.round(dx / PX_DIA);
+      const novo = formatarISO(new Date(parseData(it.prazo).getTime() + dias * 86400000));
+      mostrarDicaArraste(e.clientX, e.clientY, fmtDataBR(novo) + " (" + (dias >= 0 ? "+" : "") + dias + "d)");
+    }
+    e.preventDefault();
+  });
+
+  function finalizar() {
+    if (!arrastando) return;
+    arrastando = false;
+    bar.classList.remove("gantt-bar-arrastando");
+    bar.style.transform = "";
+    esconderDicaArraste();
+    if (bar.dataset.arrastou === "1") {
+      const dias = Math.round(dx / PX_DIA);
+      if (dias !== 0) {
+        aplicarNovoPrazo(it, dias);
+      }
+    }
+  }
+
+  alvo.addEventListener("pointerup", finalizar);
+  alvo.addEventListener("pointercancel", function () {
+    arrastando = false;
+    bar.classList.remove("gantt-bar-arrastando");
+    bar.style.transform = "";
+    esconderDicaArraste();
+  });
+}
+
+// Dica flutuante com a nova data enquanto arrasta (elemento unico, reaproveitado).
+let dicaArrasteEl = null;
+function mostrarDicaArraste(x, y, texto) {
+  if (!dicaArrasteEl) {
+    dicaArrasteEl = document.createElement("div");
+    dicaArrasteEl.className = "gantt-drag-dica";
+    document.body.appendChild(dicaArrasteEl);
+  }
+  dicaArrasteEl.textContent = texto;
+  dicaArrasteEl.style.left = (x + 12) + "px";
+  dicaArrasteEl.style.top = (y + 12) + "px";
+  dicaArrasteEl.hidden = false;
+}
+function esconderDicaArraste() {
+  if (dicaArrasteEl) {
+    dicaArrasteEl.hidden = true;
+  }
 }
 
 function podeEditarPrazo(it) {

@@ -943,6 +943,37 @@
   z-index: 3;
 }
 
+/* Alca de arraste (direita da barra): permite arrastar tambem no toque */
+.gantt-bar-alca {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 9px;
+  cursor: grab;
+  touch-action: none;
+  border-radius: 0 4px 4px 0;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.gantt-bar-alca:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+/* Dica flutuante com a nova data enquanto arrasta */
+.gantt-drag-dica {
+  position: fixed;
+  z-index: 50;
+  background: var(--cor-texto);
+  color: #fff;
+  font-size: 0.72rem;
+  padding: 3px 7px;
+  border-radius: 4px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
 .gantt-bar-texto {
   white-space: nowrap;
   overflow: hidden;
