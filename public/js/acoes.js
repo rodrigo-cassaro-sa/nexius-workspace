@@ -227,6 +227,12 @@ function renderizarLista(alvo, acoes) {
     const nome = document.createElement("span");
     nome.textContent = a.titulo;
     linha.appendChild(nome);
+    if (parseInt(a.em_risco, 10) === 1) {
+      const risco = document.createElement("span");
+      risco.textContent = " ⚠";
+      risco.title = "Em risco de atraso: tarefa de maior prioridade concorre no mesmo período (mesmo responsável).";
+      linha.appendChild(risco);
+    }
     if (parseInt(a.chave, 10) === 1) {
       const bc = document.createElement("span");
       bc.className = "badge badge-chave";
@@ -504,8 +510,9 @@ function renderizarCalendario(grade, acoes, inicioGrade, totalCelulas) {
       ev.type = "button";
       ev.className = "cal-evento cal-evento-" + classeEventoCalendario(a, chave, hoje)
         + (parseInt(a.chave, 10) === 1 ? " cal-evento-chave" : "");
-      ev.title = a.titulo + " — " + a.demanda_titulo;
-      ev.textContent = a.titulo;
+      const emRisco = parseInt(a.em_risco, 10) === 1;
+      ev.title = a.titulo + " — " + a.demanda_titulo + (emRisco ? " · Em risco de atraso (prioridade concorrente)" : "");
+      ev.textContent = (emRisco ? "⚠ " : "") + a.titulo;
       ev.addEventListener("click", function () { abrirDetalhe(a); });
       celula.appendChild(ev);
     });

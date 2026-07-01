@@ -6,6 +6,7 @@
 
 require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/acoes.php";
+require_once __DIR__ . "/../../includes/impacto.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "GET") {
     json_response(["ok" => false, "error" => "Metodo nao permitido."], 405);
@@ -57,6 +58,13 @@ $filtros = [
 ];
 
 $acoes = listar_acoes_calendario($usuario_id, $perfil, $filtros, $inicio, $fim);
+
+// Marca as acoes em risco de atraso por prioridade (D24, so leitura).
+$em_risco = array_flip(acoes_em_risco_ids());
+foreach ($acoes as &$ac) {
+    $ac["em_risco"] = isset($em_risco[(int) $ac["id"]]) ? 1 : 0;
+}
+unset($ac);
 
 json_sucesso([
     "acoes" => $acoes,

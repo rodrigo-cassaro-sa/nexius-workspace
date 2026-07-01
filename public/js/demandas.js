@@ -194,7 +194,11 @@ function renderizarLista(alvo, demandas) {
       tr.classList.add("prioridade-alta");
     }
 
-    tr.appendChild(celula("Título", d.titulo));
+    const tdTitulo = celula("Título", d.titulo + (parseInt(d.em_risco, 10) === 1 ? " ⚠" : ""));
+    if (parseInt(d.em_risco, 10) === 1) {
+      tdTitulo.title = "Tem tarefa em risco de atraso por prioridade concorrente. Veja no Roadmap.";
+    }
+    tr.appendChild(tdTitulo);
     tr.appendChild(celulaPrioridade(prioridade));
 
     const tdStatus = document.createElement("td");

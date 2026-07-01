@@ -5,6 +5,7 @@
 
 require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/demandas.php";
+require_once __DIR__ . "/../../includes/impacto.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "GET") {
     json_response(["ok" => false, "error" => "Metodo nao permitido."], 405);
@@ -60,6 +61,13 @@ if ($pagina < 1) {
 }
 
 $resultado = listar_demandas($usuario_id, $perfil, $filtros, $pagina, $por_pagina);
+
+// Marca as demandas com tarefa em risco de atraso por prioridade (D24, so leitura).
+$dem_risco = array_flip(demandas_em_risco_ids());
+foreach ($resultado["demandas"] as &$dem) {
+    $dem["em_risco"] = isset($dem_risco[(int) $dem["id"]]) ? 1 : 0;
+}
+unset($dem);
 
 json_sucesso([
     "demandas" => $resultado["demandas"],

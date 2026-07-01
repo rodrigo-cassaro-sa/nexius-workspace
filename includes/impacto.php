@@ -3,11 +3,31 @@
 // impacto.php
 // Sinalizacao de impacto de prioridade (D24). NAO altera prazos nem dados: so identifica
 // tarefas "em risco de atraso" por concorrencia de prioridade. Fonte unica da heuristica,
-// reaproveitada pelo Roadmap (via a lista), pelo detalhe da demanda e pelo Dashboard.
+// reaproveitada pelo Roadmap, pelo detalhe/lista de demandas, pela lista de acoes e pelo Dashboard.
 //
 // Regra: uma acao esta "em risco" quando existe OUTRA acao do MESMO responsavel, com
 // prioridade GUT (gravidade*urgencia*tendencia da demanda) estritamente MAIOR, cuja janela
 // (criado_em -> prazo) se sobrepoe a dela. So considera acoes em aberto e com prazo.
+
+// Condicao central da heuristica (usa os aliases a = acao alvo, d = demanda da acao alvo).
+function sql_condicao_em_risco()
+{
+    return "a.responsavel_id IS NOT NULL
+            AND a.prazo IS NOT NULL
+            AND a.status NOT IN ('concluida', 'cancelada')
+            AND EXISTS (
+                SELECT 1 FROM acoes h
+                JOIN demandas dh ON dh.id = h.demanda_id
+                WHERE h.responsavel_id = a.responsavel_id
+                  AND h.id <> a.id
+                  AND h.prazo IS NOT NULL
+                  AND h.status NOT IN ('concluida', 'cancelada')
+                  AND COALESCE(dh.gut_gravidade * dh.gut_urgencia * dh.gut_tendencia, 0)
+                      > COALESCE(d.gut_gravidade * d.gut_urgencia * d.gut_tendencia, 0)
+                  AND DATE(h.criado_em) <= a.prazo
+                  AND DATE(a.criado_em) <= h.prazo
+            )";
+}
 
 // Ids das acoes em risco. $where_extra permite recortar (ex.: por responsavel ou demanda).
 function acoes_em_risco_ids($where_extra = "", $tipos = "", $params = [])
@@ -15,23 +35,25 @@ function acoes_em_risco_ids($where_extra = "", $tipos = "", $params = [])
     $sql = "SELECT DISTINCT a.id
             FROM acoes a
             JOIN demandas d ON d.id = a.demanda_id
-            WHERE a.responsavel_id IS NOT NULL
-              AND a.prazo IS NOT NULL
-              AND a.status NOT IN ('concluida', 'cancelada')
-              AND EXISTS (
-                  SELECT 1 FROM acoes h
-                  JOIN demandas dh ON dh.id = h.demanda_id
-                  WHERE h.responsavel_id = a.responsavel_id
-                    AND h.id <> a.id
-                    AND h.prazo IS NOT NULL
-                    AND h.status NOT IN ('concluida', 'cancelada')
-                    AND COALESCE(dh.gut_gravidade * dh.gut_urgencia * dh.gut_tendencia, 0)
-                        > COALESCE(d.gut_gravidade * d.gut_urgencia * d.gut_tendencia, 0)
-                    AND DATE(h.criado_em) <= a.prazo
-                    AND DATE(a.criado_em) <= h.prazo
-              )" . $where_extra;
+            WHERE " . sql_condicao_em_risco() . $where_extra;
 
     $linhas = executar_select($sql, $tipos, $params);
+    $ids = [];
+    foreach ($linhas as $linha) {
+        $ids[] = (int) $linha["id"];
+    }
+    return $ids;
+}
+
+// Ids das demandas que tem ao menos uma acao em risco (para o marcador na lista de demandas).
+function demandas_em_risco_ids()
+{
+    $sql = "SELECT DISTINCT a.demanda_id AS id
+            FROM acoes a
+            JOIN demandas d ON d.id = a.demanda_id
+            WHERE " . sql_condicao_em_risco();
+
+    $linhas = executar_select($sql, "", []);
     $ids = [];
     foreach ($linhas as $linha) {
         $ids[] = (int) $linha["id"];
