@@ -28,7 +28,8 @@ Roteiro prático para validar em produção as funcionalidades novas/alteradas (
 
 - [ ] No detalhe da demanda, o cabeçalho mostra **Responsável**, **Projeto**, **Prazo (ação chave)** e **Prazo alvo**.
 - [ ] No controle de gestão (Gestor/Admin ou key user): definir **Responsável (dono)**, **Projeto** e **Prazo alvo** → Salvar (envia só o que mudou). O novo dono recebe notificação.
-- [ ] Colaborador comum **não vê** o controle de gestão (só leitura).
+- [ ] **Editar demanda (A1)**: Gestor/Admin → botão **"Editar"** abre o modal com título, status, questionário (6 perguntas), triagem e GUT **pré-preenchidos** → alterar e Salvar → o detalhe reflete (título, prioridade recalculada). Validações de campo obrigatório funcionam.
+- [ ] Colaborador comum **não vê** o controle de gestão nem os botões Editar/Arquivar (só leitura).
 
 ## 3. Roadmap / Gantt (D23)
 

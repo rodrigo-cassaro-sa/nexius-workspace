@@ -255,21 +255,27 @@ function colaborador_envolvido_na_demanda($demanda_id, $usuario_id)
 
 // Atualiza dados da demanda (titulo, questionario, responsavel, status de edicao).
 // $campos = [problema, impacto_operacional, risco, afeta_outros, workaround, sugestao_solucao]
-function atualizar_demanda($id, $titulo, $responsavel_id, $status, $campos, $projeto_id = null)
+// Atualiza o CONTEUDO da demanda (titulo, status de edicao, questionario, triagem e GUT).
+// Responsavel, projeto e prazo tem controles proprios (definir-responsavel/projeto/prazo).
+// $campos = 6 perguntas + origem/momento_etapa/intencao/pilar/objetivo + gut_gravidade/urgencia/tendencia.
+function atualizar_demanda($id, $titulo, $status, $campos)
 {
     $conn = conectar_banco();
-    $sql = "UPDATE demandas SET titulo = ?, responsavel_id = ?, status = ?,
+    $sql = "UPDATE demandas SET titulo = ?, status = ?,
                 problema = ?, impacto_operacional = ?, risco = ?,
-                afeta_outros = ?, workaround = ?, sugestao_solucao = ?, projeto_id = ?
+                afeta_outros = ?, workaround = ?, sugestao_solucao = ?,
+                origem = ?, momento_etapa = ?, intencao = ?, pilar = ?, objetivo = ?,
+                gut_gravidade = ?, gut_urgencia = ?, gut_tendencia = ?
             WHERE id = ?";
 
+    // titulo/status(ss) + 6 perguntas(ssssss) + 5 triagem(sssss) + 3 gut(iii) + id(i)
+    $tipos = "ss" . "ssssss" . "sssss" . "iii" . "i";
+
     $stmt = mysqli_prepare($conn, $sql);
-    // projeto_id pode ser null (mysqli envia NULL quando a variavel e null).
     mysqli_stmt_bind_param(
         $stmt,
-        "sisssssssii",
+        $tipos,
         $titulo,
-        $responsavel_id,
         $status,
         $campos["problema"],
         $campos["impacto_operacional"],
@@ -277,7 +283,14 @@ function atualizar_demanda($id, $titulo, $responsavel_id, $status, $campos, $pro
         $campos["afeta_outros"],
         $campos["workaround"],
         $campos["sugestao_solucao"],
-        $projeto_id,
+        $campos["origem"],
+        $campos["momento_etapa"],
+        $campos["intencao"],
+        $campos["pilar"],
+        $campos["objetivo"],
+        $campos["gut_gravidade"],
+        $campos["gut_urgencia"],
+        $campos["gut_tendencia"],
         $id
     );
 

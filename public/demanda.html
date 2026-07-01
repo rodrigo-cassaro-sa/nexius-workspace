@@ -77,6 +77,7 @@
                 <span class="badge" id="d-status"></span>
               </div>
               <div class="acoes-demanda" id="demanda-acoes" hidden>
+                <button type="button" class="botao botao-secundario" id="botao-editar-demanda">Editar</button>
                 <button type="button" class="botao botao-secundario" id="botao-reabrir" hidden>Reabrir demanda</button>
                 <button type="button" class="botao botao-secundario" id="botao-arquivar">Arquivar demanda</button>
               </div>
@@ -403,6 +404,101 @@
         <button type="button" class="botao botao-secundario" id="botao-arquivar-cancelar">Cancelar</button>
         <button type="button" class="botao botao-primario" id="botao-arquivar-confirmar">Arquivar</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal: editar demanda (conteudo: titulo, status, questionario, triagem, GUT) -->
+  <div id="modal-editar" class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="modal-editar-titulo">
+    <div class="modal-conteudo">
+      <h2 class="modal-titulo" id="modal-editar-titulo">Editar demanda</h2>
+      <div id="editar-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+
+      <form id="form-editar" novalidate>
+        <div class="campos-grid">
+          <div class="campo campo-2col">
+            <label class="campo-label" for="ed-titulo">Nome da demanda *</label>
+            <input class="campo-input" id="ed-titulo" type="text" maxlength="160" required>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="ed-status">Status</label>
+            <select class="campo-input" id="ed-status">
+              <option value="aberta">Aberta</option>
+              <option value="em_andamento">Em andamento</option>
+            </select>
+          </div>
+
+          <div class="form-secao"><strong>Triagem</strong></div>
+          <div class="campo campo-2col">
+            <label class="campo-label" for="ed-origem">Onde? (sistema, processo, área) *</label>
+            <input class="campo-input" id="ed-origem" type="text" maxlength="200" required>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="ed-momento">Em qual momento ou etapa? *</label>
+            <input class="campo-input" id="ed-momento" type="text" maxlength="200" required>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="ed-intencao">Qual a intenção? *</label>
+            <select class="campo-input" id="ed-intencao" required>
+              <option value="">Selecione...</option>
+              <option value="melhoria">Melhoria</option>
+              <option value="defeito">Corrigir defeito</option>
+              <option value="nova_solucao">Nova solução</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="ed-pilar">Principal pilar impactado? *</label>
+            <select class="campo-input" id="ed-pilar" required>
+              <option value="">Selecione...</option>
+              <option value="processo">Processo</option>
+              <option value="financeiro">Financeiro</option>
+              <option value="pessoas">Pessoas</option>
+              <option value="cliente">Cliente</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="ed-objetivo">Objetivo principal? *</label>
+            <select class="campo-input" id="ed-objetivo" required>
+              <option value="">Selecione...</option>
+              <option value="reducao_custo">Redução de custo</option>
+              <option value="relevancia_marca">Aumento da relevância da marca</option>
+              <option value="organizacao_trabalho">Organização do trabalho</option>
+            </select>
+          </div>
+
+          <div class="form-secao"><strong>Análise da demanda</strong></div>
+          <div class="campo"><label class="campo-label" for="ed-problema">Qual problema será resolvido? *</label><textarea class="campo-input" id="ed-problema" rows="3" required></textarea></div>
+          <div class="campo"><label class="campo-label" for="ed-impacto">Qual o impacto operacional? *</label><textarea class="campo-input" id="ed-impacto" rows="3" required></textarea></div>
+          <div class="campo"><label class="campo-label" for="ed-risco">Existe algum risco? Se sim, qual? *</label><textarea class="campo-input" id="ed-risco" rows="3" required></textarea></div>
+          <div class="campo"><label class="campo-label" for="ed-afeta">Afeta outro sistema ou área? Se sim, qual? *</label><textarea class="campo-input" id="ed-afeta" rows="3" required></textarea></div>
+          <div class="campo"><label class="campo-label" for="ed-workaround">Existe workaround? Se sim, qual? *</label><textarea class="campo-input" id="ed-workaround" rows="3" required></textarea></div>
+          <div class="campo"><label class="campo-label" for="ed-sugestao">Sugestão de solução *</label><textarea class="campo-input" id="ed-sugestao" rows="3" required></textarea></div>
+
+          <div class="gut-ajuda"><strong>Prioridade (GUT)</strong></div>
+          <div class="campo">
+            <label class="campo-label" for="ed-gut-gravidade">Gravidade (G) *</label>
+            <select class="campo-input" id="ed-gut-gravidade" required>
+              <option value="1">1 — Sem gravidade</option><option value="2">2 — Pouco grave</option><option value="3">3 — Grave</option><option value="4">4 — Muito grave</option><option value="5">5 — Extremamente grave</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="ed-gut-urgencia">Urgência (U) *</label>
+            <select class="campo-input" id="ed-gut-urgencia" required>
+              <option value="1">1 — Pode esperar</option><option value="2">2 — Pouco urgente</option><option value="3">3 — Merece atenção</option><option value="4">4 — Muito urgente</option><option value="5">5 — Ação imediata</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label class="campo-label" for="ed-gut-tendencia">Tendência (T) *</label>
+            <select class="campo-input" id="ed-gut-tendencia" required>
+              <option value="1">1 — Não vai mudar</option><option value="2">2 — Piora a longo prazo</option><option value="3">3 — Piora a médio prazo</option><option value="4">4 — Piora a curto prazo</option><option value="5">5 — Piora rapidamente</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-acoes">
+          <button type="button" class="botao botao-secundario" id="botao-editar-cancelar">Cancelar</button>
+          <button type="submit" class="botao botao-primario" id="botao-editar-salvar">Salvar</button>
+        </div>
+      </form>
     </div>
   </div>
 

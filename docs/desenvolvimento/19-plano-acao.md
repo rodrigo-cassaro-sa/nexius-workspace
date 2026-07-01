@@ -26,7 +26,7 @@ Push (fora do escopo — D15), chat fases 2+ (canceladas — D20). Não entram.
 
 | Item | Status | QA acrescentado? |
 |---|---|---|
-| A1 Editar demanda | pendente | — |
+| A1 Editar demanda | ✅ feito | ✅ (seção 2) |
 | A2 Reabrir demanda | ✅ feito | ✅ (seção 8) |
 | B1 Esforço/capacidade | aguardando decisão | — |
 | B2 Relatórios por setor | aguardando decisão | — |

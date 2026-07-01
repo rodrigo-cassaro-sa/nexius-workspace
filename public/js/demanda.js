@@ -198,6 +198,11 @@ function prepararGestor() {
     btnReabrir.hidden = false;
     btnReabrir.addEventListener("click", reabrirDemanda);
   }
+
+  // Editar demanda (conteudo: titulo, status, questionario, triagem, GUT).
+  document.getElementById("botao-editar-demanda").addEventListener("click", abrirEditarDemanda);
+  document.getElementById("botao-editar-cancelar").addEventListener("click", function () { fecharModal("modal-editar"); });
+  document.getElementById("form-editar").addEventListener("submit", salvarEditarDemanda);
   document.getElementById("botao-arquivar-cancelar").addEventListener("click", function () { fecharModal("modal-arquivar"); });
   document.getElementById("botao-arquivar-confirmar").addEventListener("click", arquivar);
 
@@ -323,6 +328,97 @@ function formatarPrazoAlvo(iso) {
   if (!iso) return "—";
   const s = String(iso).substring(0, 10).split("-");
   return s.length === 3 ? (s[2] + "/" + s[1] + "/" + s[0]) : "—";
+}
+
+// Abre o modal de edicao da demanda pre-preenchido com o conteudo atual.
+function abrirEditarDemanda() {
+  const d = demandaAtual;
+  document.getElementById("editar-mensagem").hidden = true;
+  document.getElementById("ed-titulo").value = d.titulo || "";
+  document.getElementById("ed-status").value = (d.status === "aberta" || d.status === "em_andamento") ? d.status : "em_andamento";
+  document.getElementById("ed-origem").value = d.origem || "";
+  document.getElementById("ed-momento").value = d.momento_etapa || "";
+  document.getElementById("ed-intencao").value = d.intencao || "";
+  document.getElementById("ed-pilar").value = d.pilar || "";
+  document.getElementById("ed-objetivo").value = d.objetivo || "";
+  document.getElementById("ed-problema").value = d.problema || "";
+  document.getElementById("ed-impacto").value = d.impacto_operacional || "";
+  document.getElementById("ed-risco").value = d.risco || "";
+  document.getElementById("ed-afeta").value = d.afeta_outros || "";
+  document.getElementById("ed-workaround").value = d.workaround || "";
+  document.getElementById("ed-sugestao").value = d.sugestao_solucao || "";
+  document.getElementById("ed-gut-gravidade").value = String(d.gut_gravidade || 3);
+  document.getElementById("ed-gut-urgencia").value = String(d.gut_urgencia || 3);
+  document.getElementById("ed-gut-tendencia").value = String(d.gut_tendencia || 3);
+  abrirModal("modal-editar");
+}
+
+async function salvarEditarDemanda(evento) {
+  evento.preventDefault();
+  const botao = document.getElementById("botao-editar-salvar");
+  const titulo = document.getElementById("ed-titulo").value.trim();
+
+  const campos = {
+    problema: valEd("ed-problema"),
+    impacto_operacional: valEd("ed-impacto"),
+    risco: valEd("ed-risco"),
+    afeta_outros: valEd("ed-afeta"),
+    workaround: valEd("ed-workaround"),
+    sugestao_solucao: valEd("ed-sugestao")
+  };
+  const triagem = {
+    origem: valEd("ed-origem"),
+    momento_etapa: valEd("ed-momento"),
+    intencao: document.getElementById("ed-intencao").value,
+    pilar: document.getElementById("ed-pilar").value,
+    objetivo: document.getElementById("ed-objetivo").value
+  };
+  const gut = {
+    gut_gravidade: parseInt(document.getElementById("ed-gut-gravidade").value, 10) || 0,
+    gut_urgencia: parseInt(document.getElementById("ed-gut-urgencia").value, 10) || 0,
+    gut_tendencia: parseInt(document.getElementById("ed-gut-tendencia").value, 10) || 0
+  };
+
+  if (!tamanhoEntre(titulo, 2, 160)) {
+    mostrarErro("editar-mensagem", "Informe um título (2 a 160 caracteres).");
+    return;
+  }
+  if (Object.keys(campos).some(function (k) { return campos[k].length < 2; })) {
+    mostrarErro("editar-mensagem", "Responda todas as 6 perguntas obrigatórias.");
+    return;
+  }
+  if (triagem.origem.length < 2 || triagem.momento_etapa.length < 2) {
+    mostrarErro("editar-mensagem", "Preencha \"Onde?\" e \"Em qual momento ou etapa?\".");
+    return;
+  }
+  if (!triagem.intencao || !triagem.pilar || !triagem.objetivo) {
+    mostrarErro("editar-mensagem", "Selecione intenção, pilar e objetivo na triagem.");
+    return;
+  }
+
+  definirCarregando(botao, true);
+  try {
+    const dados = Object.assign(
+      { id: demandaId, titulo: titulo, status: document.getElementById("ed-status").value },
+      campos, triagem, gut
+    );
+    const r = await postApi("/api/demandas/atualizar.php", dados);
+    if (!r.ok) {
+      mostrarErro("editar-mensagem", r.error || "Não foi possível salvar a demanda.");
+      definirCarregando(botao, false);
+      return;
+    }
+    definirCarregando(botao, false);
+    fecharModal("modal-editar");
+    await carregarTudo();
+  } catch (e) {
+    mostrarErro("editar-mensagem", "Não foi possível salvar a demanda.");
+    definirCarregando(botao, false);
+  }
+}
+
+function valEd(id) {
+  return document.getElementById(id).value.trim();
 }
 
 // Reabre a demanda concluida (Gestor/Admin): volta a em_andamento e reabre a acao chave.
