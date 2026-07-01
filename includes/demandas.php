@@ -284,6 +284,16 @@ function atualizar_demanda($id, $titulo, $responsavel_id, $status, $campos, $pro
     return mysqli_stmt_execute($stmt);
 }
 
+// Define (ou limpa, com null) o responsavel (dono) da demanda - prestacao de contas.
+function definir_responsavel_demanda($demanda_id, $responsavel_id)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE demandas SET responsavel_id = ? WHERE id = ?");
+    // responsavel_id pode ser null (mysqli envia NULL quando a variavel e null).
+    mysqli_stmt_bind_param($stmt, "ii", $responsavel_id, $demanda_id);
+    return mysqli_stmt_execute($stmt);
+}
+
 // Define (ou limpa, com null) o prazo alvo da demanda (controle de prazo no nivel da demanda).
 function definir_prazo_demanda($demanda_id, $prazo)
 {

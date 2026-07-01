@@ -85,6 +85,10 @@
                 <span class="stat-valor" id="d-solicitante">—</span>
               </div>
               <div class="stat">
+                <span class="stat-rotulo">Responsável</span>
+                <span class="stat-valor" id="d-responsavel-view">—</span>
+              </div>
+              <div class="stat">
                 <span class="stat-rotulo">Setor</span>
                 <span class="stat-valor" id="d-setor">—</span>
               </div>
@@ -116,6 +120,12 @@
 
             <div class="demanda-projeto-mover" id="demanda-projeto-mover" hidden>
               <div class="projeto-mover-linha">
+                <div class="campo campo-inline">
+                  <label class="campo-label" for="d-responsavel-select">Responsável (dono)</label>
+                  <select class="campo-input" id="d-responsavel-select">
+                    <option value="">Sem responsável</option>
+                  </select>
+                </div>
                 <div class="campo campo-inline">
                   <label class="campo-label" for="d-projeto-select">Projeto</label>
                   <select class="campo-input" id="d-projeto-select">

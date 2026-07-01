@@ -97,6 +97,7 @@ function preencherCabecalho(d) {
   badge.className = classeBadgeStatus(d.status);
   badge.textContent = rotuloStatus(d.status);
   document.getElementById("d-solicitante").textContent = d.criador_nome || "—";
+  document.getElementById("d-responsavel-view").textContent = d.responsavel_nome || "—";
   document.getElementById("d-setor").textContent = d.setor_nome || "—";
   renderProjetoStat(d);
   document.getElementById("d-prazo-alvo-view").textContent = formatarPrazoAlvo(d.prazo_alvo);
@@ -234,20 +235,53 @@ async function carregarProjetosMover() {
   }
   document.getElementById("d-prazo-alvo").value =
     demandaAtual && demandaAtual.prazo_alvo ? String(demandaAtual.prazo_alvo).substring(0, 10) : "";
+
+  // Responsavel (dono) da demanda: popula usuarios e pre-seleciona o atual.
+  const selResp = document.getElementById("d-responsavel-select");
+  try {
+    const ru = await getApi("/api/usuarios/listar.php");
+    if (ru.ok) {
+      ru.data.usuarios.forEach(function (u) {
+        const o = document.createElement("option");
+        o.value = u.id;
+        o.textContent = u.nome;
+        selResp.appendChild(o);
+      });
+    }
+  } catch (erro) {
+    // Mantem "Sem responsável".
+  }
+  if (demandaAtual && demandaAtual.responsavel_id) {
+    selResp.value = demandaAtual.responsavel_id;
+  }
 }
 
 // Salva o projeto e/ou o prazo alvo da demanda (envia so o que mudou).
 async function salvarProjetoDemanda() {
   const botao = document.getElementById("botao-salvar-projeto");
   const select = document.getElementById("d-projeto-select");
+  const selResp = document.getElementById("d-responsavel-select");
   const valorProjeto = select.value;
   const valorPrazo = document.getElementById("d-prazo-alvo").value;
+  const valorResp = selResp.value;
 
   const projetoAtual = demandaAtual.projeto_id ? String(demandaAtual.projeto_id) : "";
   const prazoAtual = demandaAtual.prazo_alvo ? String(demandaAtual.prazo_alvo).substring(0, 10) : "";
+  const respAtual = demandaAtual.responsavel_id ? String(demandaAtual.responsavel_id) : "";
 
   definirCarregando(botao, true);
   try {
+    if (valorResp !== respAtual) {
+      const rr = await postApi("/api/demandas/definir-responsavel.php", { id: demandaId, responsavel_id: valorResp });
+      if (!rr.ok) {
+        mostrarErro("mensagem", rr.error || "Nao foi possivel atualizar o responsável.");
+        definirCarregando(botao, false);
+        return;
+      }
+      demandaAtual.responsavel_id = valorResp ? parseInt(valorResp, 10) : null;
+      demandaAtual.responsavel_nome = valorResp ? selResp.options[selResp.selectedIndex].textContent : null;
+      document.getElementById("d-responsavel-view").textContent = demandaAtual.responsavel_nome || "—";
+    }
     if (valorProjeto !== projetoAtual) {
       const rp = await postApi("/api/demandas/definir-projeto.php", { id: demandaId, projeto_id: valorProjeto });
       if (!rp.ok) {
