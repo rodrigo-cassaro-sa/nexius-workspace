@@ -99,12 +99,7 @@ Além da opção 1, o **container do app já faz backup diário** (aproveitando 
 
 ### ⚠️ Dois pontos que você precisa garantir
 1. **Volume persistente cobrindo `storage/backups`.** No EasyPanel, monte o volume persistente em `/var/www/html/storage` (cobre anexos **e** backups). Se o seu volume estiver montado só em `storage/anexos`, os backups **somem no redeploy** — ajuste o mount para `storage`.
-2. **Autenticação do MySQL 8.** O `mysqldump` do Debian é o cliente MariaDB; se o usuário do banco usar `caching_sha2_password` (padrão do MySQL 8), pode dar **erro de autenticação**. Se acontecer (veja `logs/cron.log`), rode no MySQL:
-   ```sql
-   ALTER USER 'SEU_DB_USUARIO'@'%' IDENTIFIED WITH mysql_native_password BY 'A_SENHA_ATUAL';
-   FLUSH PRIVILEGES;
-   ```
-   (ou crie um usuário de backup só-leitura com `mysql_native_password`).
+2. **Privilégios do usuário do app.** O `nexius_app` tem privilégios mínimos (sem `PROCESS`/`EVENT`). Por isso o script usa `--no-tablespaces` e **não** dumpa rotinas/triggers/events (o schema é só tabelas). Se um dia forem criados **procedures/triggers/events** no banco, será preciso re-adicionar `--routines/--triggers/--events` ao script **e** conceder os privilégios (`PROCESS`, `EVENT`) ao usuário — ou usar um usuário de backup dedicado.
 
 ### Testar manualmente (terminal do container)
 ```sh

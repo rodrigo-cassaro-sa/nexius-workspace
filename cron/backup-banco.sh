@@ -30,8 +30,9 @@ EOF
 
 # Dump para arquivo (SEM pipe de proposito): assim uma falha do mysqldump aborta o
 # script (set -e) e nao gera um .gz vazio "de sucesso". --single-transaction = consistente.
-mysqldump --defaults-extra-file="$CNF" --single-transaction --quick \
-  --routines --triggers --events "$DB_NOME" > "$TMP"
+# --no-tablespaces: dispensa o privilegio global PROCESS. Sem --routines/--triggers/--events
+# porque o schema e so tabelas (evita exigir privilegios EVENT/rotinas do usuario do app).
+mysqldump --defaults-extra-file="$CNF" --single-transaction --quick --no-tablespaces "$DB_NOME" > "$TMP"
 
 ARQ="$DIR/${DB_NOME}_${STAMP}.sql.gz"
 gzip -c "$TMP" > "$ARQ"
