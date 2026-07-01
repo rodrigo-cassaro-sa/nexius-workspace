@@ -931,6 +931,18 @@
   filter: brightness(1.08);
 }
 
+/* Barra editavel: pode ser arrastada (mouse) para ajustar o prazo */
+.gantt-bar-editavel {
+  cursor: grab;
+  touch-action: pan-x;
+}
+
+.gantt-bar-arrastando {
+  cursor: grabbing;
+  opacity: 0.85;
+  z-index: 3;
+}
+
 .gantt-bar-texto {
   white-space: nowrap;
   overflow: hidden;

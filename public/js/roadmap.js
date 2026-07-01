@@ -37,12 +37,30 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("road-agrupar").addEventListener("change", carregarRoadmap);
 
   document.getElementById("botao-prazo-fechar").addEventListener("click", function () { fecharModal("modal-prazo"); });
-  document.getElementById("botao-prazo-salvar").addEventListener("click", salvarPrazo);
+  document.getElementById("botao-prazo-salvar").addEventListener("click", salvarTarefa);
 
   carregarSetores();
   carregarProjetos();
+  carregarUsuarios();
   carregarRoadmap();
 });
+
+// Popula o select de responsavel do modal (usado ao editar a tarefa).
+async function carregarUsuarios() {
+  const sel = document.getElementById("prazo-responsavel");
+  try {
+    const r = await getApi("/api/usuarios/listar.php");
+    if (!r.ok) return;
+    r.data.usuarios.forEach(function (u) {
+      const o = document.createElement("option");
+      o.value = u.id;
+      o.textContent = u.nome;
+      sel.appendChild(o);
+    });
+  } catch (e) {
+    // Mantem "Sem responsável".
+  }
+}
 
 // ---- Helpers de data ----
 function formatarISO(d) {
@@ -391,12 +409,75 @@ function linhaItem(it, ini, totalDias, trackW, subTexto) {
   txt.className = "gantt-bar-texto";
   txt.textContent = it.titulo;
   bar.appendChild(txt);
-  bar.addEventListener("click", function () { abrirPrazo(it); });
+  configurarBarra(bar, it);
 
   track.appendChild(bar);
   linha.appendChild(rot);
   linha.appendChild(track);
   return linha;
+}
+
+// Configura a barra: clique abre o popup; se o usuario pode editar e a tarefa tem prazo,
+// habilita arrastar (so mouse) para deslocar o prazo em dias (rasta e solta).
+function configurarBarra(bar, it) {
+  const editavel = podeEditarPrazo(it) && it.prazo;
+  let arrastando = false;
+  let startX = 0;
+  let dx = 0;
+  let houveDrag = false;
+
+  if (editavel) {
+    bar.classList.add("gantt-bar-editavel");
+
+    bar.addEventListener("pointerdown", function (e) {
+      // So arrasta com mouse; no toque, mantem o tap (abre popup) e a rolagem.
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      arrastando = true;
+      houveDrag = false;
+      dx = 0;
+      startX = e.clientX;
+      bar.setPointerCapture(e.pointerId);
+    });
+
+    bar.addEventListener("pointermove", function (e) {
+      if (!arrastando) return;
+      dx = e.clientX - startX;
+      if (Math.abs(dx) > 3) {
+        houveDrag = true;
+        bar.classList.add("gantt-bar-arrastando");
+      }
+      bar.style.transform = "translateX(" + dx + "px)";
+    });
+
+    bar.addEventListener("pointerup", function () {
+      if (!arrastando) return;
+      arrastando = false;
+      bar.classList.remove("gantt-bar-arrastando");
+      bar.style.transform = "";
+      if (houveDrag) {
+        const dias = Math.round(dx / PX_DIA);
+        if (dias !== 0) {
+          aplicarNovoPrazo(it, dias);
+        }
+      }
+    });
+
+    bar.addEventListener("pointercancel", function () {
+      arrastando = false;
+      bar.classList.remove("gantt-bar-arrastando");
+      bar.style.transform = "";
+    });
+  }
+
+  bar.addEventListener("click", function (e) {
+    // Se acabou de arrastar, nao abre o popup (o arraste ja aplicou o prazo).
+    if (houveDrag) {
+      houveDrag = false;
+      e.preventDefault();
+      return;
+    }
+    abrirPrazo(it);
+  });
 }
 
 function podeEditarPrazo(it) {
@@ -423,30 +504,62 @@ function abrirPrazo(it) {
   document.getElementById("prazo-editar").hidden = !canEdit;
   document.getElementById("botao-prazo-salvar").hidden = !canEdit;
   if (canEdit) {
-    document.getElementById("prazo-novo").value = String(it.prazo).substring(0, 10);
+    document.getElementById("prazo-novo").value = it.prazo ? String(it.prazo).substring(0, 10) : "";
+    document.getElementById("prazo-responsavel").value = it.responsavel_id ? String(it.responsavel_id) : "";
   }
 
   abrirModal("modal-prazo");
 }
 
-async function salvarPrazo() {
+// Salva responsavel e/ou prazo (so envia o que mudou).
+async function salvarTarefa() {
   if (!itemPrazo) return;
   const botao = document.getElementById("botao-prazo-salvar");
-  const novo = document.getElementById("prazo-novo").value;
+  const novoPrazo = document.getElementById("prazo-novo").value;
+  const novoResp = document.getElementById("prazo-responsavel").value;
+
+  const prazoAtual = itemPrazo.prazo ? String(itemPrazo.prazo).substring(0, 10) : "";
+  const respAtual = itemPrazo.responsavel_id ? String(itemPrazo.responsavel_id) : "";
 
   definirCarregando(botao, true);
   try {
-    const r = await postApi("/api/acoes/definir-prazo.php", { id: itemPrazo.id, prazo: novo });
-    if (!r.ok) {
-      mostrarErro("prazo-mensagem", r.error || "Não foi possível salvar o prazo.");
-      definirCarregando(botao, false);
-      return;
+    if (novoResp !== respAtual) {
+      const rr = await postApi("/api/acoes/definir-responsavel.php", { id: itemPrazo.id, responsavel_id: novoResp });
+      if (!rr.ok) {
+        mostrarErro("prazo-mensagem", rr.error || "Não foi possível salvar o responsável.");
+        definirCarregando(botao, false);
+        return;
+      }
+    }
+    if (novoPrazo !== prazoAtual) {
+      const rp = await postApi("/api/acoes/definir-prazo.php", { id: itemPrazo.id, prazo: novoPrazo });
+      if (!rp.ok) {
+        mostrarErro("prazo-mensagem", rp.error || "Não foi possível salvar o prazo.");
+        definirCarregando(botao, false);
+        return;
+      }
     }
     definirCarregando(botao, false);
     fecharModal("modal-prazo");
     carregarRoadmap();
   } catch (e) {
-    mostrarErro("prazo-mensagem", "Não foi possível salvar o prazo.");
+    mostrarErro("prazo-mensagem", "Não foi possível salvar a tarefa.");
     definirCarregando(botao, false);
+  }
+}
+
+// Aplica um novo prazo deslocado por N dias (usado pelo arrastar-e-soltar da barra).
+async function aplicarNovoPrazo(it, dias) {
+  const base = parseData(it.prazo);
+  const novo = formatarISO(new Date(base.getTime() + dias * 86400000));
+  try {
+    const r = await postApi("/api/acoes/definir-prazo.php", { id: it.id, prazo: novo });
+    if (!r.ok) {
+      mostrarErro("mensagem", r.error || "Não foi possível ajustar o prazo.");
+      return;
+    }
+    carregarRoadmap();
+  } catch (e) {
+    mostrarErro("mensagem", "Não foi possível ajustar o prazo.");
   }
 }

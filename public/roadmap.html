@@ -122,15 +122,23 @@
       <p id="prazo-info" class="texto-secundario"></p>
       <p><a id="prazo-link" href="#">Abrir demanda</a></p>
 
-      <div class="campo" id="prazo-editar" hidden>
-        <label class="campo-label" for="prazo-novo">Novo prazo</label>
-        <input class="campo-input" id="prazo-novo" type="date">
-        <p class="texto-secundario">Deixe em branco para remover o prazo.</p>
+      <div id="prazo-editar" hidden>
+        <div class="campo">
+          <label class="campo-label" for="prazo-responsavel">Responsável</label>
+          <select class="campo-input" id="prazo-responsavel">
+            <option value="">Sem responsável</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label class="campo-label" for="prazo-novo">Prazo</label>
+          <input class="campo-input" id="prazo-novo" type="date">
+          <p class="texto-secundario">Deixe em branco para remover o prazo.</p>
+        </div>
       </div>
 
       <div class="modal-acoes">
         <button type="button" class="botao botao-secundario" id="botao-prazo-fechar">Fechar</button>
-        <button type="button" class="botao botao-primario" id="botao-prazo-salvar" hidden>Salvar prazo</button>
+        <button type="button" class="botao botao-primario" id="botao-prazo-salvar" hidden>Salvar</button>
       </div>
     </div>
   </div>

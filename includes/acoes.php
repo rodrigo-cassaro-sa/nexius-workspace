@@ -253,6 +253,16 @@ function definir_prazo_acao($id, $prazo)
     return mysqli_stmt_execute($stmt);
 }
 
+// Define (ou limpa, com null) o responsavel de uma acao - edicao no roadmap.
+function definir_responsavel_acao($id, $responsavel_id)
+{
+    $conn = conectar_banco();
+    $stmt = mysqli_prepare($conn, "UPDATE acoes SET responsavel_id = ? WHERE id = ?");
+    // responsavel_id pode ser null (mysqli envia NULL quando a variavel e null).
+    mysqli_stmt_bind_param($stmt, "ii", $responsavel_id, $id);
+    return mysqli_stmt_execute($stmt);
+}
+
 // Busca uma acao (inclui demanda_id, tipo e chave para as regras).
 function buscar_acao($id)
 {
