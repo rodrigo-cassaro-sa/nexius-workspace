@@ -2,45 +2,57 @@
 
 // relatorios.php
 // Consultas agregadas para a tela de Relatorios (gestao). Somente leitura.
-// Visao global (Gestor/Admin); o recorte por setor do key user fica para uma fase futura.
+// Visao global (Gestor/Admin), com filtro opcional por setor ($setor_id > 0).
 // Procedural, mysqli, prepared statements.
 
-// Demandas por status (ciclo ativo + finalizadas; nao filtra periodo).
-function relatorio_demandas_por_status()
+// Demandas por status (nao filtra periodo). Filtro opcional por setor.
+function relatorio_demandas_por_status($setor_id = 0)
 {
+    $where = $setor_id > 0 ? " WHERE setor_id = ?" : "";
+    $tipos = $setor_id > 0 ? "i" : "";
+    $params = $setor_id > 0 ? [(int) $setor_id] : [];
     return executar_select(
-        "SELECT status, COUNT(*) AS total FROM demandas GROUP BY status ORDER BY total DESC",
-        "",
-        []
+        "SELECT status, COUNT(*) AS total FROM demandas" . $where . " GROUP BY status ORDER BY total DESC",
+        $tipos,
+        $params
     );
 }
 
-// Demandas por setor (inclui '(sem setor)').
-function relatorio_demandas_por_setor()
+// Demandas por setor (inclui '(sem setor)'). Filtro opcional por setor.
+function relatorio_demandas_por_setor($setor_id = 0)
 {
+    $where = $setor_id > 0 ? " WHERE d.setor_id = ?" : "";
+    $tipos = $setor_id > 0 ? "i" : "";
+    $params = $setor_id > 0 ? [(int) $setor_id] : [];
     return executar_select(
         "SELECT COALESCE(s.nome, '(sem setor)') AS setor, COUNT(*) AS total
          FROM demandas d
-         LEFT JOIN setores s ON s.id = d.setor_id
+         LEFT JOIN setores s ON s.id = d.setor_id"
+         . $where . "
          GROUP BY d.setor_id, s.nome
          ORDER BY total DESC",
-        "",
-        []
+        $tipos,
+        $params
     );
 }
 
-// % de acoes concluidas no prazo, entre as concluidas no periodo [inicio, fim].
-function relatorio_acoes_prazo($inicio, $fim)
+// % de acoes concluidas no prazo, entre as concluidas no periodo. Filtro opcional por setor.
+function relatorio_acoes_prazo($inicio, $fim, $setor_id = 0)
 {
-    $base = "FROM acoes
-             WHERE status = 'concluida' AND concluida_em IS NOT NULL
-               AND DATE(concluida_em) BETWEEN ? AND ?";
+    $filtro_setor = $setor_id > 0 ? " AND d.setor_id = ?" : "";
+    $base = "FROM acoes a
+             JOIN demandas d ON d.id = a.demanda_id
+             WHERE a.status = 'concluida' AND a.concluida_em IS NOT NULL
+               AND DATE(a.concluida_em) BETWEEN ? AND ?" . $filtro_setor;
 
-    $total = (int) executar_select("SELECT COUNT(*) AS total " . $base, "ss", [$inicio, $fim])[0]["total"];
+    $tipos = $setor_id > 0 ? "ssi" : "ss";
+    $params = $setor_id > 0 ? [$inicio, $fim, (int) $setor_id] : [$inicio, $fim];
+
+    $total = (int) executar_select("SELECT COUNT(*) AS total " . $base, $tipos, $params)[0]["total"];
     $no_prazo = (int) executar_select(
-        "SELECT COUNT(*) AS total " . $base . " AND prazo IS NOT NULL AND DATE(concluida_em) <= prazo",
-        "ss",
-        [$inicio, $fim]
+        "SELECT COUNT(*) AS total " . $base . " AND a.prazo IS NOT NULL AND DATE(a.concluida_em) <= a.prazo",
+        $tipos,
+        $params
     )[0]["total"];
 
     return [
@@ -51,52 +63,66 @@ function relatorio_acoes_prazo($inicio, $fim)
 }
 
 // Padrao de falha - ATRASOS por responsavel: acoes concluidas FORA do prazo no periodo.
-function relatorio_atrasos_por_responsavel($inicio, $fim)
+function relatorio_atrasos_por_responsavel($inicio, $fim, $setor_id = 0)
 {
+    $filtro_setor = $setor_id > 0 ? " AND d.setor_id = ?" : "";
+    $tipos = $setor_id > 0 ? "ssi" : "ss";
+    $params = $setor_id > 0 ? [$inicio, $fim, (int) $setor_id] : [$inicio, $fim];
+
     return executar_select(
         "SELECT u.nome AS responsavel, COUNT(*) AS atrasadas
          FROM acoes a
          JOIN usuarios u ON u.id = a.responsavel_id
+         JOIN demandas d ON d.id = a.demanda_id
          WHERE a.status = 'concluida' AND a.concluida_em IS NOT NULL
            AND DATE(a.concluida_em) BETWEEN ? AND ?
-           AND a.prazo IS NOT NULL AND DATE(a.concluida_em) > a.prazo
+           AND a.prazo IS NOT NULL AND DATE(a.concluida_em) > a.prazo" . $filtro_setor . "
          GROUP BY u.id, u.nome
          ORDER BY atrasadas DESC, u.nome ASC",
-        "ss",
-        [$inicio, $fim]
+        $tipos,
+        $params
     );
 }
 
 // Padrao de falha - RECUSAS por setor: entregas atualmente recusadas, por setor da demanda.
-function relatorio_recusas_por_setor()
+function relatorio_recusas_por_setor($setor_id = 0)
 {
+    $filtro_setor = $setor_id > 0 ? " AND d.setor_id = ?" : "";
+    $tipos = $setor_id > 0 ? "i" : "";
+    $params = $setor_id > 0 ? [(int) $setor_id] : [];
+
     return executar_select(
         "SELECT COALESCE(s.nome, '(sem setor)') AS setor, COUNT(*) AS recusadas
          FROM acoes a
          JOIN demandas d ON d.id = a.demanda_id
          LEFT JOIN setores s ON s.id = d.setor_id
-         WHERE a.status = 'recusada'
+         WHERE a.status = 'recusada'" . $filtro_setor . "
          GROUP BY d.setor_id, s.nome
          ORDER BY recusadas DESC",
-        "",
-        []
+        $tipos,
+        $params
     );
 }
 
-// Produtividade por responsavel: acoes concluidas e quantas no prazo, no periodo.
-function relatorio_produtividade($inicio, $fim)
+// Produtividade por responsavel: acoes concluidas e quantas no prazo, no periodo. Filtro opcional por setor.
+function relatorio_produtividade($inicio, $fim, $setor_id = 0)
 {
+    $filtro_setor = $setor_id > 0 ? " AND d.setor_id = ?" : "";
+    $tipos = $setor_id > 0 ? "ssi" : "ss";
+    $params = $setor_id > 0 ? [$inicio, $fim, (int) $setor_id] : [$inicio, $fim];
+
     return executar_select(
         "SELECT u.nome AS responsavel,
                 COUNT(*) AS concluidas,
                 SUM(CASE WHEN a.prazo IS NOT NULL AND DATE(a.concluida_em) <= a.prazo THEN 1 ELSE 0 END) AS no_prazo
          FROM acoes a
          JOIN usuarios u ON u.id = a.responsavel_id
+         JOIN demandas d ON d.id = a.demanda_id
          WHERE a.status = 'concluida' AND a.concluida_em IS NOT NULL
-           AND DATE(a.concluida_em) BETWEEN ? AND ?
+           AND DATE(a.concluida_em) BETWEEN ? AND ?" . $filtro_setor . "
          GROUP BY u.id, u.nome
          ORDER BY concluidas DESC, u.nome ASC",
-        "ss",
-        [$inicio, $fim]
+        $tipos,
+        $params
     );
 }

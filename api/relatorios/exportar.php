@@ -26,9 +26,10 @@ if ($fim < $inicio) {
     $fim = $inicio;
 }
 
-$linhas = relatorio_produtividade($inicio, $fim);
+$setor = isset($_GET["setor"]) ? (int) $_GET["setor"] : 0;
+$linhas = relatorio_produtividade($inicio, $fim, $setor);
 
-registrar_log("relatorio_exportado", "produtividade inicio=" . $inicio . " fim=" . $fim);
+registrar_log("relatorio_exportado", "produtividade inicio=" . $inicio . " fim=" . $fim . " setor=" . $setor);
 
 $arquivo = "produtividade_" . $inicio . "_a_" . $fim . ".csv";
 

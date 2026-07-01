@@ -28,13 +28,17 @@ if ($fim < $inicio) {
     $fim = $inicio;
 }
 
+// Filtro opcional por setor (0 = todos).
+$setor = isset($_GET["setor"]) ? (int) $_GET["setor"] : 0;
+
 json_sucesso([
     "inicio" => $inicio,
     "fim" => $fim,
-    "demandas_por_status" => relatorio_demandas_por_status(),
-    "demandas_por_setor" => relatorio_demandas_por_setor(),
-    "acoes_prazo" => relatorio_acoes_prazo($inicio, $fim),
-    "produtividade" => relatorio_produtividade($inicio, $fim),
-    "atrasos_por_responsavel" => relatorio_atrasos_por_responsavel($inicio, $fim),
-    "recusas_por_setor" => relatorio_recusas_por_setor()
+    "setor" => $setor,
+    "demandas_por_status" => relatorio_demandas_por_status($setor),
+    "demandas_por_setor" => relatorio_demandas_por_setor($setor),
+    "acoes_prazo" => relatorio_acoes_prazo($inicio, $fim, $setor),
+    "produtividade" => relatorio_produtividade($inicio, $fim, $setor),
+    "atrasos_por_responsavel" => relatorio_atrasos_por_responsavel($inicio, $fim, $setor),
+    "recusas_por_setor" => relatorio_recusas_por_setor($setor)
 ]);

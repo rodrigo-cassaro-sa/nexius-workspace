@@ -29,10 +29,29 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   document.getElementById("rel-inicio").addEventListener("change", carregarRelatorios);
   document.getElementById("rel-fim").addEventListener("change", carregarRelatorios);
+  document.getElementById("rel-filtro-setor").addEventListener("change", carregarRelatorios);
   document.getElementById("rel-exportar").addEventListener("click", exportarCsv);
 
+  carregarSetores();
   carregarRelatorios();
 });
+
+// Popula o filtro de setor.
+async function carregarSetores() {
+  const sel = document.getElementById("rel-filtro-setor");
+  try {
+    const r = await getApi("/api/setores/listar.php");
+    if (!r.ok) return;
+    r.data.setores.forEach(function (s) {
+      const o = document.createElement("option");
+      o.value = s.id;
+      o.textContent = s.nome;
+      sel.appendChild(o);
+    });
+  } catch (e) {
+    // Mantem "Todos os setores".
+  }
+}
 
 function formatarISO(d) {
   const mes = String(d.getMonth() + 1).padStart(2, "0");
@@ -43,7 +62,9 @@ function formatarISO(d) {
 function periodoQuery() {
   const inicio = document.getElementById("rel-inicio").value;
   const fim = document.getElementById("rel-fim").value;
-  return "inicio=" + encodeURIComponent(inicio) + "&fim=" + encodeURIComponent(fim);
+  const setor = document.getElementById("rel-filtro-setor").value;
+  return "inicio=" + encodeURIComponent(inicio) + "&fim=" + encodeURIComponent(fim)
+    + "&setor=" + encodeURIComponent(setor);
 }
 
 async function carregarRelatorios() {

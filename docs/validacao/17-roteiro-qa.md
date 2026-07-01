@@ -68,7 +68,8 @@ Pré: duas tarefas do **mesmo responsável**, prazos sobrepostos, em demandas co
 - [ ] **Demandas por status** e **por setor** preenchem.
 - [ ] **Produtividade por responsável** (tabela).
 - [ ] **Padrões de falha**: "Atrasos por responsável" e "Recusas por setor".
-- [ ] **Exportar CSV (produtividade)** → baixa o arquivo com acentos corretos (Excel pt-BR).
+- [ ] **Filtro de setor (B2)**: escolher um setor no filtro "Setor" → todos os blocos (status, % no prazo, produtividade, atrasos, recusas) recalculam **só para aquele setor**; "Todos os setores" volta ao global.
+- [ ] **Exportar CSV (produtividade)** → baixa o arquivo com acentos corretos (Excel pt-BR); **respeita o filtro de setor** selecionado.
 
 ## 7. Auditoria de logs (Admin)
 
