@@ -296,6 +296,26 @@ Não há decisões pendentes bloqueantes. Itens de implementação a confirmar: 
 
 ---
 
+## Evoluções implementadas após o MVP
+
+Por decisões do dono do produto (registradas em `docs/decisoes-pendentes.md` como D14–D25 e no `docs/desenvolvimento/16-plano-melhorias.md`), o produto ganhou, além do MVP original:
+
+- **Setores e key user (D21):** cada usuário/demanda pertence a um setor; o responsável principal do setor (key user) recebe as tarefas do setor, enxerga tudo do seu setor e pode concluí-las.
+- **Projetos (D22):** agrupam várias demandas sob um objetivo, com status, responsável, setor e **prazo** próprios. Tela **Projetos** (lista) e **Projeto** (detalhe).
+- **Prazo e dono no nível certo (D25):** projeto e demanda têm **prazo**; a demanda tem **responsável (dono)** — controle e prestação de contas mesmo antes de haver plano de ação.
+- **Tipos de tarefa + evidências (D19/D12/D13):** análise, desenvolvimento, entrega (recusável, com motivo), incidente e **reunião** (com participantes, ata e **decisões** registradas na demanda). Reabertura de tarefa recusada.
+- **Anexos (D17/D18/D19):** em demandas, comentários e como evidência de tarefas (pasta privada, download com escopo).
+- **Roadmap / Gantt (D23):** linha do tempo de projetos, demandas e tarefas pelo prazo; visão de **carga** por responsável/setor; editar responsável/prazo e **arrastar** para ajustar o prazo.
+- **Sinalização de impacto por prioridade (D24):** marca tarefas **em risco de atraso** quando uma de maior prioridade concorre no mesmo período (Roadmap, Dashboard, detalhe da demanda, listas).
+- **Painel de Controle / Higiene (D25):** expõe o que está fora de controle — demandas sem plano, sem responsável, tarefas sem prazo, órfãs de usuários inativos (com reatribuição) e demandas paradas.
+- **Relatórios (melhoria #2):** demandas por status/setor, % no prazo, produtividade e **padrões de falha** (atrasos por responsável, recusas por setor), com exportação CSV.
+- **Mensagens (chat 1:1 — D20 Fase 1)**, **Progresso/gamificação (D14)** e **digest semanal por e-mail (D15)**.
+- **Auditoria de logs:** `registrar_log()` persiste no banco (retenção de 1 ano) e há tela de **Auditoria** (Admin) para consultar quem fez o quê e quando.
+
+> A modelagem consolidada está em `docs/banco/03-modelagem-banco-dados.md` e o inventário de telas em `docs/produto/03-mapa-de-telas.md`. **Limitação consciente:** a sobrecarga/impacto é **qualitativa** (não há modelo de esforço/capacidade; o sistema não recalcula datas automaticamente).
+
+---
+
 ## Checklist de validação
 
 - [x] Este documento foi preenchido?

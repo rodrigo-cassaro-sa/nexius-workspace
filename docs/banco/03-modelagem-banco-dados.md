@@ -2,7 +2,7 @@
 
 Projeto: Workspace S&A (marca Grupo Nexius).
 Base: `01-descricao-produto.md` (§8, §9, §16, §19), `boas-praticas-banco-dados.md` e `boas-praticas-seguranca.md`.
-SQL correspondente: `sql/migrations/001_create_base_schema.sql` e `sql/seeds/001_seed_roles_permissions.sql`.
+SQL correspondente: `sql/migrations/001_create_base_schema.sql` … `020_add_prazo_projeto_demanda.sql` (o esquema evoluiu por migrações incrementais 001–020) e `sql/install.sql` (mantido em sincronia com o estado atual). Este documento reflete o estado consolidado.
 
 Observações de convenção (mantidas por coerência com o restante do projeto):
 
@@ -17,9 +17,11 @@ Observações de convenção (mantidas por coerência com o restante do projeto)
 Derivadas de `01-descricao-produto.md` §19. Apenas o que o MVP exige:
 
 - **usuarios** — pessoas com perfil/permissão.
+- **setores** — setores da empresa; cada um tem um responsável principal (key user) — D21.
+- **projetos** — agrupam várias demandas sob um objetivo comum (D22, Migration 018).
 - **convites** — acesso por convite (perfil pré-definido, validade 7 dias, uso único).
 - **tokens_recuperacao** — recuperação de senha (validade 30 min, uso único).
-- **demandas** — demandas de projeto.
+- **demandas** — demandas de projeto (podem pertencer a um projeto; têm setor e prazo alvo).
 - **acoes** — itens do plano de ação (responsável, prazo, status, ação chave).
 - **acao_prerequisitos** — dependências entre ações (uma ação pode depender de várias).
 - **comentarios** — discussão por ação.
@@ -38,8 +40,11 @@ Motivo: identidade, autenticação, perfil, setor e estado do usuário.
 ### setores (D21 — Migration 015)
 `id` · `nome` (único) · `responsavel_id` (FK usuarios, NULL = responsável principal do setor) · `criado_em`. Lista fixa (seed): Comercial, Relacionamento, Logística, Roteirização, Equipe Externa, Fechamento, Financeiro, Diretoria Financeira (CFO), Diretoria Comercial (CCO), Diretoria Operacional (COO), Diretoria Presidência (CEO), RH, Tecnologia (os 6 últimos na Migration 017). A demanda herda o setor do criador; ao criar ação, o responsável vem pré-selecionado com o responsável principal do setor (editável). Gestão (setor do usuário + responsável do setor) só por Administrador.
 
+### projetos (D22 — Migration 018)
+`id` · `nome` · `descricao` · `status` (aberto/em_andamento/concluido/arquivado/cancelado) · `prazo` (DATE, meta de entrega — Migration 020) · `responsavel_id` (FK usuarios, NULL) · `setor_id` (FK setores, NULL) · `criador_id` (FK usuarios) · timestamps. Agrupa demandas (`demandas.projeto_id`). Criar/editar/arquivar = Gestor/Admin; visibilidade por envolvimento (Colaborador vê projetos em que é responsável, key user do setor, ou com demanda em que está envolvido).
+
 ### convites
-`id` · `email` · `perfil` · `token` (único) · `status` (pendente/aceito/cancelado/expirado) · `expira_em` · `criado_por` (FK usuarios) · `usuario_id` (FK usuarios, ao aceitar) · timestamps.
+`id` · `email` · `perfil` · `setor_id` (FK setores, NULL — define o setor já no convite, Migration 016) · `token` (único) · `status` (pendente/aceito/cancelado/expirado) · `expira_em` · `criado_por` (FK usuarios) · `usuario_id` (FK usuarios, ao aceitar) · timestamps.
 Motivo: entrada por convite, sem cadastro aberto.
 
 ### tokens_recuperacao
@@ -47,11 +52,11 @@ Motivo: entrada por convite, sem cadastro aberto.
 Motivo: redefinição de senha segura, com expiração curta e uso único.
 
 ### demandas
-`id` · `titulo` · `descricao` · `status` (aberta/em_andamento/concluida/arquivada/cancelada) · `criador_id` (FK) · `responsavel_id` (FK) · `setor_id` (FK setores, NULL — herdado do criador, D21) · `concluida_em` · timestamps. (+ questionário/GUT/triagem/SLA das migrations 002–007.)
-Motivo: entidade central do produto.
+`id` · `titulo` · `descricao` · `status` (aberta/em_andamento/concluida/arquivada/cancelada) · `prazo` (DATE, prazo alvo da demanda — Migration 020) · `criador_id` (FK) · `responsavel_id` (FK — dono da demanda) · `setor_id` (FK setores, NULL — herdado do criador, D21) · `projeto_id` (FK projetos, NULL, `ON DELETE SET NULL` — D22) · `concluida_em` · timestamps. (+ questionário/GUT/triagem/SLA das migrations 002–007.)
+Motivo: entidade central do produto. O `prazo` permite controlar o vencimento mesmo antes de existir plano de ação; o `responsavel_id` é o dono que presta contas.
 
 ### acoes
-`id` · `demanda_id` (FK) · `titulo` · `tipo` (analise/desenvolvimento/entrega/incidente/**reuniao** — D19, reuniao na Migration 012) · `descricao` · `responsavel_id` (FK) · `status` (pendente/bloqueada/concluida/cancelada/**recusada**) · `motivo_recusa` (só entrega recusada) · `prazo` · `chave` · `concluida_em` · timestamps.
+`id` · `demanda_id` (FK) · `titulo` · `tipo` (analise/desenvolvimento/entrega/incidente/**reuniao** — D19, reuniao na Migration 012) · `descricao` · `responsavel_id` (FK) · `status` (pendente/bloqueada/concluida/cancelada/**recusada**) · `motivo_recusa` (só entrega recusada) · `decisoes` (texto das decisões/regras da reunião, obrigatório ao concluir reunião — Migration 013) · `prazo` · `chave` · `concluida_em` · timestamps.
 
 Regras por tipo: **análise** só conclui com anexo de evidência (`anexos.acao_id`); **desenvolvimento** conclui normal; **entrega** pode ser recusada (status `recusada` + `motivo_recusa`, por Gestor/Admin); **incidente** é registro/relato; **reunião** (Migration 012) tem **participantes** (`acao_participantes`) e só conclui com a **ata** anexada (`anexos.acao_id`).
 
@@ -82,8 +87,14 @@ Motivo: auditoria de ações críticas.
 ## 3. Relacionamentos
 
 ```txt
-usuarios 1 ── N demandas            (criador_id; responsavel_id opcional)
+usuarios 1 ── N setores             (responsavel_id = key user do setor)
+setores  1 ── N usuarios            (usuarios.setor_id)
+setores  1 ── N demandas            (demandas.setor_id)
+projetos 1 ── N demandas            (demandas.projeto_id; ON DELETE SET NULL)
+usuarios 1 ── N projetos            (criador_id; responsavel_id/setor_id opcionais)
+usuarios 1 ── N demandas            (criador_id; responsavel_id = dono, opcional)
 demandas 1 ── N acoes               (demanda_id)
+acoes    N ── N usuarios            (via acao_participantes: reuniao)
 usuarios 1 ── N acoes               (responsavel_id opcional)
 acoes    N ── N acoes               (via acao_prerequisitos: acao_id / prerequisito_acao_id)
 acoes    1 ── N comentarios         (acao_id)
@@ -134,7 +145,9 @@ Aplicadas no backend (nunca só no frontend):
 - usuarios: `UNIQUE(email)`, `idx(perfil)`, `idx(ativo)`.
 - convites: `UNIQUE(token)`, `idx(email)`, `idx(status)`, FKs.
 - tokens_recuperacao: `UNIQUE(token)`, `idx(usuario_id)`, `idx(expira_em)`.
-- demandas: `idx(status)`, `idx(criador_id)`, `idx(responsavel_id)`, `idx(criado_em)`.
+- setores: `UNIQUE(nome)`, `idx(responsavel_id)`.
+- projetos: `idx(status)`, `idx(prazo)`, `idx(responsavel_id)`, `idx(setor_id)`, `idx(criador_id)`, FKs.
+- demandas: `idx(status)`, `idx(prazo)`, `idx(criador_id)`, `idx(responsavel_id)`, `idx(setor_id)`, `idx(projeto_id)`, `idx(criado_em)`.
 - acoes: `idx(demanda_id)`, `idx(responsavel_id)`, `idx(status)`, `idx(prazo)`.
 - acao_prerequisitos: `UNIQUE(acao_id, prerequisito_acao_id)` + índices nas duas FKs.
 - comentarios: `idx(acao_id)`, `idx(autor_id)`, `idx(criado_em)`.
@@ -148,6 +161,8 @@ Critério: índices em campos de busca/filtro/ordenação reais (status, datas, 
 
 Tabela `logs`. Registrar (no backend) ações críticas: login, falha de login, logout, criação/aceite/cancelamento de convite, alteração de permissão, conclusão e arquivamento de demanda/ação, falha de envio de e-mail. Campos de contexto: `usuario_id`, `acao`, `entidade`, `entidade_id`, `ip`, `user_agent`, `detalhes`, `criado_em`. Nunca registrar dado sensível.
 
+**Estado atual (implementado):** `registrar_log()` **persiste na tabela `logs`** (fonte oficial; migração 019 garante a tabela) com cópia best-effort em arquivo. Cobertura ampla (também prazos, responsáveis, projetos, uploads de anexo, etc.). **Retenção de 1 ano** via `cron/limpar-logs.php`. Consulta pela **tela de Auditoria** (Admin): `api/logs/listar.php` / `acoes.php` com filtros (usuário, ação, período, busca) e paginação.
+
 ## 9. Dados para notificações
 
 - `notificacoes`: avisos internos com controle de leitura (`lida`, `lida_em`).
@@ -156,7 +171,7 @@ Tabela `logs`. Registrar (no backend) ações críticas: login, falha de login, 
 
 ## 10. Dados para gamificação
 
-Nenhuma tabela. Gamificação está fora do MVP (`01-descricao-produto.md` §23). Não criar `pontos`, `niveis`, `conquistas` ou `ranking` nesta fase.
+Nenhuma tabela. A gamificação/Progresso foi **implementada (D14)**, mas **sem tabela**: pontos, níveis e conquistas são **derivados em runtime** das ações reais (`acoes`), sem `pontos`/`niveis`/`conquistas`/`ranking` no banco.
 
 ## 11. Dados para retenção
 
@@ -194,7 +209,9 @@ Regras/segurança: só participantes da conversa leem/escrevem (validado no back
 
 ## 12. Fora do MVP
 
-Não modelado agora (sem evidência ou explicitamente fora): pagamentos, gamificação/progresso, preferências/opt-out (e-mails são operacionais; tema fica no `localStorage`, não no banco), tabela de equipe, tabela de observadores, offline/sincronização, push/SMS/WhatsApp, webhooks, relatórios e qualquer tabela de permissões granular. (Uploads deixaram de estar fora do MVP por decisão de produto — ver §11-A e D17.)
+Não modelado (sem tabela nova): pagamentos, tabela de equipe, tabela de observadores, offline/sincronização, push/SMS/WhatsApp, webhooks e qualquer tabela de permissões granular.
+
+**Implementados sem tabela nova (consultas agregadas/derivadas):** Progresso/gamificação (pontos derivados das ações reais — D14), Relatórios (D15/melhoria #2), Roadmap/Gantt (D23), Painel de Controle/Higiene (D25) e sinalização de impacto por prioridade (D24) — todos leem as tabelas existentes. Uploads entraram por decisão de produto (§11-A, D17). Preferências: só o **digest** (opt-out em `usuarios.digest_ativo`) e o tema (no `localStorage`, fora do banco).
 
 ## 13. Decisões pendentes
 
@@ -204,7 +221,7 @@ Não há decisões pendentes bloqueantes. Resolvido:
 
 Itens operacionais em aberto (não bloqueiam): endereço do e-mail de suporte (definir depois) e logo definitiva. Ícones definidos: Lucide via CDN.
 
-> Notas de implementação (não bloqueiam): a unicidade de "uma ação chave por demanda" e a ausência de ciclo em pré-requisitos são garantidas no backend (o MySQL não as expressa de forma simples). O `registrar_log` atual grava em arquivo; passará a persistir na tabela `logs` na fase de backend.
+> Notas de implementação (não bloqueiam): a unicidade de "uma ação chave por demanda" e a ausência de ciclo em pré-requisitos são garantidas no backend (o MySQL não as expressa de forma simples). O `registrar_log` **persiste na tabela `logs`** (migração 019), com cópia em arquivo como reserva.
 
 ---
 
