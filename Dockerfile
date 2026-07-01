@@ -6,6 +6,11 @@ FROM php:8.2-apache
 # Extensao do MySQL (mysqli) usada pelo backend.
 RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 
+# Cron para as tarefas agendadas (fila de e-mail, digest, retencao de logs).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends cron \
+    && rm -rf /var/lib/apt/lists/*
+
 # Modulos do Apache (headers para seguranca; rewrite para uso futuro).
 RUN a2enmod rewrite headers
 
@@ -25,14 +30,21 @@ RUN { \
 WORKDIR /var/www/html
 COPY . /var/www/html
 
+# Tarefas agendadas (cron). Arquivo no formato /etc/cron.d (precisa de 0644 e dono root).
+COPY docker/app-cron /etc/cron.d/app-cron
+RUN chmod 0644 /etc/cron.d/app-cron
+
 # Pastas de runtime gravaveis pelo Apache (www-data): logs e anexos das demandas.
 RUN mkdir -p /var/www/html/logs /var/www/html/storage/anexos \
     && chown -R www-data:www-data /var/www/html/logs /var/www/html/storage
 
 EXPOSE 80
 
-# No start do container, reaplica dono/escrita das pastas de runtime antes do Apache.
-# Necessario porque um volume persistente montado em runtime (storage/anexos) e
-# remontado como root, anulando o chown feito no build. Sem isso o upload de anexos
-# falha com 500 ("Nao foi possivel armazenar os anexos") por falta de permissao.
-CMD ["sh", "-c", "mkdir -p /var/www/html/logs /var/www/html/storage/anexos && chown -R www-data:www-data /var/www/html/logs /var/www/html/storage && exec apache2-foreground"]
+# No start do container:
+# 1) reaplica dono/escrita das pastas de runtime (logs e storage/anexos) - um volume
+#    persistente montado em runtime e remontado como root e anula o chown do build;
+# 2) copia as variaveis de ambiente do container para /etc/environment, para que o CRON
+#    (que roda com ambiente minimo) enxergue DB_*, RESEND_*, etc. via PAM;
+# 3) inicia o daemon do cron;
+# 4) sobe o Apache em foreground (processo principal do container).
+CMD ["sh", "-c", "mkdir -p /var/www/html/logs /var/www/html/storage/anexos && chown -R www-data:www-data /var/www/html/logs /var/www/html/storage; printenv > /etc/environment; cron; exec apache2-foreground"]
