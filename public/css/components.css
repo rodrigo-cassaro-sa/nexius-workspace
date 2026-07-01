@@ -160,6 +160,12 @@
   background: rgba(43, 92, 138, 0.08);
 }
 
+.alerta-aviso {
+  color: var(--cor-aviso);
+  border-color: var(--cor-aviso);
+  background: rgba(181, 133, 42, 0.10);
+}
+
 /* App shell: sidebar (marca marrom) + conteudo */
 .app-shell {
   display: flex;

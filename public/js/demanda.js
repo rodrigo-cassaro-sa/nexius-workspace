@@ -67,6 +67,7 @@ async function carregarTudo() {
 
     demandaAtual = resposta.data.demanda;
     document.getElementById("conteudo").hidden = false;
+    mostrarAvisoRisco(parseInt(resposta.data.acoes_em_risco, 10) || 0);
     preencherCabecalho(demandaAtual);
     prepararGestor();
     registrarVisita();
@@ -75,6 +76,18 @@ async function carregarTudo() {
   } catch (erro) {
     document.getElementById("carregando").hidden = true;
     mostrarErro("mensagem", "Nao foi possivel carregar a demanda.");
+  }
+}
+
+// Aviso de impacto de prioridade (D24): a demanda tem tarefa em risco de atraso.
+function mostrarAvisoRisco(qtd) {
+  const el = document.getElementById("aviso-risco");
+  if (qtd > 0) {
+    el.textContent = "⚠ Esta demanda tem " + qtd + (qtd === 1 ? " tarefa" : " tarefas")
+      + " em risco de atraso: outra de maior prioridade concorre no mesmo período (mesmo responsável). Veja no Roadmap.";
+    el.hidden = false;
+  } else {
+    el.hidden = true;
   }
 }
 

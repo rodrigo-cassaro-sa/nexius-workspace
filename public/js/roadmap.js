@@ -90,39 +90,6 @@ function posicaoBarra(iniMs, fimMs, ini, totalDias) {
   };
 }
 
-// Sinalizacao de impacto/prioridade (D24): sem alterar prazos. Uma tarefa fica "em risco"
-// de atraso quando OUTRA tarefa do MESMO responsavel, com prioridade MAIOR (GUT), concorre
-// no mesmo periodo (janelas inicio->prazo se sobrepoem). Mostra o "empurrao" das de maior
-// prioridade sobre as de menor, sem recalcular datas. So considera tarefas em aberto.
-function calcularRisco(itens) {
-  const emRisco = {};
-  const porResp = {};
-  itens.forEach(function (it) {
-    const r = it.responsavel_id || 0;
-    (porResp[r] = porResp[r] || []).push(it);
-  });
-
-  function ativa(t) { return t.status !== "concluida" && t.status !== "cancelada"; }
-
-  Object.keys(porResp).forEach(function (r) {
-    const lista = porResp[r];
-    lista.forEach(function (t) {
-      if (!ativa(t)) return;
-      const tIv = intervaloBarra(t);
-      const tPri = parseInt(t.prioridade, 10) || 0;
-      const ameacada = lista.some(function (h) {
-        if (h === t || !ativa(h)) return false;
-        if ((parseInt(h.prioridade, 10) || 0) <= tPri) return false; // so prioridade estritamente maior
-        const hIv = intervaloBarra(h);
-        return hIv.ini <= tIv.fim && tIv.ini <= hIv.fim; // janelas se sobrepoem
-      });
-      if (ameacada) emRisco[t.id] = true;
-    });
-  });
-
-  return emRisco;
-}
-
 // Situacao (cor da barra): recusada, concluida, atrasada (pendente vencida), bloqueada, pendente.
 function classeSituacao(it) {
   if (it.status === "recusada") return "recusada";
@@ -206,11 +173,10 @@ function render(data) {
     return;
   }
 
-  // Sinalizacao de impacto por prioridade (nao altera prazos): marca as tarefas em risco.
-  const risco = calcularRisco(itens);
-  itens.forEach(function (it) { it.__risco = !!risco[it.id]; });
+  // Sinalizacao de impacto por prioridade (o backend marca em_risco; nao altera prazos).
+  itens.forEach(function (it) { it.__risco = parseInt(it.em_risco, 10) === 1; });
 
-  const totalRisco = Object.keys(risco).length;
+  const totalRisco = itens.filter(function (it) { return it.__risco; }).length;
   const aviso = document.createElement("div");
   if (totalRisco > 0) {
     aviso.className = "gantt-risco-aviso";

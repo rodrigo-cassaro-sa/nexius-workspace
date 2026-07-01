@@ -5,6 +5,7 @@
 
 require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/dashboard.php";
+require_once __DIR__ . "/../../includes/impacto.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "GET") {
     json_response(["ok" => false, "error" => "Metodo nao permitido."], 405);
@@ -25,5 +26,6 @@ json_sucesso([
     "acoes_atrasadas" => contar_acoes_atrasadas($usuario_id, $perfil),
     "percentual_no_prazo" => percentual_acoes_no_prazo($usuario_id, $perfil),
     "acoes_recusadas" => contar_acoes_recusadas($usuario_id, $perfil),
+    "acoes_em_risco" => contar_acoes_em_risco($usuario_id, $perfil),
     "acoes_por_tipo" => contar_acoes_por_tipo($usuario_id, $perfil)
 ]);

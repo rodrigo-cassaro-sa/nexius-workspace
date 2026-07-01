@@ -968,6 +968,45 @@
   z-index: 1;
 }
 
+/* Card de alerta de risco no Dashboard (D24) */
+.card-risco {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  margin-top: var(--espaco-4);
+  text-decoration: none;
+  color: inherit;
+  border-color: var(--cor-aviso);
+  background: rgba(181, 133, 42, 0.08);
+}
+
+.card-risco:hover {
+  background: rgba(181, 133, 42, 0.14);
+}
+
+.card-risco-icone {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--raio-pequeno);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(181, 133, 42, 0.16);
+  color: var(--cor-aviso);
+}
+
+.card-risco-icone svg {
+  width: 22px;
+  height: 22px;
+}
+
+.card-risco-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 /* Sinalizacao de impacto/prioridade (D24) */
 .gantt-risco-aviso {
   display: flex;

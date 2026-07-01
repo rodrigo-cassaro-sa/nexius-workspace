@@ -235,6 +235,17 @@ function preencherResumo(d) {
     d.percentual_no_prazo === null ? "—" : d.percentual_no_prazo + "%";
   document.getElementById("kpi-recusadas").textContent = d.acoes_recusadas;
 
+  // Impacto de prioridade (D24): card de alerta so aparece quando ha tarefa em risco.
+  const risco = parseInt(d.acoes_em_risco, 10) || 0;
+  const cardRisco = document.getElementById("card-risco");
+  if (risco > 0) {
+    document.getElementById("risco-titulo").textContent =
+      risco + (risco === 1 ? " tarefa em risco de atraso" : " tarefas em risco de atraso") + " por prioridade";
+    cardRisco.hidden = false;
+  } else {
+    cardRisco.hidden = true;
+  }
+
   montarDonutDemandas(d.demandas_por_status);
   montarAcoesPorTipo(d.acoes_por_tipo);
 }

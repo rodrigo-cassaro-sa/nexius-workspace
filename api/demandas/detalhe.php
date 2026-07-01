@@ -5,6 +5,7 @@
 
 require_once __DIR__ . "/../../includes/bootstrap.php";
 require_once __DIR__ . "/../../includes/demandas.php";
+require_once __DIR__ . "/../../includes/impacto.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "GET") {
     json_response(["ok" => false, "error" => "Metodo nao permitido."], 405);
@@ -30,4 +31,7 @@ if ($perfil === "colaborador") {
     }
 }
 
-json_sucesso(["demanda" => $demanda]);
+json_sucesso([
+    "demanda" => $demanda,
+    "acoes_em_risco" => contar_acoes_em_risco_da_demanda($id)
+]);
