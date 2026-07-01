@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ações - Workspace S&amp;A</title>
+  <title>Controle - Workspace S&amp;A</title>
 
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/theme.css">
@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-  <!-- Tela: Acoes (lista global de acoes de varias demandas, com filtros e popup). -->
+  <!-- Tela: Controle / Higiene - o que esta FORA de controle (pontos cegos). Gestor/Admin. -->
   <div class="app-shell">
     <aside class="sidebar">
       <div class="sidebar-marca"><img class="marca-img-sidebar" src="assets/img/logo_escuro.png" alt="Grupo Nexius"></div>
@@ -20,12 +20,12 @@
         <a href="dashboard.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>Dashboard</span></a>
         <a href="demandas.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg><span>Demandas</span></a>
         <a href="projetos.html" id="nav-projetos"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg><span>Projetos</span></a>
-        <a href="acoes.html" class="ativo"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg><span>Ações</span></a>
+        <a href="acoes.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg><span>Ações</span></a>
         <a href="roadmap.html" id="nav-roadmap"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="14" y2="6"></line><line x1="8" y1="12" x2="20" y2="12"></line><line x1="5" y1="18" x2="13" y2="18"></line></svg><span>Roadmap</span></a>
         <a href="notificacoes.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><span>Notificações</span></a>
         <a href="chat.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span>Mensagens</span><span class="badge badge-erro chat-contador" hidden></span></a>
         <a href="relatorios.html" id="nav-relatorios" hidden><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg><span>Relatórios</span></a>
-        <a href="higiene.html" id="nav-higiene" hidden><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg><span>Controle</span></a>
+        <a href="higiene.html" id="nav-higiene" class="ativo" hidden><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg><span>Controle</span></a>
         <a href="progresso.html"><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg><span>Progresso</span></a>
         <a href="admin-usuarios.html" id="nav-usuarios" hidden><svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span>Usuários</span></a>
       </nav>
@@ -60,108 +60,53 @@
       </header>
 
       <main class="app-main">
+        <div class="pagina-cabecalho">
+          <h1 class="pagina-titulo">Controle</h1>
+          <p class="pagina-subtitulo">O que está fora de controle — pontos cegos que escapam do acompanhamento por prazo e responsável.</p>
+        </div>
+
         <div id="mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
 
         <section class="card">
           <div class="lista-cabecalho">
-            <div>
-              <h1 class="pagina-titulo">Ações</h1>
-              <p class="pagina-subtitulo">Todas as ações que você acompanha, em um só lugar.</p>
-            </div>
-            <div class="visao-toggle" role="tablist" aria-label="Modo de visualização">
-              <button class="visao-botao ativo" id="visao-lista" type="button" role="tab" aria-selected="true">Lista</button>
-              <button class="visao-botao" id="visao-calendario" type="button" role="tab" aria-selected="false">Calendário</button>
-            </div>
+            <h2>Demandas sem plano de ação <span class="badge badge-aviso" id="c-sem-acao-n">0</span></h2>
           </div>
+          <p class="texto-secundario">Criadas mas sem nenhuma tarefa — não têm prazo nem andamento.</p>
+          <div id="h-sem-acao"><p class="texto-secundario">Carregando...</p></div>
+        </section>
 
-          <div class="barra-ferramentas">
-            <input class="campo-input" id="filtro-busca" type="text" placeholder="Buscar ação...">
-            <select class="campo-input" id="filtro-status" aria-label="Status">
-              <option value="">Status: todos</option>
-              <option value="pendente">Pendente</option>
-              <option value="concluida">Concluída</option>
-            </select>
-            <select class="campo-input" id="filtro-responsavel" aria-label="Responsável">
-              <option value="">Responsável: todos</option>
-            </select>
-            <select class="campo-input" id="filtro-setor" aria-label="Setor">
-              <option value="">Setor: todos</option>
-            </select>
-            <select class="campo-input" id="filtro-situacao" aria-label="Situação">
-              <option value="">Situação: todas</option>
-              <option value="atrasadas">Atrasadas</option>
-              <option value="bloqueadas">Bloqueadas</option>
-            </select>
+        <section class="card" style="margin-top: var(--espaco-4);">
+          <div class="lista-cabecalho">
+            <h2>Demandas sem responsável <span class="badge badge-aviso" id="c-sem-resp-n">0</span></h2>
           </div>
+          <p class="texto-secundario">Sem um dono que preste contas pela entrega.</p>
+          <div id="h-sem-responsavel"><p class="texto-secundario">Carregando...</p></div>
+        </section>
 
-          <!-- Visao 1: Lista -->
-          <div id="painel-lista">
-            <div id="lista-acoes">
-              <p class="texto-secundario">Carregando...</p>
-            </div>
-
-            <div class="paginacao" id="paginacao" hidden>
-              <span class="info" id="paginacao-info"></span>
-              <div class="controles">
-                <button class="botao botao-secundario" id="pag-anterior" type="button">Anterior</button>
-                <button class="botao botao-secundario" id="pag-proxima" type="button">Próxima</button>
-              </div>
-            </div>
+        <section class="card" style="margin-top: var(--espaco-4);">
+          <div class="lista-cabecalho">
+            <h2>Tarefas sem prazo <span class="badge badge-aviso" id="c-sem-prazo-n">0</span></h2>
           </div>
+          <p class="texto-secundario">Pendentes sem data — invisíveis no roadmap e no controle de prazo.</p>
+          <div id="h-sem-prazo"><p class="texto-secundario">Carregando...</p></div>
+        </section>
 
-          <!-- Visao 2: Calendario (ações posicionadas pelo prazo) -->
-          <div id="painel-calendario" hidden>
-            <div class="cal-barra">
-              <button class="botao botao-secundario" id="cal-anterior" type="button" aria-label="Mês anterior">‹</button>
-              <strong class="cal-titulo" id="cal-titulo">—</strong>
-              <button class="botao botao-secundario" id="cal-proximo" type="button" aria-label="Próximo mês">›</button>
-              <button class="botao botao-secundario cal-hoje" id="cal-hoje" type="button">Hoje</button>
-            </div>
-
-            <div class="cal-semana" aria-hidden="true">
-              <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
-            </div>
-
-            <div class="cal-grade" id="cal-grade">
-              <p class="texto-secundario">Carregando...</p>
-            </div>
-
-            <div class="cal-legenda">
-              <span class="cal-leg-item"><span class="cal-ponto cal-ponto-atrasada"></span>Atrasada</span>
-              <span class="cal-leg-item"><span class="cal-ponto cal-ponto-bloqueada"></span>Bloqueada</span>
-              <span class="cal-leg-item"><span class="cal-ponto cal-ponto-pendente"></span>Pendente</span>
-              <span class="cal-leg-item"><span class="cal-ponto cal-ponto-concluida"></span>Concluída</span>
-            </div>
+        <section class="card" style="margin-top: var(--espaco-4);">
+          <div class="lista-cabecalho">
+            <h2>Tarefas de usuários inativos <span class="badge badge-erro" id="c-orfaos-n">0</span></h2>
           </div>
+          <p class="texto-secundario">Órfãs: o responsável foi desativado. Reatribua para não travar a entrega.</p>
+          <div id="h-orfaos"><p class="texto-secundario">Carregando...</p></div>
+        </section>
+
+        <section class="card" style="margin-top: var(--espaco-4);">
+          <div class="lista-cabecalho">
+            <h2>Demandas paradas <span class="badge badge-aviso" id="c-paradas-n">0</span></h2>
+          </div>
+          <p class="texto-secundario">Sem conclusão de tarefa nem comentário há mais de <span id="c-dias">14</span> dias.</p>
+          <div id="h-paradas"><p class="texto-secundario">Carregando...</p></div>
         </section>
       </main>
-    </div>
-  </div>
-
-  <!-- Modal: Detalhes da ação (marca como visualizado ao abrir) -->
-  <div id="modal-acao-detalhe" class="modal" role="dialog" aria-modal="true" aria-labelledby="det-titulo">
-    <div class="modal-conteudo">
-      <h2 class="modal-titulo" id="det-titulo">Detalhes da ação</h2>
-
-      <div class="det-cabecalho">
-        <span class="badge" id="det-status"></span>
-        <span id="det-chave" class="badge badge-chave" hidden>Ação chave</span>
-      </div>
-
-      <p class="texto-secundario" id="det-metas"></p>
-
-      <p class="kpi-rotulo">Descrição</p>
-      <p id="det-descricao">—</p>
-
-      <h3>Quem visualizou esta tarefa</h3>
-      <div id="det-visualizacoes">
-        <p class="texto-secundario">Carregando...</p>
-      </div>
-
-      <div class="modal-acoes">
-        <a class="botao botao-secundario" id="det-abrir" href="#">Abrir demanda</a>
-        <button type="button" class="botao botao-primario" id="botao-det-fechar">Fechar</button>
-      </div>
     </div>
   </div>
 
@@ -170,7 +115,6 @@
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/ui.js"></script>
-  <script src="js/validators.js"></script>
-  <script src="js/acoes.js"></script>
+  <script src="js/higiene.js"></script>
 </body>
 </html>

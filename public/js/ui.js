@@ -241,12 +241,14 @@ function configurarBuscaTopo() {
 // Mostra o item "Relatorios" no menu para Gestor/Admin (tela so deles).
 // Centralizado aqui para nao repetir em cada pagina; so consulta se o item existir.
 async function configurarNavGestor() {
-  const nav = document.getElementById("nav-relatorios");
-  if (!nav || !nav.hidden) return;
+  const relatorios = document.getElementById("nav-relatorios");
+  const higiene = document.getElementById("nav-higiene");
+  if (!relatorios && !higiene) return;
   try {
     const resposta = await getApi("/api/auth/me.php");
     if (resposta && resposta.ok && (resposta.data.perfil === "administrador" || resposta.data.perfil === "gestor")) {
-      nav.hidden = false;
+      if (relatorios) relatorios.hidden = false;
+      if (higiene) higiene.hidden = false;
     }
   } catch (erro) {
     // Mantem oculto.

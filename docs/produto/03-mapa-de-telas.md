@@ -899,6 +899,37 @@ A linha do tempo rola horizontalmente no mobile (a coluna de rótulos fica fixa 
 
 ---
 
+## Tela: Controle (higiene / pontos cegos)
+
+> Tela acrescentada na revisão anti-frágil (D25). Expõe o que está **fora de controle** — o risco mora no que ninguém olha. Só leitura (exceto reatribuir órfãs). Sem tabela nova.
+
+### Objetivo da tela
+Dar à gestão a visão dos **pontos cegos** do controle: itens que escapam do acompanhamento por prazo/responsável e precisam de ação.
+
+### Tipo de usuário que acessa
+Apenas **Gestor** e **Administrador** (validado no backend). Item de menu "Controle" liberado só para esses perfis.
+
+### Dados exibidos
+Cinco seções, cada uma com contagem (verde quando zerada): **Demandas sem plano de ação**, **Demandas sem responsável**, **Tarefas sem prazo**, **Tarefas de usuários inativos** (órfãs) e **Demandas paradas** (sem conclusão de tarefa nem comentário há +N dias, padrão 14).
+
+### Ações disponíveis
+Abrir a demanda/tarefa para corrigir; **reatribuir** as tarefas órfãs (responsável inativo) direto na tela, reaproveitando `api/acoes/definir-responsavel.php`.
+
+### Regras de negócio aplicadas
+Só leitura, exceto a reatribuição. As consultas (`includes/higiene.php`) reaproveitam as tabelas existentes; acesso restrito a Gestor/Admin no backend.
+
+### Estados da tela
+- Carregando: "Carregando..." em cada seção.
+- Vazio: "Nenhuma. ✔" (a contagem fica verde) — o estado saudável.
+- Erro: alerta genérico.
+- Sucesso: listas preenchidas; reatribuir recarrega.
+- Sem permissão: Colaborador é redirecionado ao Dashboard (backend também bloqueia).
+
+### Comportamento responsivo
+As listas viram cartões no mobile (mesmo padrão das demais).
+
+---
+
 ## Checklist de validação
 
 - [x] Este documento foi preenchido?
