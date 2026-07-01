@@ -8,8 +8,9 @@ RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 
 # Cron para as tarefas agendadas + timezone America/Sao_Paulo (horarios em Brasilia).
 # O cron usa /etc/localtime para decidir a hora de execucao; tzdata fornece o fuso.
+# default-mysql-client fornece o mysqldump usado no backup diario do banco.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends cron tzdata \
+    && apt-get install -y --no-install-recommends cron tzdata default-mysql-client \
     && ln -snf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime \
     && echo "America/Sao_Paulo" > /etc/timezone \
     && rm -rf /var/lib/apt/lists/*
@@ -40,8 +41,8 @@ COPY . /var/www/html
 COPY docker/app-cron /etc/cron.d/app-cron
 RUN chmod 0644 /etc/cron.d/app-cron
 
-# Pastas de runtime gravaveis pelo Apache (www-data): logs e anexos das demandas.
-RUN mkdir -p /var/www/html/logs /var/www/html/storage/anexos \
+# Pastas de runtime gravaveis (logs, anexos das demandas e backups do banco).
+RUN mkdir -p /var/www/html/logs /var/www/html/storage/anexos /var/www/html/storage/backups \
     && chown -R www-data:www-data /var/www/html/logs /var/www/html/storage
 
 EXPOSE 80
@@ -53,4 +54,4 @@ EXPOSE 80
 #    (que roda com ambiente minimo) enxergue DB_*, RESEND_*, etc. via PAM;
 # 3) inicia o daemon do cron;
 # 4) sobe o Apache em foreground (processo principal do container).
-CMD ["sh", "-c", "mkdir -p /var/www/html/logs /var/www/html/storage/anexos && chown -R www-data:www-data /var/www/html/logs /var/www/html/storage; printenv > /etc/environment; cron; exec apache2-foreground"]
+CMD ["sh", "-c", "mkdir -p /var/www/html/logs /var/www/html/storage/anexos /var/www/html/storage/backups && chown -R www-data:www-data /var/www/html/logs /var/www/html/storage; printenv > /etc/environment; cron; exec apache2-foreground"]

@@ -87,15 +87,32 @@ gunzip < /var/backups/nexius/nexius_workspace_AAAAMMDD_HHMMSS.sql.gz | mysql nex
 
 ---
 
-## 3. Alternativa — cron no container do app (EasyPanel)
+## 3. Backup no container do app (IMPLEMENTADO)
 
-Se preferir manter junto com os outros crons (Dockerfile), dá para rodar o `mysqldump` do container, que já acessa o banco (`DB_HOST`). Requer:
+Além da opção 1, o **container do app já faz backup diário** (aproveitando a infra de cron do Dockerfile):
 
-1. Instalar o cliente no `Dockerfile`: `apt-get install -y default-mysql-client`.
-2. Um script que use as envs (`DB_HOST`, `DB_USUARIO`, `DB_SENHA`, `DB_NOME`) e grave em **volume persistente** (senão o dump some no redeploy).
-3. Entrada no `docker/app-cron`.
+- **Quando:** todo dia **02:00** (horário de Brasília) — `docker/app-cron`.
+- **Script:** `cron/backup-banco.sh` — `mysqldump` (usando `DB_HOST/DB_USUARIO/DB_SENHA/DB_NOME` do ambiente, via arquivo temporário de credenciais) → `gzip`.
+- **Onde:** `storage/backups/nexius_workspace_AAAAMMDD_HHMMSS.sql.gz`.
+- **Retenção:** **~12 meses** (remove arquivos com mais de 365 dias).
+- Cliente MySQL (`default-mysql-client`, fornece `mysqldump`) instalado no `Dockerfile`.
 
-**Ressalva:** o dump fica no **mesmo host do app** — não é offsite. Se o app/host cair, o backup vai junto. Por isso a opção 1 (no servidor do banco + cópia offsite) é a preferida. Posso implementar esta alternativa no Dockerfile se você quiser — me avise.
+### ⚠️ Dois pontos que você precisa garantir
+1. **Volume persistente cobrindo `storage/backups`.** No EasyPanel, monte o volume persistente em `/var/www/html/storage` (cobre anexos **e** backups). Se o seu volume estiver montado só em `storage/anexos`, os backups **somem no redeploy** — ajuste o mount para `storage`.
+2. **Autenticação do MySQL 8.** O `mysqldump` do Debian é o cliente MariaDB; se o usuário do banco usar `caching_sha2_password` (padrão do MySQL 8), pode dar **erro de autenticação**. Se acontecer (veja `logs/cron.log`), rode no MySQL:
+   ```sql
+   ALTER USER 'SEU_DB_USUARIO'@'%' IDENTIFIED WITH mysql_native_password BY 'A_SENHA_ATUAL';
+   FLUSH PRIVILEGES;
+   ```
+   (ou crie um usuário de backup só-leitura com `mysql_native_password`).
+
+### Testar manualmente (terminal do container)
+```sh
+sh /var/www/html/cron/backup-banco.sh
+ls -lh /var/www/html/storage/backups/
+```
+
+**Ressalva importante:** este backup fica no **mesmo host do app** — **não é offsite**. Mantê-lo é ótimo, mas para segurança real continue considerando a **opção 1** (no servidor do banco) e/ou **enviar os `.sql.gz` para fora** (Spaces/rclone). Restauração: mesma da seção 2 (baixe o arquivo de `storage/backups`).
 
 ---
 
