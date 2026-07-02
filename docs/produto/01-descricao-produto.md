@@ -311,6 +311,9 @@ Por decisões do dono do produto (registradas em `docs/decisoes-pendentes.md` co
 - **Relatórios (melhoria #2):** demandas por status/setor, % no prazo, produtividade e **padrões de falha** (atrasos por responsável, recusas por setor), com exportação CSV.
 - **Mensagens (chat 1:1 — D20 Fase 1)**, **Progresso/gamificação (D14)** e **digest semanal por e-mail (D15)**.
 - **Auditoria de logs:** `registrar_log()` persiste no banco (retenção de 1 ano) e há tela de **Auditoria** (Admin) para consultar quem fez o quê e quando.
+- **Editar e reabrir demanda:** edição completa do conteúdo (título, questionário, triagem, GUT) na tela; e **reabrir** uma demanda concluída por engano (volta a "em andamento" e reabre a ação chave).
+- **Recálculo de agenda por prioridade (esforço + capacidade):** cada tarefa tem **esforço (dias)** e cada pessoa uma **capacidade/semana**; o botão "Recalcular agenda" (Gestor/Admin) reordena a fila por **prioridade**, respeitando **pré-requisitos** e capacidade, e **reescreve os prazos** — com **prévia**, **desfazer** e **notificação** dos afetados. Destaque de **sobrecarga** por responsável no Roadmap e alerta de **previsão × meta** na demanda.
+- **Segurança do login:** captcha simples após 3 falhas (anti força-bruta, sem dependência externa).
 
 > A modelagem consolidada está em `docs/banco/03-modelagem-banco-dados.md` e o inventário de telas em `docs/produto/03-mapa-de-telas.md`. **Limitação consciente:** a sobrecarga/impacto é **qualitativa** (não há modelo de esforço/capacidade; o sistema não recalcula datas automaticamente).
 

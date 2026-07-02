@@ -2,7 +2,7 @@
 
 Projeto: Workspace S&A (marca Grupo Nexius).
 Base: `01-descricao-produto.md` (§8, §9, §16, §19), `boas-praticas-banco-dados.md` e `boas-praticas-seguranca.md`.
-SQL correspondente: `sql/migrations/001_create_base_schema.sql` … `020_add_prazo_projeto_demanda.sql` (o esquema evoluiu por migrações incrementais 001–020) e `sql/install.sql` (mantido em sincronia com o estado atual). Este documento reflete o estado consolidado.
+SQL correspondente: `sql/migrations/001_create_base_schema.sql` … `022_add_agenda_backup.sql` (o esquema evoluiu por migrações incrementais 001–022) e `sql/install.sql` (mantido em sincronia com o estado atual). Este documento reflete o estado consolidado.
 
 Observações de convenção (mantidas por coerência com o restante do projeto):
 
@@ -27,15 +27,16 @@ Derivadas de `01-descricao-produto.md` §19. Apenas o que o MVP exige:
 - **comentarios** — discussão por ação.
 - **notificacoes** — avisos internos do sistema.
 - **fila_email** — fila de e-mail operacional (SMTP + cron).
-- **logs** — auditoria de ações críticas.
+- **logs** — auditoria de ações (persistidas no banco; retenção de 1 ano).
+- **agenda_prazo_backup** — guarda o prazo anterior do último recálculo de agenda, para o "desfazer" (B1, Migration 022).
 
 ## 2. Tabelas propostas
 
 Resumo dos campos principais (ver SQL para tipos, chaves e constraints completos).
 
 ### usuarios
-`id` · `nome` · `email` (único) · `senha_hash` (NULL até definir senha) · `perfil` (administrador/gestor/colaborador) · `setor_id` (FK setores, NULL — D21) · `ativo` · `onboarding_concluido` · `digest_ativo` · `digest_enviado_em` · `criado_em` · `atualizado_em`.
-Motivo: identidade, autenticação, perfil, setor e estado do usuário.
+`id` · `nome` · `email` (único) · `senha_hash` (NULL até definir senha) · `perfil` (administrador/gestor/colaborador) · `setor_id` (FK setores, NULL — D21) · `capacidade_semana` (INT NULL — dias de esforço/semana; NULL = 5 — B1/Migration 021) · `ativo` · `onboarding_concluido` · `digest_ativo` · `digest_enviado_em` · `criado_em` · `atualizado_em`.
+Motivo: identidade, autenticação, perfil, setor, capacidade (recálculo de agenda) e estado do usuário.
 
 ### setores (D21 — Migration 015)
 `id` · `nome` (único) · `responsavel_id` (FK usuarios, NULL = responsável principal do setor) · `criado_em`. Lista fixa (seed): Comercial, Relacionamento, Logística, Roteirização, Equipe Externa, Fechamento, Financeiro, Diretoria Financeira (CFO), Diretoria Comercial (CCO), Diretoria Operacional (COO), Diretoria Presidência (CEO), RH, Tecnologia (os 6 últimos na Migration 017). A demanda herda o setor do criador; ao criar ação, o responsável vem pré-selecionado com o responsável principal do setor (editável). Gestão (setor do usuário + responsável do setor) só por Administrador.
@@ -56,7 +57,7 @@ Motivo: redefinição de senha segura, com expiração curta e uso único.
 Motivo: entidade central do produto. O `prazo` permite controlar o vencimento mesmo antes de existir plano de ação; o `responsavel_id` é o dono que presta contas.
 
 ### acoes
-`id` · `demanda_id` (FK) · `titulo` · `tipo` (analise/desenvolvimento/entrega/incidente/**reuniao** — D19, reuniao na Migration 012) · `descricao` · `responsavel_id` (FK) · `status` (pendente/bloqueada/concluida/cancelada/**recusada**) · `motivo_recusa` (só entrega recusada) · `decisoes` (texto das decisões/regras da reunião, obrigatório ao concluir reunião — Migration 013) · `prazo` · `chave` · `concluida_em` · timestamps.
+`id` · `demanda_id` (FK) · `titulo` · `tipo` (analise/desenvolvimento/entrega/incidente/**reuniao** — D19, reuniao na Migration 012) · `descricao` · `responsavel_id` (FK) · `status` (pendente/bloqueada/concluida/cancelada/**recusada**) · `motivo_recusa` (só entrega recusada) · `decisoes` (texto das decisões/regras da reunião, obrigatório ao concluir reunião — Migration 013) · `prazo` · `esforco_dias` (INT NULL — esforço estimado em dias; NULL = 1 no recálculo — B1/Migration 021) · `chave` · `concluida_em` · timestamps.
 
 Regras por tipo: **análise** só conclui com anexo de evidência (`anexos.acao_id`); **desenvolvimento** conclui normal; **entrega** pode ser recusada (status `recusada` + `motivo_recusa`, por Gestor/Admin); **incidente** é registro/relato; **reunião** (Migration 012) tem **participantes** (`acao_participantes`) e só conclui com a **ata** anexada (`anexos.acao_id`).
 
@@ -154,6 +155,7 @@ Aplicadas no backend (nunca só no frontend):
 - notificacoes: `idx(usuario_id, lida)`, `idx(criado_em)`.
 - fila_email: `idx(status)`, `idx(criado_em)`.
 - logs: `idx(usuario_id)`, `idx(acao)`, `idx(entidade, entidade_id)`, `idx(criado_em)`.
+- agenda_prazo_backup: `idx(acao_id)` + FK `acoes` (`ON DELETE CASCADE`).
 
 Critério: índices em campos de busca/filtro/ordenação reais (status, datas, FKs, login por e-mail, leitura de notificações). Sem índices preventivos.
 
@@ -206,6 +208,17 @@ Não constava nos documentos; trazido por decisão de produto (ver D20 em `decis
 - **mensagens** — `id` · `conversa_id` (FK conversas) · `autor_id` (FK usuarios) · `texto` · `demanda_id` (FK demandas, **referência opcional**) · `lida_em` (data de visualização; marcada quando o outro participante abre) · `criado_em` (data de envio).
 
 Regras/segurança: só participantes da conversa leem/escrevem (validado no backend); a "notificação de nova mensagem" é o **contador de não lidas** (`api/chat/nao-lidas.php`), sem 1 notificação por mensagem (anti-spam); referenciar uma demanda exige que o **remetente** possa vê-la. Endpoints em `api/chat/`. **Fases seguintes (não feitas):** anexos por mensagem (`anexos.mensagem_id`), busca e exportação.
+
+## 11-C. Recálculo de agenda por prioridade (B1 — Migrations 021/022)
+
+Modelo para o **recálculo de agenda** (o impacto de prioridade passa a **reescrever prazos**, não só sinalizar):
+
+- **`acoes.esforco_dias`** (INT NULL) e **`usuarios.capacidade_semana`** (INT NULL, padrão 5) — Migration 021.
+- **`agenda_prazo_backup`** (Migration 022): `id` · `acao_id` (FK `acoes`, `ON DELETE CASCADE`) · `prazo_anterior` (DATE NULL) · `criado_em`. Guarda o estado anterior do **último** recálculo (o apply limpa antes de gravar) para permitir **desfazer**.
+
+O motor (`includes/agenda.php`) ordena as tarefas pendentes por **prioridade** respeitando **pré-requisitos** (ordenação topológica) e a **capacidade** de cada pessoa. Fluxo seguro: **prévia** (`api/agenda/previa.php`, sem gravar) → **aplicar** (`recalcular.php`, grava + snapshot + notifica os responsáveis) → **desfazer** (`desfazer.php`). Sob demanda (Gestor/Admin), registrado em Auditoria.
+
+**Login (anti força-bruta):** o captcha após 3 falhas (por IP, contadas em `logs`) usa **sessão** (`$_SESSION`), sem tabela nova.
 
 ## 12. Fora do MVP
 

@@ -8,9 +8,10 @@ Roteiro prático para validar em produção as funcionalidades novas/alteradas (
 
 ## 0. Preparação (uma vez)
 
+- [ ] **Migrations 001–022 aplicadas** (021/022 são as mais recentes — esforço/capacidade e backup de agenda).
 - [ ] Ter 3 usuários de teste: **Admin**, **Gestor** e **Colaborador**.
-- [ ] Em **Usuários** (Admin): definir **setor** de cada usuário e o **responsável principal (key user)** de pelo menos 2 setores (um deles sendo o Colaborador, para testar o escopo de key user).
-- [ ] Ter algumas demandas com **prioridade GUT** variada e ações com **prazos** próximos/sobrepostos (necessário para ver "carga" e "risco").
+- [ ] Em **Usuários** (Admin): definir **setor** de cada usuário e o **responsável principal (key user)** de pelo menos 2 setores (um deles sendo o Colaborador, para testar o escopo de key user). Definir a **capacidade (Cap./sem)** de ao menos um usuário (para a seção 12).
+- [ ] Ter algumas demandas com **prioridade GUT** variada e ações com **prazos** próximos/sobrepostos e **esforço (dias)** preenchido (necessário para ver "carga", "risco" e o recálculo).
 
 ---
 
@@ -103,14 +104,15 @@ Pré: duas tarefas do **mesmo responsável**, prazos sobrepostos, em demandas co
 ## 11. Infra (opcional, terminal do container)
 
 - [ ] `date` mostra horário de **Brasília** (-03).
-- [ ] `cat /etc/cron.d/app-cron` lista os 3 crons; `tail -f /var/www/html/logs/cron.log` mostra execuções.
+- [ ] `cat /etc/cron.d/app-cron` lista os **4 crons** (fila de e-mail, backup 02:00, limpar-logs 03:00, digest seg 08:00); `tail -f /var/www/html/logs/cron.log` mostra execuções.
 - [ ] Rodar manualmente `php /var/www/html/cron/limpar-logs.php` → mensagem de conclusão.
+- [ ] **Backup**: `sh /var/www/html/cron/backup-banco.sh` gera `.sql.gz` **não vazio** em `storage/backups/` (`gunzip -c ... | head` mostra `CREATE TABLE`).
 
 ---
 
 ## 12. Esforço / capacidade / recálculo de agenda (B1)
 
-Pré: rodar a **Migration 021**.
+Pré: **Migrations 021 e 022 aplicadas** (esforço/capacidade e backup de agenda) + esforço/capacidade definidos (seção 0).
 
 - [ ] **Esforço na tarefa**: ao criar uma ação, preencher **"Esforço (dias)"**. No **Roadmap**, clicar numa barra → o popup mostra/edita **Esforço** (além de responsável e prazo).
 - [ ] **Capacidade por usuário**: em **Usuários** (Admin), a coluna **"Cap./sem"** permite definir os dias de esforço por semana de cada pessoa (1–7; vazio = 5). Salva ao alterar.

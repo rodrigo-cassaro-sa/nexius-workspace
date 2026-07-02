@@ -882,7 +882,7 @@ Todos os perfis, com **escopo**: Gestor/Admin veem todas as tarefas; o Colaborad
 Barras por tarefa (início = criação, fim = prazo; concluída usa a data de conclusão), agrupadas por projeto → demanda. Cada linha de **projeto** e de **demanda** mostra ainda uma **barra-resumo** (do início mais cedo ao prazo mais tarde do grupo). Cor por situação (pendente, bloqueada, atrasada, concluída, recusada). Linha do "hoje". Filtros: período (De/Até, padrão ~3 meses), projeto e setor.
 
 ### Ações disponíveis
-Navegar/filtrar o período, projeto e setor; clicar numa barra abre o detalhe da tarefa (com link para a demanda) e, para quem tem permissão, **alterar o prazo** (prorrogação) ou removê-lo.
+Navegar/filtrar o período, projeto e setor; **agrupar por** projeto/responsável/setor (visão de carga, com destaque de **sobrecarga** e ⚠ de risco de prioridade); clicar numa barra abre o popup para **editar responsável, prazo e esforço** (ou arrastar para mudar o prazo). Gestor/Admin têm **"Recalcular agenda"** (prévia → aplicar → desfazer), que reordena por prioridade respeitando esforço, capacidade e pré-requisitos.
 
 ### Regras de negócio aplicadas
 Só tarefas **com prazo** aparecem. A prorrogação valida a data no backend, não reagenda tarefa concluída/cancelada, registra log e **notifica o responsável**. O escopo e a permissão são validados no backend.
