@@ -27,6 +27,7 @@ $tipo = trim($body["tipo"] ?? "");
 $descricao = trim($body["descricao"] ?? "");
 $responsavel_id = isset($body["responsavel_id"]) && $body["responsavel_id"] !== "" ? (int) $body["responsavel_id"] : null;
 $prazo = trim($body["prazo"] ?? "");
+$esforco = isset($body["esforco_dias"]) && $body["esforco_dias"] !== "" ? (int) $body["esforco_dias"] : null;
 $prerequisitos = isset($body["prerequisitos"]) && is_array($body["prerequisitos"]) ? $body["prerequisitos"] : [];
 $participantes = isset($body["participantes"]) && is_array($body["participantes"]) ? $body["participantes"] : [];
 
@@ -46,6 +47,9 @@ if ($prazo === "") {
     $erros["prazo"] = "Informe o prazo da acao.";
 } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $prazo)) {
     $erros["prazo"] = "Data invalida.";
+}
+if ($esforco !== null && ($esforco < 1 || $esforco > 365)) {
+    $erros["esforco_dias"] = "Esforco de 1 a 365 dias.";
 }
 if (!empty($erros)) {
     json_response(["ok" => false, "error" => "Verifique os campos.", "errors" => $erros], 400);
@@ -67,7 +71,8 @@ $id = criar_acao(
     $descricao !== "" ? $descricao : null,
     $responsavel_id,
     $prazo !== "" ? $prazo : null,
-    $chave
+    $chave,
+    $esforco
 );
 
 if (!$id) {

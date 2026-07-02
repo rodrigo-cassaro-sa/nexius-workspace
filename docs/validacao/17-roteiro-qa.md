@@ -107,6 +107,17 @@ Pré: duas tarefas do **mesmo responsável**, prazos sobrepostos, em demandas co
 
 ---
 
+## 12. Esforço / capacidade / recálculo de agenda (B1)
+
+Pré: rodar a **Migration 021**.
+
+- [ ] **Esforço na tarefa**: ao criar uma ação, preencher **"Esforço (dias)"**. No **Roadmap**, clicar numa barra → o popup mostra/edita **Esforço** (além de responsável e prazo).
+- [ ] **Capacidade por usuário**: em **Usuários** (Admin), a coluna **"Cap./sem"** permite definir os dias de esforço por semana de cada pessoa (1–7; vazio = 5). Salva ao alterar.
+- [ ] **Recalcular agenda**: no **Roadmap**, Gestor/Admin veem **"↻ Recalcular agenda"** → confirmar → as tarefas **pendentes** de cada responsável são reagendadas por **prioridade** (maior primeiro; as de menor prioridade são **empurradas**), respeitando **esforço** e **capacidade**. Aparece "N tarefas reagendadas" e as barras se movem coerentemente.
+- [ ] **Permissão**: colaborador comum **não** vê o botão de recalcular; consegue editar esforço só das próprias tarefas (ou se for key user do setor).
+
+> ⚠️ Recalcular **reescreve prazos** — teste num período/dado de teste antes de usar valendo. É registrado em Auditoria (`agenda_recalculada`).
+
 ## Registro de problemas encontrados
 
 | # | Tela/fluxo | O que aconteceu | Esperado | Gravidade |

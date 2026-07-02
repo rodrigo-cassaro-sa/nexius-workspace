@@ -108,7 +108,7 @@ function listar_usuarios()
 {
     return executar_select(
         "SELECT u.id, u.nome, u.email, u.perfil, u.ativo, u.criado_em,
-                u.setor_id, s.nome AS setor_nome
+                u.setor_id, s.nome AS setor_nome, u.capacidade_semana
          FROM usuarios u
          LEFT JOIN setores s ON s.id = u.setor_id
          ORDER BY u.nome ASC"

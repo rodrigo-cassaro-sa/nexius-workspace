@@ -114,6 +114,19 @@ async function definirResponsavelSetor(setorId, responsavelId) {
   }
 }
 
+async function definirCapacidadeUsuario(id, capacidade) {
+  try {
+    const resposta = await postApi("/api/usuarios/definir-capacidade.php", { id: id, capacidade_semana: capacidade });
+    if (resposta.ok) {
+      mostrarSucesso("usuarios-mensagem", resposta.message);
+    } else {
+      mostrarErro("usuarios-mensagem", resposta.error);
+    }
+  } catch (erro) {
+    mostrarErro("usuarios-mensagem", "Nao foi possivel salvar a capacidade.");
+  }
+}
+
 async function definirSetorUsuario(id, setorId) {
   try {
     const resposta = await postApi("/api/usuarios/definir-setor.php", { id: id, setor_id: setorId });
@@ -324,7 +337,7 @@ function renderUsuarios(alvo, usuarios) {
 
   const thead = document.createElement("thead");
   const cab = document.createElement("tr");
-  ["Nome", "E-mail", "Perfil", "Setor", "Status", "Ação"].forEach(function (t) {
+  ["Nome", "E-mail", "Perfil", "Setor", "Cap./sem", "Status", "Ação"].forEach(function (t) {
     const th = document.createElement("th");
     th.textContent = t;
     cab.appendChild(th);
@@ -389,6 +402,22 @@ function renderUsuarios(alvo, usuarios) {
     selSetor.addEventListener("change", function () { definirSetorUsuario(u.id, selSetor.value); });
     tdSetor.appendChild(selSetor);
     tr.appendChild(tdSetor);
+
+    // Capacidade semanal (dias de esforco/semana; vazio = padrao 5). Usada no recalculo de agenda.
+    const tdCap = document.createElement("td");
+    tdCap.setAttribute("data-rotulo", "Cap./sem");
+    const inpCap = document.createElement("input");
+    inpCap.type = "number";
+    inpCap.min = "1";
+    inpCap.max = "7";
+    inpCap.className = "campo-input";
+    inpCap.placeholder = "5";
+    inpCap.style.maxWidth = "80px";
+    inpCap.value = u.capacidade_semana ? String(u.capacidade_semana) : "";
+    inpCap.title = "Dias de esforço por semana (vazio = 5)";
+    inpCap.addEventListener("change", function () { definirCapacidadeUsuario(u.id, inpCap.value); });
+    tdCap.appendChild(inpCap);
+    tr.appendChild(tdCap);
 
     // Status (badge).
     const tdStatus = document.createElement("td");

@@ -53,7 +53,7 @@ function acao_tipo_exige_anexo($tipo)
 }
 
 // Cria uma acao. $tipo em acoes_tipos_validos(). Retorna o id ou false.
-function criar_acao($demanda_id, $titulo, $tipo, $descricao, $responsavel_id, $prazo, $chave)
+function criar_acao($demanda_id, $titulo, $tipo, $descricao, $responsavel_id, $prazo, $chave, $esforco = null)
 {
     $conn = conectar_banco();
 
@@ -61,11 +61,12 @@ function criar_acao($demanda_id, $titulo, $tipo, $descricao, $responsavel_id, $p
         limpar_chave_da_demanda($demanda_id);
     }
 
-    $sql = "INSERT INTO acoes (demanda_id, titulo, tipo, descricao, responsavel_id, status, prazo, chave)
-            VALUES (?, ?, ?, ?, ?, 'pendente', ?, ?)";
+    $sql = "INSERT INTO acoes (demanda_id, titulo, tipo, descricao, responsavel_id, status, prazo, esforco_dias, chave)
+            VALUES (?, ?, ?, ?, ?, 'pendente', ?, ?, ?)";
 
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "isssisi", $demanda_id, $titulo, $tipo, $descricao, $responsavel_id, $prazo, $chave);
+    // esforco_dias pode ser null (mysqli envia NULL quando a variavel e null).
+    mysqli_stmt_bind_param($stmt, "isssisii", $demanda_id, $titulo, $tipo, $descricao, $responsavel_id, $prazo, $esforco, $chave);
     $ok = mysqli_stmt_execute($stmt);
 
     return $ok ? mysqli_insert_id($conn) : false;
@@ -225,7 +226,7 @@ function listar_acoes_roadmap($usuario_id, $perfil, $filtros, $inicio, $fim)
     $params[] = $fim;
 
     $sql = "SELECT a.id, a.titulo, a.tipo, a.status, a.prazo, a.chave, a.criado_em, a.concluida_em,
-                   a.responsavel_id, ur.nome AS responsavel_nome,
+                   a.esforco_dias, a.responsavel_id, ur.nome AS responsavel_nome,
                    d.id AS demanda_id, d.titulo AS demanda_titulo,
                    COALESCE(d.gut_gravidade * d.gut_urgencia * d.gut_tendencia, 0) AS prioridade,
                    d.projeto_id, pr.nome AS projeto_nome,

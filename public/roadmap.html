@@ -98,6 +98,10 @@
                 <option value="setor">Setor (carga)</option>
               </select>
             </div>
+            <div class="campo">
+              <label class="campo-label">&nbsp;</label>
+              <button id="road-recalcular" class="botao botao-secundario" type="button" hidden>↻ Recalcular agenda</button>
+            </div>
           </div>
 
           <div class="gantt-legenda" aria-hidden="true">
@@ -135,6 +139,11 @@
           <label class="campo-label" for="prazo-novo">Prazo</label>
           <input class="campo-input" id="prazo-novo" type="date">
           <p class="texto-secundario">Deixe em branco para remover o prazo.</p>
+        </div>
+        <div class="campo">
+          <label class="campo-label" for="prazo-esforco">Esforço (dias)</label>
+          <input class="campo-input" id="prazo-esforco" type="number" min="1" max="365" placeholder="ex.: 3">
+          <p class="texto-secundario">Usado no recálculo de agenda por prioridade.</p>
         </div>
       </div>
 

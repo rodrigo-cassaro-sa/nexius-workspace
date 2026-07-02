@@ -23,6 +23,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("nav-usuarios").hidden = false;
   }
 
+  // Recalcular agenda por prioridade: Gestor/Admin.
+  if (usuario.perfil === "administrador" || usuario.perfil === "gestor") {
+    const btnRecalc = document.getElementById("road-recalcular");
+    btnRecalc.hidden = false;
+    btnRecalc.addEventListener("click", recalcularAgenda);
+  }
+
   // Janela padrao: 2 semanas atras ate 3 meses a frente.
   const hoje = new Date();
   const ini = new Date(); ini.setDate(hoje.getDate() - 14);
@@ -546,20 +553,23 @@ function abrirPrazo(it) {
   if (canEdit) {
     document.getElementById("prazo-novo").value = it.prazo ? String(it.prazo).substring(0, 10) : "";
     document.getElementById("prazo-responsavel").value = it.responsavel_id ? String(it.responsavel_id) : "";
+    document.getElementById("prazo-esforco").value = it.esforco_dias ? String(it.esforco_dias) : "";
   }
 
   abrirModal("modal-prazo");
 }
 
-// Salva responsavel e/ou prazo (so envia o que mudou).
+// Salva responsavel, prazo e/ou esforco (so envia o que mudou).
 async function salvarTarefa() {
   if (!itemPrazo) return;
   const botao = document.getElementById("botao-prazo-salvar");
   const novoPrazo = document.getElementById("prazo-novo").value;
   const novoResp = document.getElementById("prazo-responsavel").value;
+  const novoEsforco = document.getElementById("prazo-esforco").value;
 
   const prazoAtual = itemPrazo.prazo ? String(itemPrazo.prazo).substring(0, 10) : "";
   const respAtual = itemPrazo.responsavel_id ? String(itemPrazo.responsavel_id) : "";
+  const esforcoAtual = itemPrazo.esforco_dias ? String(itemPrazo.esforco_dias) : "";
 
   definirCarregando(botao, true);
   try {
@@ -579,12 +589,38 @@ async function salvarTarefa() {
         return;
       }
     }
+    if (novoEsforco !== esforcoAtual) {
+      const re = await postApi("/api/acoes/definir-esforco.php", { id: itemPrazo.id, esforco_dias: novoEsforco });
+      if (!re.ok) {
+        mostrarErro("prazo-mensagem", re.error || "Não foi possível salvar o esforço.");
+        definirCarregando(botao, false);
+        return;
+      }
+    }
     definirCarregando(botao, false);
     fecharModal("modal-prazo");
     carregarRoadmap();
   } catch (e) {
     mostrarErro("prazo-mensagem", "Não foi possível salvar a tarefa.");
     definirCarregando(botao, false);
+  }
+}
+
+// Recalcula a agenda por prioridade (Gestor/Admin): REESCREVE os prazos das tarefas pendentes.
+async function recalcularAgenda() {
+  if (!confirm("Recalcular a agenda por prioridade?\n\nIsto REESCREVE os prazos das tarefas pendentes de cada responsável (as de maior prioridade primeiro, respeitando o esforço e a capacidade). Não pode ser desfeito automaticamente.")) {
+    return;
+  }
+  try {
+    const r = await postApi("/api/agenda/recalcular.php", {});
+    if (!r.ok) {
+      mostrarErro("mensagem", r.error || "Não foi possível recalcular a agenda.");
+      return;
+    }
+    window.alert(r.message || "Agenda recalculada.");
+    carregarRoadmap();
+  } catch (e) {
+    mostrarErro("mensagem", "Não foi possível recalcular a agenda.");
   }
 }
 

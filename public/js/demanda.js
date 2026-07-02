@@ -1124,6 +1124,7 @@ async function salvarAcao(evento) {
   const descricao = document.getElementById("a-descricao").value.trim();
   const responsavel = document.getElementById("a-responsavel").value;
   const prazo = document.getElementById("a-prazo").value;
+  const esforco = document.getElementById("a-esforco").value;
 
   const prereqValor = document.getElementById("a-prerequisito").value;
   const prerequisitos = prereqValor ? [parseInt(prereqValor, 10)] : [];
@@ -1160,6 +1161,7 @@ async function salvarAcao(evento) {
       descricao: descricao,
       responsavel_id: responsavel,
       prazo: prazo,
+      esforco_dias: esforco,
       prerequisitos: prerequisitos,
       participantes: participantes
     });
