@@ -121,6 +121,13 @@ Pré: rodar a **Migration 021**.
 
 > ⚠️ Aplicar **reescreve prazos** (reversível pelo "Desfazer"). Registrado em Auditoria (`agenda_recalculada` / `agenda_recalculo_desfeito`).
 
+## 13. Segurança do login (#3)
+
+- [ ] Errar a senha **3×** (mesmo navegador) → aparece o campo **"Verificação de segurança"** com uma conta ("Quanto é X + Y?").
+- [ ] Com o captcha exigido, **senha certa mas captcha errado/vazio** → **não entra** (pede a verificação).
+- [ ] **Captcha certo + senha certa** → entra normal; nas próximas vezes o captcha não aparece.
+- [ ] As tentativas ficam em **Auditoria** (`login_falha`).
+
 ## Registro de problemas encontrados
 
 | # | Tela/fluxo | O que aconteceu | Esperado | Gravidade |

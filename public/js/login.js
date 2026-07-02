@@ -20,14 +20,20 @@ async function enviarLogin(evento) {
     return;
   }
 
+  const captcha = document.getElementById("captcha").value.trim();
+
   definirCarregando(botao, true);
 
   try {
-    const resposta = await postApi("/api/auth/login.php", { email: email, senha: senha });
+    const resposta = await postApi("/api/auth/login.php", { email: email, senha: senha, captcha: captcha });
 
     if (!resposta.ok) {
       mostrarErro("mensagem", resposta.error);
       definirCarregando(botao, false);
+      // Se o backend passou a exigir captcha, exibe/atualiza o desafio.
+      if (resposta.captcha_required) {
+        await mostrarCaptcha();
+      }
       return;
     }
 
@@ -40,5 +46,20 @@ async function enviarLogin(evento) {
   } catch (erro) {
     mostrarErro("mensagem", "Nao foi possivel entrar. Tente novamente.");
     definirCarregando(botao, false);
+  }
+}
+
+// Busca um novo desafio de captcha e exibe o campo.
+async function mostrarCaptcha() {
+  try {
+    const r = await getApi("/api/auth/captcha.php");
+    if (r && r.ok) {
+      document.getElementById("captcha-pergunta").textContent = r.data.pergunta;
+      document.getElementById("campo-captcha").hidden = false;
+      document.getElementById("captcha").value = "";
+      document.getElementById("captcha").focus();
+    }
+  } catch (e) {
+    // Sem captcha visivel: o backend ainda barra ate responder certo.
   }
 }
