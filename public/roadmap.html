@@ -154,6 +154,21 @@
     </div>
   </div>
 
+  <!-- Modal: previa do recalculo de agenda (aplicar / desfazer) -->
+  <div id="modal-recalcular" class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="recalc-titulo">
+    <div class="modal-conteudo">
+      <h2 class="modal-titulo" id="recalc-titulo">Recalcular agenda por prioridade</h2>
+      <div id="recalc-mensagem" class="alerta" role="alert" aria-live="polite" hidden></div>
+      <p class="texto-secundario">Prévia: estas tarefas terão o prazo reajustado (maior prioridade primeiro, respeitando esforço, capacidade e pré-requisitos). <strong>Nada é gravado até você clicar em Aplicar.</strong></p>
+      <div id="recalc-lista"><p class="texto-secundario">Calculando...</p></div>
+      <div class="modal-acoes">
+        <button type="button" class="botao botao-secundario" id="botao-recalc-fechar">Fechar</button>
+        <button type="button" class="botao botao-secundario" id="botao-recalc-desfazer" hidden>Desfazer último recálculo</button>
+        <button type="button" class="botao botao-primario" id="botao-recalc-aplicar" hidden>Aplicar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/storage.js"></script>
   <script src="js/app.js"></script>
   <script src="js/api.js"></script>

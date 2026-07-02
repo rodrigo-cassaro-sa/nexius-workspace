@@ -113,10 +113,13 @@ Pré: rodar a **Migration 021**.
 
 - [ ] **Esforço na tarefa**: ao criar uma ação, preencher **"Esforço (dias)"**. No **Roadmap**, clicar numa barra → o popup mostra/edita **Esforço** (além de responsável e prazo).
 - [ ] **Capacidade por usuário**: em **Usuários** (Admin), a coluna **"Cap./sem"** permite definir os dias de esforço por semana de cada pessoa (1–7; vazio = 5). Salva ao alterar.
-- [ ] **Recalcular agenda**: no **Roadmap**, Gestor/Admin veem **"↻ Recalcular agenda"** → confirmar → as tarefas **pendentes** de cada responsável são reagendadas por **prioridade** (maior primeiro; as de menor prioridade são **empurradas**), respeitando **esforço** e **capacidade**. Aparece "N tarefas reagendadas" e as barras se movem coerentemente.
-- [ ] **Permissão**: colaborador comum **não** vê o botão de recalcular; consegue editar esforço só das próprias tarefas (ou se for key user do setor).
+- [ ] **Recalcular agenda (prévia)**: no **Roadmap**, Gestor/Admin → **"↻ Recalcular agenda"** abre uma **prévia** listando as tarefas que mudariam (Tarefa · Responsável · De → Para), **sem gravar**.
+- [ ] **Aplicar**: clicar **Aplicar** grava; as tarefas de cada responsável ficam reagendadas por **prioridade** (respeitando **esforço**, **capacidade** e **pré-requisitos** — uma tarefa não vem antes da sua dependência). Os responsáveis afetados recebem **notificação** (e e-mail, quando o domínio estiver ativo).
+- [ ] **Desfazer**: reabrir o modal → **"Desfazer último recálculo"** restaura os prazos anteriores.
+- [ ] **Pré-requisito respeitado**: crie A (pré-requisito de B), mesma pessoa; após recalcular, o prazo de B fica **depois** do de A.
+- [ ] **Permissão**: colaborador comum **não** vê o botão de recalcular; edita esforço só das próprias tarefas (ou se for key user do setor).
 
-> ⚠️ Recalcular **reescreve prazos** — teste num período/dado de teste antes de usar valendo. É registrado em Auditoria (`agenda_recalculada`).
+> ⚠️ Aplicar **reescreve prazos** (reversível pelo "Desfazer"). Registrado em Auditoria (`agenda_recalculada` / `agenda_recalculo_desfeito`).
 
 ## Registro de problemas encontrados
 

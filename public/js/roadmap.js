@@ -23,11 +23,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("nav-usuarios").hidden = false;
   }
 
-  // Recalcular agenda por prioridade: Gestor/Admin.
+  // Recalcular agenda por prioridade: Gestor/Admin (com previa antes de aplicar).
   if (usuario.perfil === "administrador" || usuario.perfil === "gestor") {
     const btnRecalc = document.getElementById("road-recalcular");
     btnRecalc.hidden = false;
-    btnRecalc.addEventListener("click", recalcularAgenda);
+    btnRecalc.addEventListener("click", abrirPreviaRecalculo);
+    document.getElementById("botao-recalc-fechar").addEventListener("click", function () { fecharModal("modal-recalcular"); });
+    document.getElementById("botao-recalc-aplicar").addEventListener("click", aplicarRecalculo);
+    document.getElementById("botao-recalc-desfazer").addEventListener("click", desfazerRecalculo);
   }
 
   // Janela padrao: 2 semanas atras ate 3 meses a frente.
@@ -606,21 +609,116 @@ async function salvarTarefa() {
   }
 }
 
-// Recalcula a agenda por prioridade (Gestor/Admin): REESCREVE os prazos das tarefas pendentes.
-async function recalcularAgenda() {
-  if (!confirm("Recalcular a agenda por prioridade?\n\nIsto REESCREVE os prazos das tarefas pendentes de cada responsável (as de maior prioridade primeiro, respeitando o esforço e a capacidade). Não pode ser desfeito automaticamente.")) {
+// Abre a previa do recalculo: mostra o que MUDARIA, sem gravar.
+async function abrirPreviaRecalculo() {
+  document.getElementById("recalc-mensagem").hidden = true;
+  document.getElementById("recalc-lista").innerHTML = "<p class=\"texto-secundario\">Calculando...</p>";
+  document.getElementById("botao-recalc-aplicar").hidden = true;
+  document.getElementById("botao-recalc-desfazer").hidden = true;
+  abrirModal("modal-recalcular");
+
+  try {
+    const r = await getApi("/api/agenda/previa.php");
+    if (!r.ok) {
+      mostrarErro("recalc-mensagem", r.error || "Não foi possível calcular a prévia.");
+      document.getElementById("recalc-lista").innerHTML = "";
+      return;
+    }
+    renderPreviaRecalculo(r.data.mudancas);
+    document.getElementById("botao-recalc-desfazer").hidden = !r.data.tem_desfazer;
+  } catch (e) {
+    mostrarErro("recalc-mensagem", "Não foi possível calcular a prévia.");
+    document.getElementById("recalc-lista").innerHTML = "";
+  }
+}
+
+function renderPreviaRecalculo(mudancas) {
+  const alvo = document.getElementById("recalc-lista");
+  alvo.innerHTML = "";
+
+  if (!mudancas || mudancas.length === 0) {
+    const p = document.createElement("p");
+    p.className = "texto-secundario";
+    p.textContent = "Nenhuma tarefa mudaria de prazo. A agenda já está coerente com as prioridades.";
+    alvo.appendChild(p);
     return;
   }
+
+  const info = document.createElement("p");
+  info.innerHTML = "<strong>" + mudancas.length + "</strong> tarefa(s) mudariam de prazo:";
+  alvo.appendChild(info);
+
+  const tabela = document.createElement("table");
+  tabela.className = "tabela tabela-cards";
+  const thead = document.createElement("thead");
+  const cab = document.createElement("tr");
+  ["Tarefa", "Responsável", "De", "Para"].forEach(function (t) {
+    const th = document.createElement("th"); th.textContent = t; cab.appendChild(th);
+  });
+  thead.appendChild(cab);
+  tabela.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  mudancas.forEach(function (m) {
+    const tr = document.createElement("tr");
+    tr.appendChild(celulaTd("Tarefa", m.titulo));
+    tr.appendChild(celulaTd("Responsável", m.responsavel_nome || "—"));
+    tr.appendChild(celulaTd("De", fmtDataBR(m.prazo_atual)));
+    tr.appendChild(celulaTd("Para", fmtDataBR(m.prazo_novo)));
+    tbody.appendChild(tr);
+  });
+  tabela.appendChild(tbody);
+  alvo.appendChild(tabela);
+
+  document.getElementById("botao-recalc-aplicar").hidden = false;
+}
+
+function celulaTd(rotulo, texto) {
+  const td = document.createElement("td");
+  td.setAttribute("data-rotulo", rotulo);
+  td.textContent = texto;
+  return td;
+}
+
+async function aplicarRecalculo() {
+  const botao = document.getElementById("botao-recalc-aplicar");
+  definirCarregando(botao, true);
   try {
     const r = await postApi("/api/agenda/recalcular.php", {});
     if (!r.ok) {
-      mostrarErro("mensagem", r.error || "Não foi possível recalcular a agenda.");
+      mostrarErro("recalc-mensagem", r.error || "Não foi possível aplicar.");
+      definirCarregando(botao, false);
       return;
     }
+    definirCarregando(botao, false);
+    fecharModal("modal-recalcular");
     window.alert(r.message || "Agenda recalculada.");
     carregarRoadmap();
   } catch (e) {
-    mostrarErro("mensagem", "Não foi possível recalcular a agenda.");
+    mostrarErro("recalc-mensagem", "Não foi possível aplicar o recálculo.");
+    definirCarregando(botao, false);
+  }
+}
+
+async function desfazerRecalculo() {
+  if (!confirm("Desfazer o último recálculo? Os prazos anteriores serão restaurados.")) {
+    return;
+  }
+  const botao = document.getElementById("botao-recalc-desfazer");
+  definirCarregando(botao, true);
+  try {
+    const r = await postApi("/api/agenda/desfazer.php", {});
+    if (!r.ok) {
+      mostrarErro("recalc-mensagem", r.error || "Não foi possível desfazer.");
+      definirCarregando(botao, false);
+      return;
+    }
+    definirCarregando(botao, false);
+    fecharModal("modal-recalcular");
+    window.alert(r.message || "Recálculo desfeito.");
+    carregarRoadmap();
+  } catch (e) {
+    mostrarErro("recalc-mensagem", "Não foi possível desfazer o recálculo.");
+    definirCarregando(botao, false);
   }
 }
 
