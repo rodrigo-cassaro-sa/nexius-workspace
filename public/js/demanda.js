@@ -479,7 +479,23 @@ async function carregarAcoes() {
 
 function atualizarPrazoChave() {
   const chave = acoesAtuais.find(function (a) { return parseInt(a.chave, 10) === 1; });
-  document.getElementById("d-prazo").textContent = (chave && chave.prazo) ? chave.prazo.substring(0, 10) : "—";
+  const el = document.getElementById("d-prazo");
+  const prazoChave = (chave && chave.prazo) ? chave.prazo.substring(0, 10) : null;
+  el.textContent = prazoChave ? prazoChave : "—";
+
+  // Previsao x meta: se a previsao (prazo da acao chave) passa do prazo alvo da demanda, alerta.
+  const alvo = demandaAtual && demandaAtual.prazo_alvo ? String(demandaAtual.prazo_alvo).substring(0, 10) : null;
+  const aviso = document.getElementById("aviso-meta");
+  if (aviso) {
+    if (prazoChave && alvo && prazoChave > alvo) {
+      el.classList.add("prazo-atrasado");
+      aviso.textContent = "⚠ Previsão da entrega (" + formatarPrazoAlvo(prazoChave) + ") passa da meta da demanda (" + formatarPrazoAlvo(alvo) + ").";
+      aviso.hidden = false;
+    } else {
+      el.classList.remove("prazo-atrasado");
+      aviso.hidden = true;
+    }
+  }
 }
 
 // Status exibido no cabecalho: se concluida, mostra concluida;

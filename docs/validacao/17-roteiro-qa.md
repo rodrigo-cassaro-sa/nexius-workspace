@@ -29,6 +29,7 @@ Roteiro prático para validar em produção as funcionalidades novas/alteradas (
 - [ ] No detalhe da demanda, o cabeçalho mostra **Responsável**, **Projeto**, **Prazo (ação chave)** e **Prazo alvo**.
 - [ ] No controle de gestão (Gestor/Admin ou key user): definir **Responsável (dono)**, **Projeto** e **Prazo alvo** → Salvar (envia só o que mudou). O novo dono recebe notificação.
 - [ ] **Editar demanda (A1)**: Gestor/Admin → botão **"Editar"** abre o modal com título, status, questionário (6 perguntas), triagem e GUT **pré-preenchidos** → alterar e Salvar → o detalhe reflete (título, prioridade recalculada). Validações de campo obrigatório funcionam.
+- [ ] **Previsão × meta (#4/#5)**: numa demanda com **Prazo alvo** definido e cuja **ação chave** vence **depois** do alvo → aparece o aviso "Previsão da entrega passa da meta" e o "Prazo (ação chave)" fica em vermelho.
 - [ ] Colaborador comum **não vê** o controle de gestão nem os botões Editar/Arquivar (só leitura).
 
 ## 3. Roadmap / Gantt (D23)
@@ -117,6 +118,7 @@ Pré: rodar a **Migration 021**.
 - [ ] **Aplicar**: clicar **Aplicar** grava; as tarefas de cada responsável ficam reagendadas por **prioridade** (respeitando **esforço**, **capacidade** e **pré-requisitos** — uma tarefa não vem antes da sua dependência). Os responsáveis afetados recebem **notificação** (e e-mail, quando o domínio estiver ativo).
 - [ ] **Desfazer**: reabrir o modal → **"Desfazer último recálculo"** restaura os prazos anteriores.
 - [ ] **Pré-requisito respeitado**: crie A (pré-requisito de B), mesma pessoa; após recalcular, o prazo de B fica **depois** do de A.
+- [ ] **Sobrecarga (destaque, #4)**: no Roadmap, agrupar por **Responsável (carga)** → quem tem esforço de tarefas pendentes **acima da capacidade** na janela aparece com o cabeçalho **em vermelho** e "sobrecarga (Xd / Yd)".
 - [ ] **Permissão**: colaborador comum **não** vê o botão de recalcular; edita esforço só das próprias tarefas (ou se for key user do setor).
 
 > ⚠️ Aplicar **reescreve prazos** (reversível pelo "Desfazer"). Registrado em Auditoria (`agenda_recalculada` / `agenda_recalculo_desfeito`).

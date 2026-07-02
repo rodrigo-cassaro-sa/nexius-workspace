@@ -890,6 +890,11 @@
   align-items: center;
 }
 
+/* Grupo (responsavel) sobrecarregado: esforco > capacidade na janela */
+.gantt-rotulo.gantt-grupo-sobrecarga {
+  color: var(--cor-erro);
+}
+
 .gantt-rotulo-item {
   display: flex;
   flex-direction: column;

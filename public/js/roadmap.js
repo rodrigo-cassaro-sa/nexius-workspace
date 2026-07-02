@@ -331,19 +331,31 @@ function renderPorChave(corpo, itens, ini, totalDias, trackW, modo) {
     return String(a.prazo).localeCompare(String(b.prazo));
   });
 
-  // Span (janela total), contagem e tarefas em risco por grupo.
+  // Span (janela total), contagem, risco, esforco e capacidade por grupo.
   const spans = {};
   const contagem = {};
   const riscoGrupo = {};
+  const somaEsforco = {};
+  const capGrupo = {};
   ordenados.forEach(function (it) {
     const k = chave(it);
     const iv = intervaloBarra(it);
-    if (!spans[k]) { spans[k] = { ini: iv.ini, fim: iv.fim }; contagem[k] = 0; riscoGrupo[k] = 0; }
-    else { spans[k].ini = Math.min(spans[k].ini, iv.ini); spans[k].fim = Math.max(spans[k].fim, iv.fim); }
+    if (!spans[k]) {
+      spans[k] = { ini: iv.ini, fim: iv.fim };
+      contagem[k] = 0; riscoGrupo[k] = 0; somaEsforco[k] = 0;
+      capGrupo[k] = parseInt(it.cap_semana, 10) || 5;
+    } else {
+      spans[k].ini = Math.min(spans[k].ini, iv.ini);
+      spans[k].fim = Math.max(spans[k].fim, iv.fim);
+    }
     contagem[k]++;
     if (it.__risco) riscoGrupo[k]++;
+    if (it.status !== "concluida" && it.status !== "cancelada") {
+      somaEsforco[k] += (parseInt(it.esforco_dias, 10) || 1);
+    }
   });
 
+  const semanas = totalDias / 7;
   let atual = null;
   ordenados.forEach(function (it) {
     const k = chave(it);
@@ -352,7 +364,16 @@ function renderPorChave(corpo, itens, ini, totalDias, trackW, modo) {
       const n = contagem[k];
       let titulo = rotulo(it) + " · " + n + (n === 1 ? " tarefa" : " tarefas");
       if (riscoGrupo[k] > 0) titulo += " · ⚠ " + riscoGrupo[k] + " em risco";
-      corpo.appendChild(linhaGrupo("gantt-grupo", titulo, trackW, ini, totalDias, spans[k]));
+      // Sobrecarga: so no agrupamento por responsavel (pessoa tem capacidade finita).
+      let classeExtra = "";
+      if (modo === "responsavel") {
+        const capJanela = Math.round((capGrupo[k] || 5) * semanas);
+        if (capJanela > 0 && somaEsforco[k] > capJanela) {
+          titulo += " · sobrecarga (" + somaEsforco[k] + "d / " + capJanela + "d)";
+          classeExtra = "gantt-grupo-sobrecarga";
+        }
+      }
+      corpo.appendChild(linhaGrupo("gantt-grupo", titulo, trackW, ini, totalDias, spans[k], classeExtra));
     }
     // Subtitulo de contexto: no setor mostra o responsavel; no responsavel mostra a demanda.
     const sub = (modo === "setor" ? (it.responsavel_nome || "—") : it.demanda_titulo) + " · " + rotuloTipo(it.tipo);
@@ -360,11 +381,11 @@ function renderPorChave(corpo, itens, ini, totalDias, trackW, modo) {
   });
 }
 
-function linhaGrupo(classe, texto, trackW, ini, totalDias, span) {
+function linhaGrupo(classe, texto, trackW, ini, totalDias, span, classeExtra) {
   const linha = document.createElement("div");
   linha.className = "gantt-linha";
   const rot = document.createElement("div");
-  rot.className = "gantt-rotulo " + classe;
+  rot.className = "gantt-rotulo " + classe + (classeExtra ? " " + classeExtra : "");
   rot.textContent = texto;
   const track = document.createElement("div");
   track.className = "gantt-track";
